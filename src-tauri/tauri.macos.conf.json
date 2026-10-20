@@ -1,12 +1,11 @@
 {
-  "identifier": "SJMCL",
+  "identifier": "io.github.supaio.saumcl",
   "bundle": {
     "resources": {
       "infoplist": ""
     },
     "macOS": {
       "dmg": {
-        "background": "assets/misc/dmg_bg.png",
         "windowSize": {
           "width": 640,
           "height": 440
@@ -19,7 +18,7 @@
     "windows": [
       {
         "label": "main",
-        "title": "SJMC Launcher",
+        "title": "SAU Minecraft Launcher",
         "url": "/",
         "width": 800,
         "height": 550,

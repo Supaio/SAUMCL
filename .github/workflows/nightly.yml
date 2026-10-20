@@ -199,13 +199,13 @@ jobs:
           if [ "${{ env.SIGNING_SUCCESS }}" = "true" ]; then
             echo "Using signed macOS artifacts"
             # Remove unsigned macOS artifacts since we have signed versions
-            rm -rf ./artifacts/SJMCL_*_macos_aarch64/
-            rm -rf ./artifacts/SJMCL_*_macos_x86_64/
+            rm -rf ./artifacts/SAUMCL_*_macos_aarch64/
+            rm -rf ./artifacts/SAUMCL_*_macos_x86_64/
             echo "Unsigned macOS artifacts removed"
           else
             echo "⚠️ WARNING: macOS signing failed or was skipped, using unsigned artifacts"
             # Remove signed artifact directories if they exist (likely empty or failed)
-            rm -rf ./artifacts/SJMCL_*_macos_*_signed/
+            rm -rf ./artifacts/SAUMCL_*_macos_*_signed/
             echo "Using unsigned macOS artifacts"
           fi
 
@@ -264,7 +264,7 @@ jobs:
           
           # Create the pre-release with nightly tag
           gh release create "nightly" \
-            --title "SJMCL Nightly (${{ env.NIGHTLY_VERSION }})" \
+            --title "SAUMCL Nightly (${{ env.NIGHTLY_VERSION }})" \
             --notes-file release_notes.md \
             --prerelease \
             --target nightly \

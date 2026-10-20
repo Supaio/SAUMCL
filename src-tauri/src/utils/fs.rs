@@ -276,7 +276,7 @@ pub fn get_app_resource_filepath(
 ///
 /// - `app`: Tauri AppHandle
 /// - `name`: File name (without extension)
-/// - `url`: Target deeplink or custom URL (e.g. `sjmcl://...`)
+/// - `url`: Target deeplink or custom URL (e.g. `saumcl://...`)
 /// - `icon_path`: Optional icon override
 ///
 /// # Examples
@@ -285,14 +285,14 @@ pub fn get_app_resource_filepath(
 /// create_url_shortcut(
 ///     app,
 ///     "Add Auth Server".to_string(),
-///     "sjmcl://add-auth-server?url=https%3A%2F%2Fexample.com".to_string(),
+///     "saumcl://add-auth-server?url=https%3A%2F%2Fexample.com".to_string(),
 ///     None,
 /// )?;
 ///
 /// create_url_shortcut(
 ///     app,
 ///     "Launch".to_string(),
-///     "sjmcl://launch?id=OFFICIAL_DIR:1.20.1".to_string(),
+///     "saumcl://launch?id=OFFICIAL_DIR:1.20.1".to_string(),
 ///     Some(PathBuf::from("/path/to/custom/icon.png")),
 /// )?;
 /// ```

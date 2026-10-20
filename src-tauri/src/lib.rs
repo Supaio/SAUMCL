@@ -43,7 +43,7 @@ static IS_PORTABLE: LazyLock<bool> = LazyLock::new(|| is_portable().unwrap_or(fa
 static APP_DATA_DIR: OnceLock<PathBuf> = OnceLock::new();
 
 fn open_modpack_deeplink(handle: &tauri::AppHandle, path: &str) {
-  let deep_link = format!("sjmcl://import-modpack?path={}", urlencoding::encode(path));
+  let deep_link = format!("saumcl://import-modpack?path={}", urlencoding::encode(path));
   let _ = handle.opener().open_url(&deep_link, None::<&str>);
 }
 
@@ -66,7 +66,7 @@ pub async fn run() {
 
         // .mrpack file association (warm start)
         for arg in &args {
-          if arg.ends_with(".mrpack") && !arg.starts_with("sjmcl://") {
+          if arg.ends_with(".mrpack") && !arg.starts_with("saumcl://") {
             open_modpack_deeplink(app, arg);
           }
         }
@@ -223,9 +223,6 @@ pub async fn run() {
         let mut launcher_config: LauncherConfig = LauncherConfig::load().unwrap_or_default();
         launcher_config.setup_with_app(app.handle()).unwrap();
         launcher_config.save().unwrap();
-        let version = launcher_config.basic_info.launcher_version.clone();
-        let os = launcher_config.basic_info.platform.clone();
-        let exe_sha256 = launcher_config.basic_info.exe_sha256.clone();
         let auto_purge_launcher_logs = launcher_config.general.advanced.auto_purge_launcher_logs;
         let launcher_mcp_config = launcher_config.intelligence.mcp_server.launcher.clone();
         app.manage(Mutex::new(launcher_config));
@@ -306,11 +303,6 @@ pub async fn run() {
           tasks::background::monitor_background_process(app_handle).await;
         });
 
-        // Send statistics
-        tokio::spawn(async move {
-          utils::sys_info::send_statistics(version, os, exe_sha256).await;
-        });
-
         // Auto purge launcher logs older than 30 days if enabled
         if auto_purge_launcher_logs {
           let app_handle = app.handle().clone();
@@ -368,7 +360,7 @@ pub async fn run() {
         eprintln!("Failed to build Tauri application: {:?}", e); // fallback when logging is not available
         native_dialog::DialogBuilder::message()
           .set_title("Initialization error")
-          .set_text(format!("Cannot initialize SJMCL due to an error:\n{e}"))
+          .set_text(format!("Cannot initialize SAUMCL due to an error:\n{e}"))
           .set_level(native_dialog::MessageLevel::Error)
           .alert()
           .show()
@@ -382,7 +374,7 @@ pub async fn run() {
             #[cfg(not(target_os = "macos"))]
             {
               for arg in std::env::args() {
-                if arg.ends_with(".mrpack") && !arg.starts_with("sjmcl://") {
+                if arg.ends_with(".mrpack") && !arg.starts_with("saumcl://") {
                   open_modpack_deeplink(app_handle, &arg);
                   break;
                 }

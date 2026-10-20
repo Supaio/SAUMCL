@@ -1,3 +1,46 @@
+# SAUMCL
+
+**SAU Minecraft Launcher** 是面向 SAU 玩家的校園社群 Minecraft 啟動器，基於 SJMCL Team 開發的 [SJMCL](https://github.com/UNIkeEN/SJMCL)。本修改版在 [Supaio/SAUMCL](https://github.com/Supaio/SAUMCL/tree/codex/saumcl-development) 獨立維護。
+
+[English](../README.md) · [简体中文](README.zh-Hans.md)
+
+<a id="project-status"></a>
+## 開發狀態
+
+目前在 `codex/saumcl-development` 分支開發。Java 版啟動器基底已通過 Windows、Linux CI 建置；校服位址、遊戲版本和整合包稍後配置。
+
+- 應用使用獨立的 `io.github.supaio.saumcl` 識別碼及 `saumcl://` 協定，不自動遷移原版 SJMCL 的帳號與應用設定。
+- 更新檢查使用本倉庫的 GitHub Releases，不安裝上游 SJMCL 更新；開發版跳過正式版本更新檢查。
+- 已停用上游使用統計，預設社群消息訂閱為空。
+- Microsoft 登入暫時沿用上游整合，面向全校發布前仍需配置獨立應用身分；可選的設定碼分享仍使用上游服務。
+- 目前 SAU 字樣圖示為暫代專案圖示。
+
+## 測試版下載
+
+登入 GitHub，開啟 [Actions / Test](https://github.com/Supaio/SAUMCL/actions/workflows/test.yml?query=branch%3Acodex%2Fsaumcl-development)，進入開發分支最新一次成功的執行紀錄，在底部 **Artifacts** 下載 Windows 或 Linux 檔案。CI 產物與 Releases 發布頁分開；Windows 可攜版 EXE 可直接執行。
+
+## 本機開發
+
+需要 pnpm **10.26.1**、Rust **1.98.1 或更新版本**，以及對應平台的 Tauri 建置環境。
+
+```sh
+git clone --branch codex/saumcl-development https://github.com/Supaio/SAUMCL.git
+cd SAUMCL
+pnpm install --frozen-lockfile
+pnpm tauri dev
+```
+
+SAUMCL 問題請提交到[本倉庫 Issues](https://github.com/Supaio/SAUMCL/issues)。
+
+## 版權與上游來源
+
+SAUMCL 基於 **SJMCL**，原專案位址：**https://github.com/UNIkeEN/SJMCL**。原始版權 © 2024–2026 SJMCL Team；SAUMCL 修改部分 © 2026 SAUMCL 貢獻者。保留原有 [LICENSE](../LICENSE)、[LICENSE.EXTRA](../LICENSE.EXTRA)、上游致謝與適用的第三方聲明。
+
+以下摺疊區域保留原版 SJMCL README 作為來源參考，其中的下載、安裝指令和服務連結指向原專案。
+
+<details>
+<summary>Original SJMCL README · 上游原始說明</summary>
+
 <img src="figs/banner.png" alt="SJMCL" />
 
 [![Test Build](https://img.shields.io/github/actions/workflow/status/UNIkeEN/SJMCL/test.yml?label=test%20build&logo=github&style=for-the-badge)](https://github.com/UNIkeEN/SJMCL/blob/main/.github/workflows/test.yml)
@@ -199,3 +242,5 @@ SJMCL 使用者 QQ 交流群：860851380
     <img src="figs/partners/gnwork.png" alt="GNWORK" style="height: 45px;">
   </picture>
 ](https://space.bilibili.com/403097853)
+
+</details>

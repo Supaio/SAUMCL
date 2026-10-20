@@ -1,10 +1,10 @@
 {
-  "identifier": "SJMCL",
+  "identifier": "io.github.supaio.saumcl",
   "app": {
     "windows": [
       {
         "label": "main",
-        "title": "SJMC Launcher",
+        "title": "SAU Minecraft Launcher",
         "url": "/",
         "width": 800,
         "height": 550,

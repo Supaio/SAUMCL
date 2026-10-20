@@ -1,5 +1,5 @@
 {
-  "identifier": "SJMCL",
+  "identifier": "io.github.supaio.saumcl",
   "bundle": {
     "windows": {
       "nsis": {
@@ -11,8 +11,7 @@
           "Japanese",
           "SimpChinese",
           "TradChinese"
-        ],
-        "sidebarImage": "assets/misc/nsis_sidebar.bmp"
+        ]
       }
     }
   },
@@ -21,7 +20,7 @@
     "windows": [
       {
         "label": "main",
-        "title": "SJMC Launcher",
+        "title": "SAU Minecraft Launcher",
         "url": "/",
         "width": 820,
         "height": 550,

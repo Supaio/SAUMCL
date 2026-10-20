@@ -17,7 +17,7 @@ const StarUsModal: React.FC<Omit<ModalProps, "children">> = ({ ...props }) => {
   const { t } = useTranslation();
 
   const handleStar = () => {
-    openUrl("https://github.com/UNIkeEN/SJMCL");
+    openUrl("https://github.com/Supaio/SAUMCL");
     props.onClose();
   };
 
@@ -30,9 +30,6 @@ const StarUsModal: React.FC<Omit<ModalProps, "children">> = ({ ...props }) => {
     >
       <ModalOverlay />
       <ModalContent borderRadius="md" overflow="hidden">
-        <video autoPlay loop muted width="100%" height="auto">
-          <source src="/videos/star-3-2.mp4" type="video/mp4" />
-        </video>
         <ModalHeader>🌟&nbsp;&nbsp;{t("StarUsModal.header.title")}</ModalHeader>
         <ModalCloseButton />
         <ModalBody mt={-1}>

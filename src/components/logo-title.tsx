@@ -7,7 +7,7 @@ export const TitleShort: React.FC<LogoTitleProps> = (props) => {
   return (
     <Heading size="md" className={styles.title} {...props}>
       <Highlight query="L" styles={{ color: "blue.600", userSelect: "none" }}>
-        SJMCL
+        SAUMCL
       </Highlight>
     </Heading>
   );
@@ -17,7 +17,7 @@ export const TitleFull: React.FC<LogoTitleProps> = (props) => {
   return (
     <Heading size="md" className={styles.title} {...props}>
       <Highlight query="L" styles={{ color: "blue.600", userSelect: "none" }}>
-        SJMC Launcher
+        SAU Minecraft Launcher
       </Highlight>
     </Heading>
   );
@@ -26,7 +26,7 @@ export const TitleFull: React.FC<LogoTitleProps> = (props) => {
 export const TitleFullWithLogo: React.FC<LogoTitleProps> = (props) => {
   return (
     <HStack>
-      <Image src="/images/icons/Logo_128x128.png" alt="Logo" boxSize="36px" />
+      <Image src="/images/icons/saumcl.svg" alt="SAUMCL" boxSize="36px" />
       <TitleFull {...props} />
     </HStack>
   );

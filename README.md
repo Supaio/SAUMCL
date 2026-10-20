@@ -1,3 +1,46 @@
+# SAUMCL
+
+**SAU Minecraft Launcher** is a school-community launcher for SAU players, based on [SJMCL](https://github.com/UNIkeEN/SJMCL) by the SJMCL Team. This fork is maintained separately in [Supaio/SAUMCL](https://github.com/Supaio/SAUMCL/tree/codex/saumcl-development).
+
+[简体中文](docs/README.zh-Hans.md) · [繁體中文](docs/README.zh-Hant.md)
+
+<a id="project-status"></a>
+## Project status
+
+SAUMCL is under development on `codex/saumcl-development`. The Java Edition launcher baseline has passed Windows and Linux CI builds. School server addresses, Minecraft versions and modpacks will be configured later.
+
+- The application uses its own `io.github.supaio.saumcl` identity and `saumcl://` protocol. Existing SJMCL account and application settings are not automatically migrated.
+- Update checks use this fork's GitHub Releases. No upstream SJMCL updates are installed. Development builds skip release update checks.
+- Upstream usage statistics are disabled, and the default community-news subscription list is empty.
+- Microsoft sign-in currently retains the upstream integration. A separate application identity is needed before a school-wide release. Optional settings-code sharing still uses the upstream service.
+- The SAU letter icon is a temporary project icon.
+
+## Test builds
+
+Sign in to GitHub, open [Actions / Test](https://github.com/Supaio/SAUMCL/actions/workflows/test.yml?query=branch%3Acodex%2Fsaumcl-development), select the latest successful development-branch run, and download the Windows or Linux file under **Artifacts**. CI artifacts are separate from GitHub Releases. The Windows portable file can be run directly.
+
+## Development
+
+Use pnpm **10.26.1**, Rust **1.98.1 or newer**, and the platform's Tauri build prerequisites.
+
+```sh
+git clone --branch codex/saumcl-development https://github.com/Supaio/SAUMCL.git
+cd SAUMCL
+pnpm install --frozen-lockfile
+pnpm tauri dev
+```
+
+Report SAUMCL issues at [Supaio/SAUMCL/issues](https://github.com/Supaio/SAUMCL/issues).
+
+## Copyright and upstream source
+
+SAUMCL is based on **SJMCL**, original repository: **https://github.com/UNIkeEN/SJMCL**. Original copyright © 2024–2026 SJMCL Team; SAUMCL modifications © 2026 SAUMCL contributors. The existing [LICENSE](LICENSE), [LICENSE.EXTRA](LICENSE.EXTRA), upstream acknowledgements and applicable third-party notices are retained.
+
+The original SJMCL README is preserved below as upstream reference; its downloads, installation commands and service links refer to the original project.
+
+<details>
+<summary>Original SJMCL README · 上游原始說明</summary>
+
 <img src="docs/figs/banner.png" alt="SJMCL" />
 
 [![Test Build](https://img.shields.io/github/actions/workflow/status/UNIkeEN/SJMCL/test.yml?label=test%20build&logo=github&style=for-the-badge)](https://github.com/UNIkeEN/SJMCL/blob/main/.github/workflows/test.yml)
@@ -200,3 +243,5 @@ We sincerely thank the following organizations for their development and communi
     <img src="docs/figs/partners/gnwork.png" alt="GNWORK" style="height: 45px;">
   </picture>
 ](https://space.bilibili.com/403097853)
+
+</details>

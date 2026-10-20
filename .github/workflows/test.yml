@@ -151,7 +151,9 @@ jobs:
           SJMCL_COMMIT_SHA: ${{ github.sha }}
 
       - name: Test archive compatibility and extraction
-        run: cargo test --manifest-path src-tauri/Cargo.toml --locked --test zip_regressions
+        run: |
+          cargo test --manifest-path src-tauri/Cargo.toml --locked --lib launcher_config::helpers::updater::tests
+          cargo test --manifest-path src-tauri/Cargo.toml --locked --test zip_regressions
 
       - name: Build portable artifact
         id: portable
@@ -161,11 +163,11 @@ jobs:
           mkdir -p artifacts
           SHORT_SHA="${GITHUB_SHA:0:7}"
           if [ "${{ matrix.platform }}" = "windows-latest" ]; then
-            OUTPUT_NAME="SJMCL_${SHORT_SHA}_windows_x86_64_portable.exe"
-            python scripts/release/bundle_portable_assets.py -p "src-tauri/target/test-build/" -o "$OUTPUT_NAME" "SJMCL.exe"
+            OUTPUT_NAME="SAUMCL_${SHORT_SHA}_windows_x86_64_portable.exe"
+            python scripts/release/bundle_portable_assets.py -p "src-tauri/target/test-build/" -o "$OUTPUT_NAME" "SAUMCL.exe"
           else
-            OUTPUT_NAME="SJMCL_${SHORT_SHA}_linux_x86_64_portable"
-            python scripts/release/bundle_portable_assets.py -p "src-tauri/target/test-build/" -o "$OUTPUT_NAME" "SJMCL"
+            OUTPUT_NAME="SAUMCL_${SHORT_SHA}_linux_x86_64_portable"
+            python scripts/release/bundle_portable_assets.py -p "src-tauri/target/test-build/" -o "$OUTPUT_NAME" "SAUMCL"
           fi
           cp "src-tauri/target/test-build/$OUTPUT_NAME" artifacts/
           echo "output_name=$OUTPUT_NAME" >> "$GITHUB_OUTPUT"

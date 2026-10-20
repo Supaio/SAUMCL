@@ -14,13 +14,18 @@
           }
         },
         "contributors": {
-          "title": "Colaboradores"
+          "title": "Colaboradores de SJMCL"
         },
         "sourceCode": {
           "title": "Ver Código Fuente en GitHub"
         },
-        "aboutSJMC": {
-          "title": "Acerca de SJTU Minecraft Club (SJMC)"
+        "aboutSAU": {
+          "title": "Acerca de SAU",
+          "description": "SAUMCL es un lanzador de Minecraft para jugadores de SAU."
+        },
+        "upstream": {
+          "title": "Basado en SJMCL",
+          "description": "Proyecto original: https://github.com/UNIkeEN/SJMCL"
         }
       }
     },
@@ -62,11 +67,11 @@
       "settings": {
         "copyright": {
           "title": "Derechos de Autor",
-          "description": "Derechos de Autor © 2024-2026 Equipo SJMCL."
+          "description": "Derechos de Autor © 2024-2026 Equipo SJMCL. Modificaciones de SAUMCL © 2026 colaboradores de SAUMCL."
         },
         "userAgreement": {
-          "title": "Acuerdo de Usuario",
-          "url": "https://mc.sjtu.cn/sjmcl/en/docs/tos"
+          "title": "Notas del proyecto",
+          "url": "https://github.com/Supaio/SAUMCL/tree/codex/saumcl-development#project-status"
         },
         "openSourceLicense": {
           "title": "Licencia de Código Abierto",
@@ -176,7 +181,7 @@
         "title": "Opciones Avanzadas",
         "uuid": {
           "label": "UUID",
-          "placeholder": "(Generado por SJMCL)",
+          "placeholder": "(Generado por SAUMCL)",
           "errorMessage": "Forma de UUID inválida"
         }
       }
@@ -529,7 +534,7 @@
       "type": "Tipo"
     },
     "warning": {
-      "mojang": "El tiempo de ejecución de Java de Mojang será instalado por SJMCL en un directorio específico.",
+      "mojang": "El tiempo de ejecución de Java de Mojang será instalado por SAUMCL en un directorio específico.",
       "oracle": "Descargar desde Oracle puede requerir inicio de sesión."
     }
   },
@@ -841,10 +846,10 @@
     "title": "Configuración de {{name}}"
   },
   "ExtensionSettingsPage": {
-    "alert": "SJMCL no puede controlar el comportamiento de las extensiones de terceros, incluyendo cómo manejan tus datos personales. Solo instala y habilita extensiones de fuentes confiables.",
+    "alert": "SAUMCL no puede controlar el comportamiento de las extensiones de terceros, incluyendo cómo manejan tus datos personales. Solo instala y habilita extensiones de fuentes confiables.",
     "fileDnD": {
-      "title": "Instalar Extensión de SJMCL",
-      "desc": "Instalar archivo de extensión {{fileName}} en SJMCL"
+      "title": "Instalar Extensión de SAUMCL",
+      "desc": "Instalar archivo de extensión {{fileName}} en SAUMCL"
     },
     "installed": "Extensiones Instaladas",
     "menu": {
@@ -1272,14 +1277,14 @@
         "directories": {
           "special": {
             "CURRENT_DIR": "Actual",
-            "APP_DATA_SUBDIR": "Datos de SJMCL",
+            "APP_DATA_SUBDIR": "Datos de SAUMCL",
             "OFFICIAL_DIR": "Lanzador Oficial"
           }
         }
       },
       "deleteDialog": {
         "title": "Eliminar Directorio del Juego",
-        "content": "¿Confirmar la eliminación del directorio del juego {{dirName}}? (SJMCL ya no escaneará este directorio, pero tus archivos permanecerán en el disco.)"
+        "content": "¿Confirmar la eliminación del directorio del juego {{dirName}}? (SAUMCL ya no escaneará este directorio, pero tus archivos permanecerán en el disco.)"
       },
       "directoryNotExist": "El directorio no existe, por favor agrega la ruta de nuevo."
     },
@@ -1406,9 +1411,9 @@
           "description": "Juega con jugadores universitarios de toda China",
           "url": "https://www.mualliance.cn/en"
         },
-        "SJMC": {
-          "title": "Club de Minecraft de SJTU (SJMC)",
-          "url": "https://mc.sjtu.cn/en/"
+        "SAU": {
+          "title": "SAU Minecraft",
+          "url": "https://github.com/Supaio/SAUMCL/tree/codex/saumcl-development"
         }
       }
     },
@@ -1437,13 +1442,13 @@
     "top": {
       "settings": {
         "LauncherDocs": {
-          "title": "Documentación del SJMC Launcher",
-          "url": "https://mc.sjtu.cn/sjmcl/en/docs"
+          "title": "SAUMCL README",
+          "url": "https://github.com/Supaio/SAUMCL/tree/codex/saumcl-development"
         },
         "UserGroup": {
-          "title": "Comunidad de Usuarios",
-          "description": "Únete al grupo de QQ o a GitHub Discussions para reportar problemas, solicitar funciones u obtener ayuda",
-          "url": "https://mc.sjtu.cn/sjmcl/en/docs/user-group"
+          "title": "Soporte de SAUMCL",
+          "description": "Informa de problemas de SAUMCL o solicita funciones en este repositorio.",
+          "url": "https://github.com/Supaio/SAUMCL/issues"
         }
       }
     }
@@ -1668,7 +1673,7 @@
     }
   },
   "IntelligenceSettingsPage": {
-    "title": "SJMCL Intelligence",
+    "title": "SAUMCL Intelligence",
     "description": "Integra modelos de IA en tu lanzador y experiencia de juego de Minecraft.",
     "mcpServer": {
       "title": "Servicio MCP",
@@ -1710,7 +1715,7 @@
     },
     "confirmDelete": {
       "title": "Eliminar Java",
-      "description": "¿Confirmar la eliminación de este Java? (SJMCL ya no escaneará este directorio, pero tus archivos permanecerán en el disco.)"
+      "description": "¿Confirmar la eliminación de este Java? (SAUMCL ya no escaneará este directorio, pero tus archivos permanecerán en el disco.)"
     }
   },
   "LanguageMenu": {
@@ -1727,7 +1732,7 @@
   "LastExitedAbnormallyDialog": {
     "dialog": {
       "title": "La ejecución anterior terminó anormalmente",
-      "content": "SJMCL terminó anormalmente durante la última ejecución. Puedes enviar los registros a la <community>comunidad</community>, o abrir un issue en <github>GitHub</github> para obtener ayuda.",
+      "content": "SAUMCL terminó anormalmente durante la última ejecución. Puedes enviar los registros a la <community>comunidad</community>, o abrir un issue en <github>GitHub</github> para obtener ayuda.",
       "viewLog": "Ver registros"
     }
   },
@@ -1774,7 +1779,7 @@
   "MainLayout": {
     "fileDnD": {
       "title": "Importar Modpack",
-      "desc": "Importar archivo de modpack {{fileName}} a SJMCL"
+      "desc": "Importar archivo de modpack {{fileName}} a SAUMCL"
     }
   },
   "ManageSkinModal": {
@@ -1882,7 +1887,7 @@
       "neoforge": "NeoForge",
       "authlibInjector": "Authlib Injector",
       "github": "GitHub",
-      "sjmclapi": "SJMC Launcher API"
+      "sjmclapi": "SAU Minecraft Launcher API"
     }
   },
   "PlayerMenu": {
@@ -2230,8 +2235,8 @@
   },
   "RestartForUpdateConfirmDialog": {
     "title": "Actualización del lanzador",
-    "body": "La nueva versión ha sido descargada. Reinicia SJMCL para completar la actualización.",
-    "bodyWinInstaller": "La nueva versión ha sido descargada. Al hacer clic en Instalar se cerrará SJMCL y se ejecutará el instalador.",
+    "body": "La nueva versión ha sido descargada. Reinicia SAUMCL para completar la actualización.",
+    "bodyWinInstaller": "La nueva versión ha sido descargada. Al hacer clic en Instalar se cerrará SAUMCL y se ejecutará el instalador.",
     "button": {
       "restart": "Reiniciar",
       "install": "Instalar",
@@ -3188,7 +3193,7 @@
   "UnavailableExePathAlertDialog": {
     "dialog": {
       "title": "Ruta de Ejecución No Segura",
-      "content": "SJMCL se está ejecutando actualmente desde un directorio temporal o no válido. Tu configuración y datos del juego podrían perderse. Por favor, mueve SJMCL a otra ubicación y ejecútalo nuevamente.",
+      "content": "SAUMCL se está ejecutando actualmente desde un directorio temporal o no válido. Tu configuración y datos del juego podrían perderse. Por favor, mueve SAUMCL a otra ubicación y ejecútalo nuevamente.",
       "btnContinue": "Ejecutar de Todas Formas"
     }
   },
@@ -3231,11 +3236,11 @@
       "title": "¡Bienvenido!"
     },
     "body": {
-      "text": "¡Bienvenido a SJMCL! Antes de comenzar, por favor asegúrate de leer y aceptar nuestro <terms>Acuerdo de Usuario</terms>."
+      "text": "¡Bienvenido a SAUMCL! Antes de comenzar, por favor asegúrate de leer y aceptar nuestro <terms>Acuerdo de Usuario</terms>."
     },
     "warning": {
-      "unstableVersion": "Estás usando la versión {{versionLabel}} de SJMCL. Algunas funciones pueden ser inestables o incompletas. Los reportes de errores y solicitudes de funciones son bienvenidos.",
-      "winArm64Notice": "SJMCL ahora es compatible con Windows en Arm. Si estás usando una plataforma <b>QUALCOMM</b>, es posible que necesites instalar el <glpack>OpenGL Compatibility Pack</glpack> antes de iniciar el juego."
+      "unstableVersion": "Estás usando la versión {{versionLabel}} de SAUMCL. Algunas funciones pueden ser inestables o incompletas. Los reportes de errores y solicitudes de funciones son bienvenidos.",
+      "winArm64Notice": "SAUMCL ahora es compatible con Windows en Arm. Si estás usando una plataforma <b>QUALCOMM</b>, es posible que necesites instalar el <glpack>OpenGL Compatibility Pack</glpack> antes de iniciar el juego."
     },
     "button": {
       "agree": "Aceptar"

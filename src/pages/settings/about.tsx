@@ -140,6 +140,34 @@ const AboutSettingsPage = () => {
           title: t("AboutSettingsPage.about.settings.sourceCode.title"),
           children: (
             <CommonIconButton
+              label="https://github.com/Supaio/SAUMCL/tree/codex/saumcl-development"
+              icon="external"
+              withTooltip
+              tooltipPlacement="bottom-end"
+              size="xs"
+              h={18}
+              onClick={() => {
+                openUrl(
+                  "https://github.com/Supaio/SAUMCL/tree/codex/saumcl-development"
+                );
+              }}
+            />
+          ),
+        },
+        {
+          title: t("AboutSettingsPage.about.settings.aboutSAU.title"),
+          description: t(
+            "AboutSettingsPage.about.settings.aboutSAU.description"
+          ),
+          children: <></>,
+        },
+        {
+          title: t("AboutSettingsPage.about.settings.upstream.title"),
+          description: t(
+            "AboutSettingsPage.about.settings.upstream.description"
+          ),
+          children: (
+            <CommonIconButton
               label="https://github.com/UNIkeEN/SJMCL"
               icon="external"
               withTooltip
@@ -148,22 +176,6 @@ const AboutSettingsPage = () => {
               h={18}
               onClick={() => {
                 openUrl("https://github.com/UNIkeEN/SJMCL");
-              }}
-            />
-          ),
-        },
-        {
-          title: t("AboutSettingsPage.about.settings.aboutSJMC.title"),
-          children: (
-            <CommonIconButton
-              label="https://mc.sjtu.cn/welcome/content/3/"
-              icon="external"
-              withTooltip
-              tooltipPlacement="bottom-end"
-              size="xs"
-              h={18}
-              onClick={() => {
-                openUrl("https://mc.sjtu.cn/welcome/content/3/");
               }}
             />
           ),
@@ -230,14 +242,14 @@ const AboutSettingsPage = () => {
           ),
           children: (
             <CommonIconButton
-              label="https://github.com/UNIkeEN/SJMCL?tab=readme-ov-file#copyright"
+              label="https://github.com/Supaio/SAUMCL/blob/codex/saumcl-development/LICENSE.EXTRA"
               icon="external"
               withTooltip
               tooltipPlacement="bottom-end"
               size="xs"
               onClick={() => {
                 openUrl(
-                  "https://github.com/UNIkeEN/SJMCL?tab=readme-ov-file#copyright"
+                  "https://github.com/Supaio/SAUMCL/blob/codex/saumcl-development/LICENSE.EXTRA"
                 );
               }}
             />

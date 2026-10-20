@@ -14,23 +14,16 @@ use crate::tasks::commands::schedule_progressive_task_group;
 use crate::tasks::download::DownloadParam;
 
 type SourceTuple = (&'static str, &'static str, fn(&str, &str) -> String);
-const SOURCES: [SourceTuple; 2] = [
-  (
-    "https://mc.sjtu.cn/api-sjmcl/releases/latest",
-    "version",
-    |_, fname| format!("https://mc.sjtu.cn/sjmcl/releases/{}", fname),
-  ),
-  (
-    "https://api.github.com/repos/UNIkeEN/SJMCL/releases/latest",
-    "tag_name",
-    |ver, fname| {
-      format!(
-        "https://github.com/UNIkeEN/SJMCL/releases/download/v{}/{}",
-        ver, fname
-      )
-    },
-  ),
-];
+const SOURCES: [SourceTuple; 1] = [(
+  "https://api.github.com/repos/Supaio/SAUMCL/releases/latest",
+  "tag_name",
+  |ver, fname| {
+    format!(
+      "https://github.com/Supaio/SAUMCL/releases/download/v{}/{}",
+      ver, fname
+    )
+  },
+)];
 
 // Generate the new version filename on remote origin according to the current os, arch and is_portable
 fn build_resource_filename(ver: &str, os: &str, arch: &str, is_portable: bool) -> String {
@@ -47,7 +40,7 @@ fn build_resource_filename(ver: &str, os: &str, arch: &str, is_portable: bool) -
     "macos" => ".app.tar.gz",
     _ => "",
   };
-  format!("SJMCL_{}_{}_{}{}", ver, os, arch, suffix)
+  format!("SAUMCL_{}_{}_{}{}", ver, os, arch, suffix)
 }
 
 // Generate the new filename on the local disk.
@@ -87,8 +80,13 @@ pub async fn fetch_latest_version(
   }
 
   for (endpoint, field, _) in sources {
-    if let Ok(resp) = client.get(endpoint).send().await
-      && let Ok(j) = resp.json::<Value>().await
+    let Ok(resp) = client.get(endpoint).send().await else {
+      continue;
+    };
+    if resp.status() == reqwest::StatusCode::NOT_FOUND {
+      return Ok(None);
+    }
+    if let Ok(j) = resp.json::<Value>().await
       && let Some(mut ver) = j.get(field).and_then(|v| v.as_str()).map(|s| s.to_string())
     {
       if ver.starts_with('v') {
@@ -367,4 +365,53 @@ rm -rf "$TMPDIR" || true
     app.exit(0);
   }
   Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+  use crate::launcher_config::helpers::updater::{
+    build_local_new_filename, build_resource_filename,
+  };
+
+  #[test]
+  fn release_filenames_match_saumcl_distribution_artifacts() {
+    for (os, arch, portable, expected) in [
+      (
+        "windows",
+        "x86_64",
+        true,
+        "SAUMCL_0.1.0_windows_x86_64_portable.exe",
+      ),
+      (
+        "windows",
+        "x86_64",
+        false,
+        "SAUMCL_0.1.0_windows_x86_64_setup.exe",
+      ),
+      ("linux", "x86", true, "SAUMCL_0.1.0_linux_i686_portable"),
+      (
+        "macos",
+        "aarch64",
+        false,
+        "SAUMCL_0.1.0_macos_aarch64.app.tar.gz",
+      ),
+    ] {
+      assert_eq!(
+        build_resource_filename("0.1.0", os, arch, portable),
+        expected
+      );
+    }
+  }
+
+  #[test]
+  fn portable_update_preserves_the_saumcl_name() {
+    assert_eq!(
+      build_local_new_filename("SAUMCL_0.1.0_windows_x86_64_portable.exe", "0.1.0", "0.2.0"),
+      "SAUMCL_0.2.0_windows_x86_64_portable.exe"
+    );
+    assert_eq!(
+      build_local_new_filename("SAUMCL.exe", "0.1.0", "0.2.0"),
+      "SAUMCL.exe"
+    );
+  }
 }

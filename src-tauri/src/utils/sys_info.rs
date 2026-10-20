@@ -1,30 +1,9 @@
-use serde_json::json;
 use sjmcl_types::error::{SJMCLError, SJMCLResult};
 use std::net::{SocketAddr, TcpListener};
 use systemstat::{Platform, saturating_sub_bytes};
-use tauri_plugin_http::reqwest;
 use tauri_plugin_os::locale;
 
 use crate::launcher_config::models::MemoryInfo;
-
-/// Sends app version, OS type and self SHA-256 as statistic data to SJMC asynchronously.
-///
-/// # Examples
-///
-/// ```rust,ignore
-/// send_statistics("1.0.0".to_string(), "windows".to_string(), "sha256".to_string()).await;
-/// ```
-pub async fn send_statistics(version: String, os: String, sha256: String) {
-  _ = reqwest::Client::new()
-    .post("https://mc.sjtu.cn/api-sjmcl/statistics")
-    .json(&json!({
-      "version": version,
-      "os": os,
-      "exe_sha256": sha256,
-    }))
-    .send()
-    .await;
-}
 
 /// Returns a locale identifier standardized for frontend usage
 /// by mapping OS-specific locale strings. Defaults to "en" if no match is found.

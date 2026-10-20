@@ -20,7 +20,7 @@ const RETRY_INTERVAL_MS: u64 = 250;
 const EXPECTED_SERVER_NAME: &str = "sjmcl-mcp";
 const MCP_SERVER_HOST: &str = "127.0.0.1";
 const MCP_SERVER_PATH: &str = "/mcp";
-const RUN_SJMCL_DEEPLINK: &str = "sjmcl://run-silently";
+const RUN_SJMCL_DEEPLINK: &str = "saumcl://run-silently";
 const ENABLE_MCP_HINT: &str = "Please enable Launcher MCP Server in SJMCL - Intelligence to use the CLI.\nIf your MCP server uses a port other than the default 18970, run the CLI with `-p <port>`.";
 
 #[derive(Clone)]

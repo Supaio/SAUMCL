@@ -3,7 +3,7 @@
 version = 4
 
 [[package]]
-name = "SJMCL"
+name = "SAUMCL"
 version = "1.3.2"
 dependencies = [
  "async-speed-limit",

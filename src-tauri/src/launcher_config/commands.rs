@@ -349,8 +349,17 @@ pub async fn check_launcher_update(app: AppHandle) -> SJMCLResult<VersionMetaInf
     return Ok(VersionMetaInfo::default());
   }
 
-  if let Ok(Some((new_version, fname, release_notes, published_at))) =
-    fetch_latest_version(&app).await
+  let latest_version = match fetch_latest_version(&app).await {
+    Ok(None) => {
+      return Ok(VersionMetaInfo {
+        version: "up2date".to_string(),
+        ..Default::default()
+      });
+    }
+    result => result,
+  };
+
+  if let Ok(Some((new_version, fname, release_notes, published_at))) = latest_version
     && let (Ok(current), Ok(latest)) = (
       semver::Version::parse(&current_version),
       semver::Version::parse(&new_version),

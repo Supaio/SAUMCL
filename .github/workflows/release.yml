@@ -99,7 +99,7 @@ jobs:
       - name: Download non-macOS artifacts
         uses: actions/download-artifact@v4
         with:
-          pattern: 'SJMCL_${{ needs.Version-Check.outputs.version }}_*'
+          pattern: 'SAUMCL_${{ needs.Version-Check.outputs.version }}_*'
           path: artifacts
           merge-multiple: true
 
@@ -107,7 +107,7 @@ jobs:
         if: needs.Code-Sign-macOS.result == 'success'
         uses: actions/download-artifact@v4
         with:
-          pattern: 'SJMCL_${{ needs.Version-Check.outputs.version }}_macos_*_signed'
+          pattern: 'SAUMCL_${{ needs.Version-Check.outputs.version }}_macos_*_signed'
           path: artifacts-signed
           merge-multiple: true
 
@@ -119,14 +119,14 @@ jobs:
           mkdir -p release-artifacts
           
           # Copy non-macOS artifacts
-          find artifacts -name "SJMCL_${{ env.VERSION }}_windows_*" -exec cp {} release-artifacts/ \;
-          find artifacts -name "SJMCL_${{ env.VERSION }}_linux_*" -exec cp {} release-artifacts/ \;
+          find artifacts -name "SAUMCL_${{ env.VERSION }}_windows_*" -exec cp {} release-artifacts/ \;
+          find artifacts -name "SAUMCL_${{ env.VERSION }}_linux_*" -exec cp {} release-artifacts/ \;
           
           # Copy macOS artifacts (signed if available, unsigned otherwise)
           if [ "${{ env.SIGNING_SUCCESS }}" = "true" ] && [ -d artifacts-signed ]; then
             echo "Using signed macOS artifacts"
             # Copy signed macOS artifacts (rename to remove _signed suffix)
-            find artifacts-signed -name "SJMCL_${{ env.VERSION }}_macos_*" -type f | while read file; do
+            find artifacts-signed -name "SAUMCL_${{ env.VERSION }}_macos_*" -type f | while read file; do
               basename=$(basename "$file")
               # Remove _signed suffix before the file extension
               newname=$(echo "$basename" | sed 's/_signed\./\./')
@@ -135,7 +135,7 @@ jobs:
           else
             echo "⚠️ WARNING: Using unsigned macOS artifacts (signing failed or was skipped)"
             # Copy unsigned macOS artifacts
-            find artifacts -name "SJMCL_${{ env.VERSION }}_macos_*" -exec cp {} release-artifacts/ \;
+            find artifacts -name "SAUMCL_${{ env.VERSION }}_macos_*" -exec cp {} release-artifacts/ \;
           fi
 
           # Collect all SHA256 files into one summary
@@ -206,7 +206,7 @@ jobs:
         run: |
           # Create the release
           gh release create "$GITHUB_REF_NAME" \
-            --title "SJMCL ${{ env.VERSION }}" \
+            --title "SAUMCL ${{ env.VERSION }}" \
             --draft \
             --notes-file release-notes.md \
             ./release-artifacts/*

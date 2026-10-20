@@ -137,17 +137,17 @@ const HelpSettingsPage = () => {
           ),
         },
         {
-          title: t("HelpSettingsPage.community.settings.SJMC.title"),
+          title: t("HelpSettingsPage.community.settings.SAU.title"),
           children: (
             <CommonIconButton
-              label={t("HelpSettingsPage.community.settings.SJMC.url")}
+              label={t("HelpSettingsPage.community.settings.SAU.url")}
               icon="external"
               withTooltip
               tooltipPlacement="bottom-end"
               size="xs"
               h={18}
               onClick={() =>
-                openUrl(t("HelpSettingsPage.community.settings.SJMC.url"))
+                openUrl(t("HelpSettingsPage.community.settings.SAU.url"))
               }
             />
           ),

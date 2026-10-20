@@ -1,7 +1,7 @@
 {
   "AboutSettingsPage": {
     "about": {
-      "title": "SJMCLについて",
+      "title": "SAUMCLについて",
       "settings": {
         "version": {
           "title": "バージョン",
@@ -14,13 +14,18 @@
           }
         },
         "contributors": {
-          "title": "開発チーム"
+          "title": "SJMCL の貢献者"
         },
         "sourceCode": {
           "title": "GitHub でソースコードを見る"
         },
-        "aboutSJMC": {
-          "title": "上海交通大学 Minecraft クラブ (SJMC) について"
+        "aboutSAU": {
+          "title": "SAU について",
+          "description": "SAUMCL は SAU のプレイヤー向けの Minecraft ランチャーです。"
+        },
+        "upstream": {
+          "title": "SJMCL をベースに開発",
+          "description": "元のプロジェクト：https://github.com/UNIkeEN/SJMCL"
         }
       }
     },
@@ -62,11 +67,11 @@
       "settings": {
         "copyright": {
           "title": "コピーライト",
-          "description": "© 2024-2026 SJMCL 開発チーム"
+          "description": "© 2024-2026 SJMCL 開発チーム SAUMCL の変更部分 © 2026 SAUMCL contributors."
         },
         "userAgreement": {
-          "title": "利用規約",
-          "url": "https://mc.sjtu.cn/sjmcl/en/docs/tos"
+          "title": "プロジェクト情報",
+          "url": "https://github.com/Supaio/SAUMCL/tree/codex/saumcl-development#project-status"
         },
         "openSourceLicense": {
           "title": "オープンソースライセンス",
@@ -205,7 +210,7 @@
       "description": {
         "start": {
           "3rdparty": "この認証ソースは Yggdrasil Connect 仕様提案をサポート",
-          "microsoft": " SJMCL は Microsoft OAuth 2.0 デバイス認証フローをサポート"
+          "microsoft": " SAUMCL は Microsoft OAuth 2.0 デバイス認証フローをサポート"
         },
         "next": "次へ進むボタンをクリックし、ログインウィンドウに上記のコードを入力してください。（自動コピー済）"
       },
@@ -529,7 +534,7 @@
       "type": "タイプ"
     },
     "warning": {
-      "mojang": "Mojang によって配布される Java ランタイムは SJMCL によって特定のディレクトリにインストールされます",
+      "mojang": "Mojang によって配布される Java ランタイムは SAUMCL によって特定のディレクトリにインストールされます",
       "oracle": "Oracle ソースからのダウンロードにはログインの必要な場合があります"
     }
   },
@@ -841,10 +846,10 @@
     "title": "{{name}} の設定"
   },
   "ExtensionSettingsPage": {
-    "alert": "SJMCL はサードパーティー拡張機能の挙動や個人データの扱いを制御できません。信頼できる提供元の拡張機能のみをインストールして有効化してください。",
+    "alert": "SAUMCL はサードパーティー拡張機能の挙動や個人データの扱いを制御できません。信頼できる提供元の拡張機能のみをインストールして有効化してください。",
     "fileDnD": {
-      "title": "SJMCL 拡張機能をインストール",
-      "desc": "拡張機能ファイル {{fileName}} を SJMCL にインストール"
+      "title": "SAUMCL 拡張機能をインストール",
+      "desc": "拡張機能ファイル {{fileName}} を SAUMCL にインストール"
     },
     "installed": "インストール済みの拡張機能",
     "menu": {
@@ -1189,7 +1194,7 @@
       "settings": {
         "language": {
           "title": "言語（Language）",
-          "communityAck": "SJMCL のローカリゼーションはコミュニティによる提供されました。@LAR73 さんのご協力を感謝いたします"
+          "communityAck": "SAUMCL のローカリゼーションはコミュニティによる提供されました。@LAR73 さんのご協力を感謝いたします"
         },
         "resourceTranslation": {
           "title": "リソース翻訳",
@@ -1272,7 +1277,7 @@
         "directories": {
           "special": {
             "CURRENT_DIR": "現在フォルダー",
-            "APP_DATA_SUBDIR": "SJMCL データフォルダー",
+            "APP_DATA_SUBDIR": "SAUMCL データフォルダー",
             "OFFICIAL_DIR": "公式ランチャーフォルダー"
           }
         }
@@ -1406,9 +1411,9 @@
           "description": "中国の大学ゲーマーとともに遊ぼう",
           "url": "https://www.mualliance.cn"
         },
-        "SJMC": {
-          "title": "上海交通大学 Minecraft クラブ（SJMC）",
-          "url": "https://mc.sjtu.cn"
+        "SAU": {
+          "title": "SAU Minecraft",
+          "url": "https://github.com/Supaio/SAUMCL/tree/codex/saumcl-development"
         }
       }
     },
@@ -1437,13 +1442,13 @@
     "top": {
       "settings": {
         "LauncherDocs": {
-          "title": "SJMC Launcher ドキュメント（中国語）",
-          "url": "https://mc.sjtu.cn/sjmcl/docs"
+          "title": "SAUMCL README",
+          "url": "https://github.com/Supaio/SAUMCL/tree/codex/saumcl-development"
         },
         "UserGroup": {
-          "title": "ユーザーコミュニティ",
-          "description": "QQ グループや GitHub Discussions に参加して、問題報告、機能要望、サポートの相談ができます",
-          "url": "https://mc.sjtu.cn/sjmcl/en/docs/user-group"
+          "title": "SAUMCL サポート",
+          "description": "このリポジトリで SAUMCL の問題や機能の要望を報告できます。",
+          "url": "https://github.com/Supaio/SAUMCL/issues"
         }
       }
     }
@@ -1668,7 +1673,7 @@
     }
   },
   "IntelligenceSettingsPage": {
-    "title": "SJMCL AI",
+    "title": "SAUMCL AI",
     "description": "AI モデルをランチャーと Minecraft の体験に統合します。",
     "mcpServer": {
       "title": "MCP サービス",
@@ -1727,7 +1732,7 @@
   "LastExitedAbnormallyDialog": {
     "dialog": {
       "title": "前回の実行は異常終了しました",
-      "content": "SJMCL は前回の実行時に異常終了しました。ログを<community>コミュニティ</community>に送るか、<github>GitHub</github> で Issue を作成してサポートを求めてください。",
+      "content": "SAUMCL は前回の実行時に異常終了しました。ログを<community>コミュニティ</community>に送るか、<github>GitHub</github> で Issue を作成してサポートを求めてください。",
       "viewLog": "ログを表示"
     }
   },
@@ -1774,7 +1779,7 @@
   "MainLayout": {
     "fileDnD": {
       "title": "モッドパックをインポート",
-      "desc": "モッドパックファイル {{fileName}} を SJMCL にインポート"
+      "desc": "モッドパックファイル {{fileName}} を SAUMCL にインポート"
     }
   },
   "ManageSkinModal": {
@@ -1882,7 +1887,7 @@
       "neoforge": "NeoForge",
       "authlibInjector": "Authlib Injector",
       "github": "GitHub",
-      "sjmclapi": "SJMC Launcher API"
+      "sjmclapi": "SAU Minecraft Launcher API"
     }
   },
   "PlayerMenu": {
@@ -2230,8 +2235,8 @@
   },
   "RestartForUpdateConfirmDialog": {
     "title": "ランチャー更新",
-    "body": "新しいバージョンのダウンロードが完了しました。SJMCL を再起動して更新を完了してください",
-    "bodyWinInstaller": "新しいバージョンのダウンロードが完了しました。インストールをクリックすると SJMCL が閉じ、インストーラーが実行されます",
+    "body": "新しいバージョンのダウンロードが完了しました。SAUMCL を再起動して更新を完了してください",
+    "bodyWinInstaller": "新しいバージョンのダウンロードが完了しました。インストールをクリックすると SAUMCL が閉じ、インストーラーが実行されます",
     "button": {
       "restart": "再起動",
       "install": "インストール",
@@ -3152,9 +3157,9 @@
   },
   "StarUsModal": {
     "header": {
-      "title": "GitHub で SJMCL をスター"
+      "title": "GitHub で SAUMCL をスター"
     },
-    "body": "SJMCL にご支援をお考えの場合は、GitHub リポジトリへのスターの付与をご検討ください。コミュニティーからの評価は開発チームの重要な指標となりまして、品質向上の原動力となっております。",
+    "body": "SAUMCL にご支援をお考えの場合は、GitHub リポジトリへのスターの付与をご検討ください。コミュニティーからの評価は開発チームの重要な指標となりまして、品質向上の原動力となっております。",
     "button": {
       "later": "あとで",
       "starUs": "スターを付与"
@@ -3188,7 +3193,7 @@
   "UnavailableExePathAlertDialog": {
     "dialog": {
       "title": "安全でない実行パス",
-      "content": "SJMCL は一時ディレクトリまたは無効なディレクトリから実行されています。設定やゲームデータが失われる可能性があります。SJMCL を別の場所へ移動して再実行してください。",
+      "content": "SAUMCL は一時ディレクトリまたは無効なディレクトリから実行されています。設定やゲームデータが失われる可能性があります。SAUMCL を別の場所へ移動して再実行してください。",
       "btnContinue": "このまま実行"
     }
   },
@@ -3231,11 +3236,11 @@
       "title": "ようこそ！"
     },
     "body": {
-      "text": "SJMCL をご利用いただき、ありがとうございます。開始前に、必ず下記の<terms>利用規約</terms>をお読みいただき、同意をお願いいたします。"
+      "text": "SAUMCL をご利用いただき、ありがとうございます。開始前に、必ず下記の<terms>利用規約</terms>をお読みいただき、同意をお願いいたします。"
     },
     "warning": {
-      "unstableVersion": "{{versionLabel}}の SJMCL を使用しています。一部の機能が不安定または開発未完了の可能性があります。使用上の問題や機能の提案を報告いただければ幸いです。",
-      "winArm64Notice": "SJMCL は Windows on Arm プラットフォームに対応しました。<br/> <b>Qualcomm</b> プラットフォームをご利用の場合、ゲームを起動する前に <glpack>OpenGL 互換パック</glpack> のインストールが必要な場合があります。"
+      "unstableVersion": "{{versionLabel}}の SAUMCL を使用しています。一部の機能が不安定または開発未完了の可能性があります。使用上の問題や機能の提案を報告いただければ幸いです。",
+      "winArm64Notice": "SAUMCL は Windows on Arm プラットフォームに対応しました。<br/> <b>Qualcomm</b> プラットフォームをご利用の場合、ゲームを起動する前に <glpack>OpenGL 互換パック</glpack> のインストールが必要な場合があります。"
     },
     "button": {
       "agree": "同意して続ける"
