@@ -1,6 +1,6 @@
 # SAUMCL
 
-**SAU Minecraft Launcher** 是面向 SAU 玩家的校園社群 Minecraft 啟動器，基於 SJMCL Team 開發的 [SJMCL](https://github.com/UNIkeEN/SJMCL)。本修改版在 [Supaio/SAUMCL](https://github.com/Supaio/SAUMCL/tree/codex/saumcl-development) 獨立維護。
+**SAU Minecraft Launcher** 是面向四川农业大学（SAU）玩家的校園社群 Minecraft 啟動器，基於 SJMCL Team 開發的 [SJMCL](https://github.com/UNIkeEN/SJMCL)。本修改版在 [Supaio/SAUMCL](https://github.com/Supaio/SAUMCL/tree/codex/saumcl-development) 獨立維護。
 
 [English](../README.md) · [简体中文](README.zh-Hans.md)
 

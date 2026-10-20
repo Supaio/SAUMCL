@@ -1,6 +1,6 @@
 # SAUMCL
 
-**SAU Minecraft Launcher** is a school-community launcher for SAU players, based on [SJMCL](https://github.com/UNIkeEN/SJMCL) by the SJMCL Team. This fork is maintained separately in [Supaio/SAUMCL](https://github.com/Supaio/SAUMCL/tree/codex/saumcl-development).
+**SAU Minecraft Launcher** is a school-community launcher for players at Sichuan Agricultural University (SAU), based on [SJMCL](https://github.com/UNIkeEN/SJMCL) by the SJMCL Team. This fork is maintained separately in [Supaio/SAUMCL](https://github.com/Supaio/SAUMCL/tree/codex/saumcl-development).
 
 [简体中文](docs/README.zh-Hans.md) · [繁體中文](docs/README.zh-Hant.md)
 
