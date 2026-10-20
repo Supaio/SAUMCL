@@ -3236,14 +3236,14 @@
       "title": "¡Bienvenido!"
     },
     "body": {
-      "text": "¡Bienvenido a SAUMCL! Antes de comenzar, por favor asegúrate de leer y aceptar nuestro <terms>Acuerdo de Usuario</terms>."
+      "text": "¡Bienvenido a SAUMCL! Antes de comenzar, lee las <terms>notas del proyecto</terms>."
     },
     "warning": {
       "unstableVersion": "Estás usando la versión {{versionLabel}} de SAUMCL. Algunas funciones pueden ser inestables o incompletas. Los reportes de errores y solicitudes de funciones son bienvenidos.",
       "winArm64Notice": "SAUMCL ahora es compatible con Windows en Arm. Si estás usando una plataforma <b>QUALCOMM</b>, es posible que necesites instalar el <glpack>OpenGL Compatibility Pack</glpack> antes de iniciar el juego."
     },
     "button": {
-      "agree": "Aceptar"
+      "agree": "Continuar"
     }
   },
   "WindowTitlebar": {

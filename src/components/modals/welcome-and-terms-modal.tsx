@@ -3,7 +3,6 @@ import {
   AlertIcon,
   Button,
   HStack,
-  Image,
   Link,
   Modal,
   ModalBody,
@@ -19,6 +18,7 @@ import { exit } from "@tauri-apps/plugin-process";
 import { Trans, useTranslation } from "react-i18next";
 import { LuLanguages } from "react-icons/lu";
 import LanguageMenu from "@/components/language-menu";
+import { TitleFullWithLogo } from "@/components/logo-title";
 import { useGuidedTour } from "@/components/special/guided-tour-provider";
 import { useLauncherConfig } from "@/contexts/config";
 import { BuildType } from "@/enums/misc";
@@ -62,7 +62,9 @@ const WelcomeAndTermsModal: React.FC<Omit<ModalProps, "children">> = ({
     >
       <ModalOverlay />
       <ModalContent borderRadius="md" overflow="hidden">
-        <Image alt="banner" src="/images/banner.png" />
+        <HStack px={6} pt={6}>
+          <TitleFullWithLogo />
+        </HStack>
         <ModalHeader>
           🎉&nbsp;&nbsp;{t("WelcomeAndTermsModal.header.title")}
         </ModalHeader>

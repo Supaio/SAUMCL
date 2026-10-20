@@ -3236,14 +3236,14 @@
       "title": "ようこそ！"
     },
     "body": {
-      "text": "SAUMCL をご利用いただき、ありがとうございます。開始前に、必ず下記の<terms>利用規約</terms>をお読みいただき、同意をお願いいたします。"
+      "text": "SAUMCL へようこそ！開始前に<terms>プロジェクトの説明</terms>をお読みください。"
     },
     "warning": {
       "unstableVersion": "{{versionLabel}}の SAUMCL を使用しています。一部の機能が不安定または開発未完了の可能性があります。使用上の問題や機能の提案を報告いただければ幸いです。",
       "winArm64Notice": "SAUMCL は Windows on Arm プラットフォームに対応しました。<br/> <b>Qualcomm</b> プラットフォームをご利用の場合、ゲームを起動する前に <glpack>OpenGL 互換パック</glpack> のインストールが必要な場合があります。"
     },
     "button": {
-      "agree": "同意して続ける"
+      "agree": "続ける"
     }
   },
   "WindowTitlebar": {

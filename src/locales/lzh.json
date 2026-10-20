@@ -3236,14 +3236,14 @@
       "title": "歡迎！"
     },
     "body": {
-      "text": "歡迎使用 SAUMCL！在始使用之前，請務必閱讀並許我們的<terms>客契</terms>。"
+      "text": "歡迎使用 SAUMCL！始用之前，請先閱<terms>專案說明</terms>。"
     },
     "warning": {
       "unstableVersion": "您方使用{{versionLabel}}的 SAUMCL，部分功用或不穩定或未開發畢，歡迎報告使用問題與功用薦。",
       "winArm64Notice": "SAUMCL 現已支援 Windows on Arm 平臺。<br/>如您方使用 <b>高通</b> 平臺，您或須置 <glpack>OpenGL 相容包</glpack> 後才能進行戲。"
     },
     "button": {
-      "agree": "許並續"
+      "agree": "繼續"
     }
   },
   "WindowTitlebar": {
