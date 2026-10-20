@@ -24,7 +24,7 @@ interface LauncherConfigContextType {
   config: LauncherConfig;
   setConfig: React.Dispatch<React.SetStateAction<LauncherConfig>>;
   update: (path: string, value: any) => void;
-  isZh: boolean; // value shortcut, true if language is zh-Hans / zh-Hant / lzh
+  isZh: boolean; // value shortcut, true if language is zh-Hans / zh-Hant
   newerVersion: VersionMetaInfo;
   // other shared data associated with the launcher config.
   getJavaInfos: (sync?: boolean) => JavaInfo[] | undefined;
@@ -44,7 +44,7 @@ export const LauncherConfigContextProvider: React.FC<{
 
   const [config, setConfig] = useState<LauncherConfig>(defaultConfig);
   const language = config.general.general.language;
-  const isZh = language.startsWith("zh") || language === "lzh";
+  const isZh = language.startsWith("zh");
   const userSelectedColorMode = config.appearance.theme.colorMode;
 
   const [javaInfos, setJavaInfos] = useState<JavaInfo[]>();
@@ -118,8 +118,7 @@ export const LauncherConfigContextProvider: React.FC<{
 
   useEffect(() => {
     i18n.changeLanguage(language);
-    document.documentElement.lang =
-      localeResources[language]?.htmlLang || language;
+    document.documentElement.lang = localeResources[language]?.htmlLang || "en";
   }, [language]);
 
   useEffect(() => {

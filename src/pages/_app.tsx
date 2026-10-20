@@ -27,6 +27,7 @@ import { setupLogger } from "@/utils/logging";
 
 i18n.use(initReactI18next).init({
   resources: localeResources,
+  supportedLngs: Object.keys(localeResources),
   fallbackLng: "en",
   lng: "zh-Hans",
   interpolation: {

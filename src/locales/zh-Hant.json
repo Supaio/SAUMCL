@@ -16,8 +16,11 @@
         "contributors": {
           "title": "SJMCL 原專案貢獻者"
         },
+        "maintainer": {
+          "title": "SAUMCL 維護者"
+        },
         "sourceCode": {
-          "title": "在 GitHub 檢視原始碼"
+          "title": "SAUMCL 專案網址"
         },
         "aboutSAU": {
           "title": "關於 SAU",
@@ -1721,10 +1724,6 @@
   "LanguageMenu": {
     "localeName": {
       "en": "英語",
-      "es": "西班牙語",
-      "fr": "法語",
-      "ja": "日語",
-      "lzh": "",
       "zh-Hans": "",
       "zh-Hant": ""
     }

@@ -17,15 +17,12 @@ use crate::launcher_config::models::MemoryInfo;
 pub fn get_mapped_locale() -> String {
   // only apple can do 🌈🧑🏻‍🍳👐🏻
   // The return value of tauri_plugin_os::locale() on macOS(e.g. zh-Hans-CN) differs from that on Windows and Linux(e.g. zh-CN).
-  let locale = locale().unwrap();
+  let locale = locale().unwrap_or_default();
   let matched_locale;
 
   #[cfg(target_os = "macos")]
   {
     let language_map = [
-      ("es", vec!["es"]),
-      ("fr", vec!["fr"]),
-      ("ja", vec!["ja"]),
       ("zh-Hans", vec!["zh-Hans", "wuu-Hans", "yue-Hans"]),
       ("zh-Hant", vec!["zh-Hant", "yue-Hant"]),
     ];
@@ -39,9 +36,6 @@ pub fn get_mapped_locale() -> String {
   #[cfg(not(target_os = "macos"))]
   {
     let language_map = [
-      ("es", vec!["es"]),
-      ("fr", vec!["fr"]),
-      ("ja", vec!["ja"]),
       ("zh-Hans", vec!["zh-CN", "zh-SG"]),
       ("zh-Hant", vec!["zh-TW", "zh-HK", "zh-MO"]),
     ];

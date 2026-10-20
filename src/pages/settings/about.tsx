@@ -4,6 +4,7 @@ import {
   Button,
   HStack,
   Text,
+  Tooltip,
   useToast as useChakraToast,
 } from "@chakra-ui/react";
 import { openUrl } from "@tauri-apps/plugin-opener";
@@ -67,6 +68,8 @@ const AboutSettingsPage = () => {
   }, [handleCheckLauncherUpdate, t, toast, closeToast, openSharedModal]);
 
   const avatarUserList = ["UNIkeEN", "xunying123", "SundayChen"];
+  const projectUrl =
+    "https://github.com/Supaio/SAUMCL/tree/codex/saumcl-development";
 
   const aboutSettingGroups: OptionItemGroupProps[] = [
     {
@@ -108,29 +111,24 @@ const AboutSettingsPage = () => {
           ),
         },
         {
-          title: t("AboutSettingsPage.about.settings.contributors.title"),
+          title: t("AboutSettingsPage.about.settings.maintainer.title"),
           children: (
             <HStack spacing={2.5}>
-              <AvatarGroup size="xs" spacing={-2}>
-                {avatarUserList.map((username) => (
-                  <Avatar
-                    key={username}
-                    name={username}
-                    src={`https://avatars.githubusercontent.com/${username}`}
-                  />
-                ))}
-              </AvatarGroup>
+              <Avatar
+                size="xs"
+                name="Supaio"
+                src="https://avatars.githubusercontent.com/u/145017690?v=4"
+              />
+              <Text fontSize="xs-sm">Supaio</Text>
               <CommonIconButton
-                label="https://github.com/UNIkeEN/SJMCL/graphs/contributors?all=1"
+                label="https://github.com/Supaio"
                 icon="external"
                 withTooltip
                 tooltipPlacement="bottom-end"
                 size="xs"
                 h={18}
                 onClick={() => {
-                  openUrl(
-                    "https://github.com/UNIkeEN/SJMCL/graphs/contributors?all=1"
-                  );
+                  openUrl("https://github.com/Supaio");
                 }}
               />
             </HStack>
@@ -138,18 +136,17 @@ const AboutSettingsPage = () => {
         },
         {
           title: t("AboutSettingsPage.about.settings.sourceCode.title"),
+          description: projectUrl,
           children: (
             <CommonIconButton
-              label="https://github.com/Supaio/SAUMCL/tree/codex/saumcl-development"
+              label={projectUrl}
               icon="external"
               withTooltip
               tooltipPlacement="bottom-end"
               size="xs"
               h={18}
               onClick={() => {
-                openUrl(
-                  "https://github.com/Supaio/SAUMCL/tree/codex/saumcl-development"
-                );
+                openUrl(projectUrl);
               }}
             />
           ),
@@ -167,17 +164,46 @@ const AboutSettingsPage = () => {
             "AboutSettingsPage.about.settings.upstream.description"
           ),
           children: (
-            <CommonIconButton
-              label="https://github.com/UNIkeEN/SJMCL"
-              icon="external"
-              withTooltip
-              tooltipPlacement="bottom-end"
-              size="xs"
-              h={18}
-              onClick={() => {
-                openUrl("https://github.com/UNIkeEN/SJMCL");
-              }}
-            />
+            <HStack spacing={2.5}>
+              <Tooltip
+                label={t("AboutSettingsPage.about.settings.contributors.title")}
+              >
+                <Button
+                  variant="unstyled"
+                  h="auto"
+                  minW={0}
+                  aria-label={t(
+                    "AboutSettingsPage.about.settings.contributors.title"
+                  )}
+                  onClick={() => {
+                    openUrl(
+                      "https://github.com/UNIkeEN/SJMCL/graphs/contributors?all=1"
+                    );
+                  }}
+                >
+                  <AvatarGroup size="xs" spacing={-2}>
+                    {avatarUserList.map((username) => (
+                      <Avatar
+                        key={username}
+                        name={username}
+                        src={`https://avatars.githubusercontent.com/${username}`}
+                      />
+                    ))}
+                  </AvatarGroup>
+                </Button>
+              </Tooltip>
+              <CommonIconButton
+                label="https://github.com/UNIkeEN/SJMCL"
+                icon="external"
+                withTooltip
+                tooltipPlacement="bottom-end"
+                size="xs"
+                h={18}
+                onClick={() => {
+                  openUrl("https://github.com/UNIkeEN/SJMCL");
+                }}
+              />
+            </HStack>
           ),
         },
       ],

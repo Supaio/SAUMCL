@@ -150,9 +150,9 @@ jobs:
           SJMCL_BUILD_TYPE: test-build
           SJMCL_COMMIT_SHA: ${{ github.sha }}
 
-      - name: Test archive compatibility and extraction
+      - name: Test launcher configuration and archives
         run: |
-          cargo test --manifest-path src-tauri/Cargo.toml --locked --lib launcher_config::helpers::updater::tests
+          cargo test --manifest-path src-tauri/Cargo.toml --locked --lib launcher_config::
           cargo test --manifest-path src-tauri/Cargo.toml --locked --test zip_regressions
 
       - name: Build portable artifact

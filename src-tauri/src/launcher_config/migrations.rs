@@ -4,6 +4,18 @@ use serde_json::Value;
 
 use crate::launcher_config::models::AppearanceBackgroundConfig;
 
+pub fn deserialize_language<'de, D>(deserializer: D) -> Result<String, D::Error>
+where
+  D: Deserializer<'de>,
+{
+  let language = String::deserialize(deserializer)?;
+  Ok(match language.as_str() {
+    "en" | "zh-Hans" | "zh-Hant" => language,
+    "lzh" => "zh-Hans".to_string(),
+    _ => "en".to_string(),
+  })
+}
+
 // Migrate old built-in wallpaper choices to the new default preset.
 const LEGACY_BUILT_IN_BACKGROUNDS: &[&str] = &["%built-in:Jokull", "%built-in:GNLXC"];
 
@@ -67,4 +79,46 @@ where
       })
       .collect(),
   )
+}
+
+#[cfg(test)]
+mod tests {
+  use crate::launcher_config::models::GeneralConfig;
+  use serde_json::json;
+
+  #[test]
+  fn config_keeps_supported_languages() {
+    for language in ["en", "zh-Hans", "zh-Hant"] {
+      let config: GeneralConfig = serde_json::from_value(json!({
+        "general": { "language": language }
+      }))
+      .expect("supported language should load");
+
+      assert_eq!(config.general.language, language);
+    }
+  }
+
+  #[test]
+  fn config_migrates_removed_languages_without_losing_other_settings() {
+    for (language, expected) in [
+      ("es", "en"),
+      ("fr", "en"),
+      ("ja", "en"),
+      ("lzh", "zh-Hans"),
+      ("de", "en"),
+    ] {
+      let config: GeneralConfig = serde_json::from_value(json!({
+        "general": { "language": language },
+        "functionality": {
+          "discoverPage": "off",
+          "autoDownloadJava": false
+        }
+      }))
+      .expect("legacy configuration should load");
+
+      assert_eq!(config.general.language, expected);
+      assert_eq!(config.functionality.discover_page, "off");
+      assert!(!config.functionality.auto_download_java);
+    }
+  }
 }

@@ -8,7 +8,9 @@ use strum_macros::{Display, EnumString};
 use tauri::{AppHandle, Emitter};
 
 use crate::launcher_config::constants::{CONFIG_PARTIAL_UPDATE_EVENT, LAUNCHER_CFG_FILE_NAME};
-use crate::launcher_config::migrations::{deserialize_background, deserialize_discover_sources};
+use crate::launcher_config::migrations::{
+  deserialize_background, deserialize_discover_sources, deserialize_language,
+};
 use crate::utils::string::snake_to_camel_case;
 use crate::utils::sys_info;
 use crate::{APP_DATA_DIR, EXE_DIR, IS_PORTABLE};
@@ -314,6 +316,7 @@ structstruck::strike! {
     pub general: struct GeneralConfig {
       pub general: struct {
         #[default(sys_info::get_mapped_locale())]
+        #[serde(deserialize_with = "deserialize_language")]
         pub language: String,
       },
       pub functionality: struct {
