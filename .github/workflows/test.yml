@@ -4,15 +4,24 @@ on:
   push:
     branches:
       - main
+      - codex/saumcl-development
     paths:
       - src/**
       - src-tauri/**
+      - package.json
+      - pnpm-lock.yaml
+      - pnpm-workspace.yaml
+      - .github/workflows/test.yml
   pull_request:
     branches:
       - main
     paths:
       - src/**
       - src-tauri/**
+      - package.json
+      - pnpm-lock.yaml
+      - pnpm-workspace.yaml
+      - .github/workflows/test.yml
 
 # Cancel prev CI if new commit come (learned from ant-design repo)
 concurrency:
@@ -42,6 +51,11 @@ jobs:
               - '!src/locales/**'
             tauri:
               - 'src-tauri/**'
+            config:
+              - 'package.json'
+              - 'pnpm-lock.yaml'
+              - 'pnpm-workspace.yaml'
+              - '.github/workflows/test.yml'
 
       - id: compute
         shell: bash
@@ -49,11 +63,11 @@ jobs:
           should_run_lint=false
           should_run_build=false
 
-          if [ "${{ steps.filter.outputs.src }}" = "true" ] || [ "${{ steps.filter.outputs.tauri }}" = "true" ]; then
+          if [ "${{ steps.filter.outputs.src }}" = "true" ] || [ "${{ steps.filter.outputs.tauri }}" = "true" ] || [ "${{ steps.filter.outputs.config }}" = "true" ]; then
             should_run_lint=true
           fi
 
-          if [ "${{ steps.filter.outputs.src-non-locales }}" = "true" ] || [ "${{ steps.filter.outputs.tauri }}" = "true" ]; then
+          if [ "${{ steps.filter.outputs.src-non-locales }}" = "true" ] || [ "${{ steps.filter.outputs.tauri }}" = "true" ] || [ "${{ steps.filter.outputs.config }}" = "true" ]; then
             should_run_build=true
           fi
 
@@ -135,6 +149,9 @@ jobs:
           # Exposed to Rust as compile-time constants by build.rs (all SJMCL_* env vars).
           SJMCL_BUILD_TYPE: test-build
           SJMCL_COMMIT_SHA: ${{ github.sha }}
+
+      - name: Test archive compatibility and extraction
+        run: cargo test --manifest-path src-tauri/Cargo.toml --locked --test zip_regressions
 
       - name: Build portable artifact
         id: portable

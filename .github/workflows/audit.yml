@@ -11,8 +11,33 @@ on:
       - '**/Cargo.lock'
       - '.cargo/audit.toml'
       - '.github/workflows/audit.yml'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
 
 jobs:
+  frontend:
+    name: pnpm audit
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.26.1
+          run_install: false
+      - name: Audit production dependencies
+        run: pnpm audit --prod --registry=https://registry.npmjs.org
+      # braces has no patched release; retain the development-tooling report.
+      - name: Audit all dependencies including development tools
+        continue-on-error: true
+        run: pnpm audit --registry=https://registry.npmjs.org
+
   audit:
     name: cargo audit
     runs-on: ubuntu-latest
