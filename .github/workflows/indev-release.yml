@@ -1,0 +1,113 @@
+name: Publish Indev Release
+
+on:
+  push:
+    tags:
+      - 'indev-*'
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: indev-release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: github.repository == 'Supaio/SAUMCL'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check version consistency
+        run: node scripts/version/index.js check
+
+      - name: Find verified build artifacts
+        id: verified
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const fs = require('node:fs');
+            const { execFileSync } = require('node:child_process');
+            const version = JSON.parse(fs.readFileSync('package.json', 'utf8')).version;
+            if (!/^\d+\.\d+\.\d+-indev$/.test(version)) throw new Error('An Indev version is required');
+            const number = version.slice(0, -'-indev'.length);
+            const tag = `indev-${number}`;
+            if (context.ref !== `refs/tags/${tag}`) throw new Error('Tag does not match package version');
+            const notes = `docs/releases/${tag}.md`;
+            if (!fs.existsSync(notes)) throw new Error('Release notes are missing');
+            const sha = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
+            const { owner, repo } = context.repo;
+            const runs = await github.rest.actions.listWorkflowRuns({ owner, repo, workflow_id: 'test.yml', head_sha: sha, status: 'success', per_page: 10 });
+            const run = runs.data.workflow_runs.find(value => value.head_sha === sha && value.event === 'push' && value.head_branch === 'codex/saumcl-development');
+            if (!run) throw new Error('This commit has no successful development build');
+            const result = await github.rest.actions.listWorkflowRunArtifacts({ owner, repo, run_id: run.id });
+            for (const [key, name] of [['windows', 'SAUMCL.exe'], ['linux', 'SAUMCL']]) {
+              const artifact = result.data.artifacts.find(value => value.name === name && !value.expired);
+              if (!artifact || !/^sha256:[a-f0-9]{64}$/.test(artifact.digest)) throw new Error(`Verified artifact is missing: ${name}`);
+              core.setOutput(`${key}_digest`, artifact.digest);
+            }
+            core.setOutput('run_id', run.id);
+            core.setOutput('tag', tag);
+            core.setOutput('title', `Indev ${number}`);
+            core.setOutput('notes', notes);
+
+      - name: Download Windows build
+        uses: actions/download-artifact@v8
+        with:
+          name: SAUMCL.exe
+          path: release-artifacts
+          run-id: ${{ steps.verified.outputs.run_id }}
+          github-token: ${{ github.token }}
+
+      - name: Download Linux build
+        uses: actions/download-artifact@v8
+        with:
+          name: SAUMCL
+          path: release-artifacts
+          run-id: ${{ steps.verified.outputs.run_id }}
+          github-token: ${{ github.token }}
+
+      - name: Verify and publish pre-release
+        uses: actions/github-script@v8
+        env:
+          RELEASE_TAG: ${{ steps.verified.outputs.tag }}
+          RELEASE_TITLE: ${{ steps.verified.outputs.title }}
+          RELEASE_NOTES: ${{ steps.verified.outputs.notes }}
+          WINDOWS_DIGEST: ${{ steps.verified.outputs.windows_digest }}
+          LINUX_DIGEST: ${{ steps.verified.outputs.linux_digest }}
+        with:
+          script: |
+            const fs = require('node:fs');
+            const { createHash } = require('node:crypto');
+            const { owner, repo } = context.repo;
+            const files = ['SAUMCL.exe', 'SAUMCL'];
+            const expected = [process.env.WINDOWS_DIGEST, process.env.LINUX_DIGEST];
+            const digests = new Map();
+            files.forEach((name, index) => {
+              const hash = createHash('sha256').update(fs.readFileSync(`release-artifacts/${name}`)).digest('hex');
+              if (`sha256:${hash}` !== expected[index]) throw new Error(`Artifact checksum mismatch: ${name}`);
+              digests.set(name, `sha256:${hash}`);
+            });
+            fs.writeFileSync('release-artifacts/SHA256SUMS.txt', files.map(name => `${digests.get(name).slice(7)}  ${name}\n`).join(''));
+            files.push('SHA256SUMS.txt');
+            const body = fs.readFileSync(process.env.RELEASE_NOTES, 'utf8');
+            let release;
+            try {
+              release = (await github.rest.repos.getReleaseByTag({ owner, repo, tag: process.env.RELEASE_TAG })).data;
+              if (!release.draft) throw new Error('This release is already published');
+            } catch (error) {
+              if (error.status !== 404) throw error;
+              release = (await github.rest.repos.createRelease({ owner, repo, tag_name: process.env.RELEASE_TAG, name: process.env.RELEASE_TITLE, body, draft: true, prerelease: true })).data;
+            }
+            for (const name of files) {
+              const existing = release.assets.find(asset => asset.name === name);
+              if (existing) await github.rest.repos.deleteReleaseAsset({ owner, repo, asset_id: existing.id });
+              const data = fs.readFileSync(`release-artifacts/${name}`);
+              const digest = `sha256:${createHash('sha256').update(data).digest('hex')}`;
+              const uploaded = await github.rest.repos.uploadReleaseAsset({ owner, repo, release_id: release.id, name, data, headers: { 'content-type': 'application/octet-stream', 'content-length': data.length } });
+              if (uploaded.data.state !== 'uploaded' || uploaded.data.digest !== digest) throw new Error(`Release asset verification failed: ${name}`);
+            }
+            const published = await github.rest.repos.updateRelease({ owner, repo, release_id: release.id, name: process.env.RELEASE_TITLE, body, draft: false, prerelease: true, make_latest: 'false' });
+            core.notice(`Published ${published.data.html_url}`);

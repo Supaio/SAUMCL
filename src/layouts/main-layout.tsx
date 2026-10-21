@@ -35,6 +35,7 @@ import {
   FileDnDProvider,
   useFileDnD,
 } from "@/components/special/file-dnd-overlay";
+import { useGuidedTour } from "@/components/special/guided-tour-provider";
 import WindowTitlebar from "@/components/window-titlebar";
 import { useLauncherConfig } from "@/contexts/config";
 import { useExtensionHost } from "@/contexts/extension/host";
@@ -50,15 +51,18 @@ const MainLayout = ({ children }: MainLayoutProps) => {
   const router = useRouter();
   const isStandAlone = router.pathname.startsWith("/standalone");
   const isPausedPage = isPausedFeatureRoute(router.pathname);
-  const { config, update } = useLauncherConfig();
+  const { config, update, newerVersion } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
   const { colorMode } = useColorMode();
   const isDarkenBg =
     colorMode === "dark" && config.appearance.background.autoDarken;
-  const { openGenericConfirmDialog } = useSharedModals();
+  const { openGenericConfirmDialog, openSharedModal, modalStates } =
+    useSharedModals();
+  const { isOpen: isGuidedTourOpen } = useGuidedTour();
 
   const [bgImgSrc, setBgImgSrc] = useState<string>("");
   const isStartupFlowStarted = useRef(false);
+  const notifiedVersion = useRef("");
 
   useEffect(() => {
     if (isPausedPage) router.replace("/settings/general");
@@ -203,6 +207,37 @@ const MainLayout = ({ children }: MainLayoutProps) => {
     onWelcomeAndTermsModalOpen,
     onStarUsModalOpen,
     update,
+  ]);
+
+  useEffect(() => {
+    if (
+      config.mocked ||
+      config.runCount <= 0 ||
+      isStandAlone ||
+      isWelcomeAndTermsModalOpen ||
+      isStarUsModalOpen ||
+      isGuidedTourOpen ||
+      Object.values(modalStates).some((modal) => modal.isOpen) ||
+      !newerVersion.version ||
+      notifiedVersion.current === newerVersion.version
+    ) {
+      return;
+    }
+    const timer = setTimeout(() => {
+      notifiedVersion.current = newerVersion.version;
+      openSharedModal("notify-new-version", { newVersion: newerVersion });
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [
+    config.mocked,
+    config.runCount,
+    isStandAlone,
+    isWelcomeAndTermsModalOpen,
+    isStarUsModalOpen,
+    isGuidedTourOpen,
+    modalStates,
+    newerVersion,
+    openSharedModal,
   ]);
 
   // construct background img src url from config.

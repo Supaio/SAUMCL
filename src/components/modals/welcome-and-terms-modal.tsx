@@ -12,6 +12,7 @@ import {
   ModalOverlay,
   ModalProps,
   Text,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { exit } from "@tauri-apps/plugin-process";
@@ -29,6 +30,7 @@ const WelcomeAndTermsModal: React.FC<Omit<ModalProps, "children">> = ({
   const { t } = useTranslation();
   const { config, update } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
+  const communityNoticeColor = useColorModeValue("red.600", "red.300");
   const { startGuidedTour } = useGuidedTour();
 
   const handleAgree = () => {
@@ -56,6 +58,7 @@ const WelcomeAndTermsModal: React.FC<Omit<ModalProps, "children">> = ({
       autoFocus={false}
       closeOnEsc={false}
       closeOnOverlayClick={false}
+      scrollBehavior="inside"
       size={{ base: "sm", lg: "md" }}
       returnFocusOnClose={false}
       {...props}
@@ -87,6 +90,15 @@ const WelcomeAndTermsModal: React.FC<Omit<ModalProps, "children">> = ({
                 ),
               }}
             />
+          </Text>
+          <Text
+            role="note"
+            mt={3}
+            fontSize="xs-sm"
+            fontWeight="semibold"
+            color={communityNoticeColor}
+          >
+            {t("AboutSettingsPage.about.communityNotice.message")}
           </Text>
           {matchedUnstableVersionLabel && (
             <Alert status="warning" mt={3} fontSize="xs-sm" borderRadius="md">

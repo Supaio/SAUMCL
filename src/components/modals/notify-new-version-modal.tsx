@@ -18,6 +18,7 @@ import { useLauncherConfig } from "@/contexts/config";
 import { useToast } from "@/contexts/toast";
 import { VersionMetaInfo } from "@/models/config";
 import { ConfigService } from "@/services/config";
+import { displayLauncherVersion } from "@/utils/string";
 
 interface NotifyNewVersionModalProps extends Omit<ModalProps, "children"> {
   newVersion: VersionMetaInfo;
@@ -32,6 +33,12 @@ const NotifyNewVersionModal: React.FC<NotifyNewVersionModalProps> = ({
   const { t } = useTranslation();
   const { config, isZh } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
+  const versionLabel = displayLauncherVersion({
+    ...config.basicInfo,
+    launcherVersion: newVersion.version,
+    buildCommitSha: "",
+    isPortable: false,
+  });
 
   const isLinux = config.basicInfo.osType === "linux"; // for Linux, navigate to the website.
 
@@ -75,7 +82,7 @@ const NotifyNewVersionModal: React.FC<NotifyNewVersionModalProps> = ({
     >
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>{`${t("NotifyNewVersionModal.title")} - ${newVersion.version}`}</ModalHeader>
+        <ModalHeader>{`${t("NotifyNewVersionModal.title")} - ${versionLabel}`}</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
           <MarkdownContainer>

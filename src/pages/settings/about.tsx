@@ -85,7 +85,9 @@ const AboutSettingsPage = () => {
               <Text fontSize="xs-sm" className="secondary-text">
                 {displayLauncherVersion(basicInfo)}
               </Text>
-              {basicInfo.buildType === BuildType.Release &&
+              {(basicInfo.buildType === BuildType.Release ||
+                (basicInfo.buildType === BuildType.TestBuild &&
+                  basicInfo.launcherVersion.endsWith("-indev"))) &&
                 isValidSemanticVersion(basicInfo.launcherVersion) && (
                   <Button
                     variant="subtle"

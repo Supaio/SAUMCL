@@ -18,11 +18,10 @@ use crate::launcher_config::helpers::java::{
   refresh_and_update_javas,
 };
 use crate::launcher_config::helpers::updater::{
-  self, download_target_version, fetch_latest_version,
+  self, download_target_version, fetch_latest_version, supports_launcher_updates,
 };
 use crate::launcher_config::models::{
-  BuildType, GameDirectory, GraphicsApi, JavaInfo, LauncherConfig, LauncherConfigError,
-  VersionMetaInfo,
+  GameDirectory, GraphicsApi, JavaInfo, LauncherConfig, LauncherConfigError, VersionMetaInfo,
 };
 use crate::tasks::{commands::schedule_progressive_task_group, monitor::TaskMonitor};
 use crate::utils::fs::{generate_unique_filename, get_subdirectories};
@@ -344,8 +343,7 @@ pub async fn check_launcher_update(app: AppHandle) -> SJMCLResult<VersionMetaInf
     )
   };
 
-  // skip non-release builds, then validate the version is a proper semver
-  if build_type != BuildType::Release || semver::Version::parse(&current_version).is_err() {
+  if !supports_launcher_updates(&build_type, &current_version) {
     return Ok(VersionMetaInfo::default());
   }
 
@@ -372,11 +370,10 @@ pub async fn check_launcher_update(app: AppHandle) -> SJMCLResult<VersionMetaInf
         release_notes,
         published_at,
       },
-      std::cmp::Ordering::Equal => VersionMetaInfo {
+      std::cmp::Ordering::Equal | std::cmp::Ordering::Less => VersionMetaInfo {
         version: "up2date".to_string(),
         ..Default::default()
       },
-      std::cmp::Ordering::Less => VersionMetaInfo::default(),
     });
   }
 

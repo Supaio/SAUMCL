@@ -8,22 +8,27 @@ use tauri::path::BaseDirectory;
 use tauri::{AppHandle, Manager};
 use tauri_plugin_http::reqwest;
 
-use crate::launcher_config::models::{LauncherConfig, LauncherConfigError};
+use crate::launcher_config::models::{BuildType, LauncherConfig, LauncherConfigError};
 use crate::tasks::PTaskParam;
 use crate::tasks::commands::schedule_progressive_task_group;
 use crate::tasks::download::DownloadParam;
 
-type SourceTuple = (&'static str, &'static str, fn(&str, &str) -> String);
-const SOURCES: [SourceTuple; 1] = [(
-  "https://api.github.com/repos/Supaio/SAUMCL/releases/latest",
-  "tag_name",
-  |ver, fname| {
-    format!(
-      "https://github.com/Supaio/SAUMCL/releases/download/v{}/{}",
-      ver, fname
-    )
-  },
-)];
+const RELEASES_ENDPOINT: &str = "https://api.github.com/repos/Supaio/SAUMCL/releases?per_page=100";
+
+pub fn supports_launcher_updates(build_type: &BuildType, version: &str) -> bool {
+  (build_type == &BuildType::Release
+    || (build_type == &BuildType::TestBuild && version.ends_with("-indev")))
+    && semver::Version::parse(version).is_ok()
+}
+
+fn release_version(release: &Value) -> Option<semver::Version> {
+  let tag = release.get("tag_name")?.as_str()?;
+  let version = match tag.strip_prefix("indev-") {
+    Some(number) => format!("{number}-indev"),
+    None => tag.strip_prefix('v').unwrap_or(tag).to_string(),
+  };
+  semver::Version::parse(&version).ok()
+}
 
 // Generate the new version filename on remote origin according to the current os, arch and is_portable
 fn build_resource_filename(ver: &str, os: &str, arch: &str, is_portable: bool) -> String {
@@ -41,6 +46,80 @@ fn build_resource_filename(ver: &str, os: &str, arch: &str, is_portable: bool) -
     _ => "",
   };
   format!("SAUMCL_{}_{}_{}{}", ver, os, arch, suffix)
+}
+
+fn release_asset<'a>(
+  release: &'a Value,
+  version: &semver::Version,
+  os: &str,
+  arch: &str,
+  is_portable: bool,
+) -> Option<&'a Value> {
+  let legacy_name = build_resource_filename(&version.to_string(), os, arch, is_portable);
+  let portable_name = match (os, arch, is_portable) {
+    ("windows", "x86_64", true) => Some("SAUMCL.exe"),
+    ("linux", "x86_64", _) => Some("SAUMCL"),
+    _ => None,
+  };
+  release.get("assets")?.as_array()?.iter().find(|asset| {
+    let name = asset.get("name").and_then(Value::as_str);
+    let url = asset
+      .get("browser_download_url")
+      .and_then(Value::as_str)
+      .and_then(|value| url::Url::parse(value).ok());
+    (name == Some(legacy_name.as_str()) || portable_name.is_some_and(|value| name == Some(value)))
+      && asset.get("state").and_then(Value::as_str) == Some("uploaded")
+      && asset.get("size").and_then(Value::as_u64).unwrap_or(0) > 0
+      && url.is_some_and(|url| {
+        url.scheme() == "https"
+          && url.host_str() == Some("github.com")
+          && url.path().starts_with("/Supaio/SAUMCL/releases/download/")
+      })
+  })
+}
+
+fn select_release<'a>(
+  releases: &'a Value,
+  current: &semver::Version,
+  os: &str,
+  arch: &str,
+  is_portable: bool,
+) -> Option<(&'a Value, semver::Version, &'a Value)> {
+  releases
+    .as_array()?
+    .iter()
+    .filter(|release| release.get("draft").and_then(Value::as_bool) != Some(true))
+    .filter_map(|release| {
+      let version = release_version(release)?;
+      if current.pre.is_empty()
+        && (!version.pre.is_empty()
+          || release.get("prerelease").and_then(Value::as_bool) == Some(true))
+      {
+        return None;
+      }
+      let asset = release_asset(release, &version, os, arch, is_portable)?;
+      Some((release, version, asset))
+    })
+    .max_by(|(_, left, _), (_, right, _)| left.cmp(right))
+}
+
+async fn fetch_releases(client: &reqwest::Client) -> SJMCLResult<Value> {
+  let releases = client
+    .get(RELEASES_ENDPOINT)
+    .header("Accept", "application/vnd.github+json")
+    .header("User-Agent", "SAUMCL")
+    .send()
+    .await
+    .map_err(|_| LauncherConfigError::FetchError)?
+    .error_for_status()
+    .map_err(|_| LauncherConfigError::FetchError)?
+    .json::<Value>()
+    .await
+    .map_err(|_| LauncherConfigError::FetchError)?;
+  if !releases.is_array() {
+    return Err(LauncherConfigError::FetchError.into());
+  }
+  Ok(releases)
 }
 
 // Generate the new filename on the local disk.
@@ -62,54 +141,34 @@ pub async fn fetch_latest_version(
   app: &AppHandle,
 ) -> SJMCLResult<Option<(String, String, String, String)>> {
   let config_binding = app.state::<Mutex<LauncherConfig>>();
-  let (os, arch, is_portable, is_china_mainland_ip) = {
+  let (current_version, os, arch, is_portable) = {
     let config_state = config_binding.lock()?;
     (
+      config_state.basic_info.launcher_version.clone(),
       config_state.basic_info.os_type.clone(),
       config_state.basic_info.arch.clone(),
       config_state.basic_info.is_portable,
-      config_state.basic_info.is_china_mainland_ip,
     )
   };
   let client = app.state::<reqwest::Client>();
-
-  let mut sources = SOURCES;
-  // If not in China (mainland), firstly try GitHub.
-  if !is_china_mainland_ip {
-    sources.reverse();
-  }
-
-  for (endpoint, field, _) in sources {
-    let Ok(resp) = client.get(endpoint).send().await else {
-      continue;
-    };
-    if resp.status() == reqwest::StatusCode::NOT_FOUND {
-      return Ok(None);
-    }
-    if let Ok(j) = resp.json::<Value>().await
-      && let Some(mut ver) = j.get(field).and_then(|v| v.as_str()).map(|s| s.to_string())
-    {
-      if ver.starts_with('v') {
-        ver.remove(0);
-      }
-      let fname = build_resource_filename(&ver, os.as_str(), arch.as_str(), is_portable);
-
-      let release_notes = j
-        .get("body")
-        .and_then(|v| v.as_str())
-        .unwrap_or_default()
-        .to_string();
-      let published_at = j
-        .get("published_at")
-        .and_then(|v| v.as_str())
-        .unwrap_or_default()
-        .to_string();
-
-      return Ok(Some((ver, fname, release_notes, published_at)));
-    }
-  }
-
-  Err(LauncherConfigError::FetchError.into())
+  let current =
+    semver::Version::parse(&current_version).map_err(|_| LauncherConfigError::FetchError)?;
+  let releases = fetch_releases(&client).await?;
+  Ok(
+    select_release(&releases, &current, &os, &arch, is_portable).map(
+      |(release, version, asset)| {
+        (
+          version.to_string(),
+          asset["name"].as_str().unwrap().to_string(),
+          release["body"].as_str().unwrap_or_default().to_string(),
+          release["published_at"]
+            .as_str()
+            .unwrap_or_default()
+            .to_string(),
+        )
+      },
+    ),
+  )
 }
 
 pub async fn download_target_version(
@@ -118,45 +177,43 @@ pub async fn download_target_version(
   fname: String,
 ) -> SJMCLResult<()> {
   let config_binding = app.state::<Mutex<LauncherConfig>>();
-  let (download_cache_dir, is_china_mainland_ip) = {
+  let (download_cache_dir, os, arch, is_portable) = {
     let config_state = config_binding.lock()?;
     (
       config_state.download.cache.directory.clone(),
-      config_state.basic_info.is_china_mainland_ip,
+      config_state.basic_info.os_type.clone(),
+      config_state.basic_info.arch.clone(),
+      config_state.basic_info.is_portable,
     )
   };
 
   let client = app.state::<reqwest::Client>();
 
-  let mut sources = SOURCES;
-  if !is_china_mainland_ip {
-    sources.reverse();
-  }
-
-  for (endpoint, _, mk_url) in sources {
-    if let Ok(resp) = client.get(endpoint).send().await
-      && resp.status().is_success()
-    {
-      let url = mk_url(&version, &fname);
-
-      schedule_progressive_task_group(
-        app.clone(),
-        format!("launcher-update?{}", fname),
-        vec![PTaskParam::Download(DownloadParam {
-          src: url::Url::parse(&url).map_err(|_| LauncherConfigError::FetchError)?,
-          dest: download_cache_dir.join(&fname),
-          filename: Some(fname),
-          sha1: None,
-        })],
-        true,
-      )
-      .await?;
-
-      return Ok(());
-    }
-  }
-
-  Err(LauncherConfigError::FetchError.into())
+  let wanted = semver::Version::parse(&version).map_err(|_| LauncherConfigError::FetchError)?;
+  let releases = fetch_releases(&client).await?;
+  let asset = releases
+    .as_array()
+    .unwrap()
+    .iter()
+    .filter(|release| release.get("draft").and_then(Value::as_bool) != Some(true))
+    .filter(|release| release_version(release).as_ref() == Some(&wanted))
+    .filter_map(|release| release_asset(release, &wanted, &os, &arch, is_portable))
+    .find(|asset| asset["name"].as_str() == Some(fname.as_str()))
+    .ok_or(LauncherConfigError::FetchError)?;
+  let url = asset["browser_download_url"].as_str().unwrap();
+  schedule_progressive_task_group(
+    app.clone(),
+    format!("launcher-update?{}", fname),
+    vec![PTaskParam::Download(DownloadParam {
+      src: url::Url::parse(url).map_err(|_| LauncherConfigError::FetchError)?,
+      dest: download_cache_dir.join(&fname),
+      filename: Some(fname),
+      sha1: None,
+    })],
+    true,
+  )
+  .await?;
+  Ok(())
 }
 
 #[cfg(target_os = "windows")]
@@ -369,9 +426,117 @@ rm -rf "$TMPDIR" || true
 
 #[cfg(test)]
 mod tests {
+  use serde_json::{Value, json};
+
   use crate::launcher_config::helpers::updater::{
-    build_local_new_filename, build_resource_filename,
+    build_local_new_filename, build_resource_filename, release_asset, release_version,
+    select_release, supports_launcher_updates,
   };
+  use crate::launcher_config::models::BuildType;
+
+  fn release(tag: &str, prerelease: bool, filename: &str) -> Value {
+    json!({
+      "tag_name": tag,
+      "prerelease": prerelease,
+      "draft": false,
+      "assets": [{
+        "name": filename,
+        "state": "uploaded",
+        "size": 1024,
+        "browser_download_url": format!(
+          "https://github.com/Supaio/SAUMCL/releases/download/{tag}/{filename}"
+        )
+      }]
+    })
+  }
+
+  #[test]
+  fn indev_builds_can_check_updates_without_enabling_other_test_builds() {
+    assert!(supports_launcher_updates(
+      &BuildType::TestBuild,
+      "19.0.1-indev"
+    ));
+    assert!(supports_launcher_updates(&BuildType::Release, "19.0.1"));
+    for build_type in [BuildType::Dev, BuildType::Nightly, BuildType::Beta] {
+      assert!(!supports_launcher_updates(&build_type, "19.0.1-indev"));
+    }
+    assert!(!supports_launcher_updates(&BuildType::TestBuild, "0.0.1"));
+    assert!(!supports_launcher_updates(&BuildType::Release, "invalid"));
+  }
+
+  #[test]
+  fn github_tags_resolve_to_comparable_versions() {
+    for tag in ["indev-19.0.1", "v19.0.1-indev", "19.0.1-indev"] {
+      assert_eq!(
+        release_version(&release(tag, true, "SAUMCL.exe"))
+          .unwrap()
+          .to_string(),
+        "19.0.1-indev"
+      );
+    }
+    assert!(release_version(&release("nightly", true, "SAUMCL.exe")).is_none());
+  }
+
+  #[test]
+  fn indev_updates_use_semantic_order_and_skip_unavailable_releases() {
+    let mut draft = release("indev-99.0.0", true, "SAUMCL.exe");
+    draft["draft"] = json!(true);
+    let mut uploading = release("indev-98.0.0", true, "SAUMCL.exe");
+    uploading["assets"][0]["state"] = json!("new");
+    let releases = json!([
+      release("indev-19.0.2", true, "SAUMCL.exe"),
+      draft,
+      uploading,
+      release("indev-19.0.10", true, "SAUMCL.exe"),
+      release("indev-20.0.0", true, "SHA256SUMS.txt")
+    ]);
+    let current = semver::Version::parse("19.0.1-indev").unwrap();
+    let (_, version, asset) =
+      select_release(&releases, &current, "windows", "x86_64", true).unwrap();
+    assert_eq!(version.to_string(), "19.0.10-indev");
+    assert_eq!(asset["name"], "SAUMCL.exe");
+    assert_eq!(
+      asset["browser_download_url"],
+      "https://github.com/Supaio/SAUMCL/releases/download/indev-19.0.10/SAUMCL.exe"
+    );
+  }
+
+  #[test]
+  fn stable_clients_skip_prereleases() {
+    let releases = json!([
+      release("indev-20.0.0", true, "SAUMCL.exe"),
+      release("v19.0.2", false, "SAUMCL.exe")
+    ]);
+    let current = semver::Version::parse("19.0.1").unwrap();
+    let (_, version, _) = select_release(&releases, &current, "windows", "x86_64", true).unwrap();
+    assert_eq!(version.to_string(), "19.0.2");
+  }
+
+  #[test]
+  fn portable_assets_are_not_offered_to_other_architectures_or_installers() {
+    let release = release("indev-19.0.2", true, "SAUMCL.exe");
+    let version = semver::Version::parse("19.0.2-indev").unwrap();
+    assert!(release_asset(&release, &version, "windows", "x86_64", true).is_some());
+    assert!(release_asset(&release, &version, "windows", "aarch64", true).is_none());
+    assert!(release_asset(&release, &version, "windows", "x86_64", false).is_none());
+  }
+
+  #[test]
+  fn unsafe_or_empty_release_assets_are_rejected() {
+    let version = semver::Version::parse("19.0.2-indev").unwrap();
+    for url in [
+      "https://example.invalid/SAUMCL.exe",
+      "http://github.com/Supaio/SAUMCL/releases/download/indev-19.0.2/SAUMCL.exe",
+      "https://github.com/other/project/releases/download/indev-19.0.2/SAUMCL.exe",
+    ] {
+      let mut value = release("indev-19.0.2", true, "SAUMCL.exe");
+      value["assets"][0]["browser_download_url"] = json!(url);
+      assert!(release_asset(&value, &version, "windows", "x86_64", true).is_none());
+    }
+    let mut empty = release("indev-19.0.2", true, "SAUMCL.exe");
+    empty["assets"][0]["size"] = json!(0);
+    assert!(release_asset(&empty, &version, "windows", "x86_64", true).is_none());
+  }
 
   #[test]
   fn release_filenames_match_saumcl_distribution_artifacts() {
