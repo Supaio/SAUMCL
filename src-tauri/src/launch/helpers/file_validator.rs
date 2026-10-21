@@ -92,7 +92,11 @@ pub async fn get_invalid_library_files(
   let futs = artifacts.into_iter().map(move |artifact| async move {
     let file_path = library_path.join(&artifact.path);
     let exists = fs::try_exists(&file_path).await?;
-    if exists && (!check_hash || validate_sha1(file_path.clone(), artifact.sha1.clone()).is_ok()) {
+    if exists
+      && (!check_hash
+        || artifact.sha1.is_empty()
+        || validate_sha1(file_path.clone(), artifact.sha1.clone()).is_ok())
+    {
       Ok(None)
     } else if artifact.url.is_empty() {
       Err(LaunchError::GameFilesIncomplete.into())
@@ -112,7 +116,7 @@ pub async fn get_invalid_library_files(
         src,
         dest: file_path,
         filename: None,
-        sha1: Some(artifact.sha1.clone()),
+        sha1: (!artifact.sha1.is_empty()).then_some(artifact.sha1),
       })))
     }
   });
@@ -256,7 +260,8 @@ pub fn merge_library_lists(
   libraries_a: &[LibrariesValue],
   libraries_b: &[LibrariesValue],
 ) -> Vec<LibrariesValue> {
-  let mut library_map: HashMap<LibraryKey, LibrariesValue> = HashMap::new();
+  let mut library_map: HashMap<LibraryKey, usize> = HashMap::new();
+  let mut libraries: Vec<LibrariesValue> = Vec::new();
 
   for library in libraries_a.iter().chain(libraries_b.iter()) {
     if let Ok(library_parts) = parse_library_name(&library.name, None) {
@@ -269,21 +274,23 @@ pub fn merge_library_lists(
 
       let new_version = library_parts.pack_version;
 
-      if let Some(existing_library) = library_map.get(&key) {
+      if let Some(&index) = library_map.get(&key) {
+        let existing_library = &libraries[index];
         let existing_version = parse_library_name(&existing_library.name, None)
           .map(|parts| parts.pack_version)
           .unwrap_or("0.1.0".to_string());
 
         if parse_sem_version(&new_version) > parse_sem_version(&existing_version) {
-          library_map.insert(key, library.clone());
+          libraries[index] = library.clone();
         }
       } else {
-        library_map.insert(key, library.clone());
+        library_map.insert(key, libraries.len());
+        libraries.push(library.clone());
       }
     }
   }
 
-  library_map.into_values().collect()
+  libraries
 }
 
 fn parse_sem_version(version: &str) -> Version {
@@ -354,7 +361,15 @@ pub fn get_nonnative_library_paths(
   libraries = merge_library_lists(&libraries, &[]); // remove duplicates to prevent launch errors
   let mut result = Vec::new();
   for library in libraries {
-    result.push(library_path.join(convert_library_name_to_path(&library.name, None)?));
+    let path = library
+      .downloads
+      .as_ref()
+      .and_then(|downloads| downloads.artifact.as_ref())
+      .map(|artifact| artifact.path.as_str())
+      .filter(|path| !path.is_empty())
+      .map(str::to_string)
+      .unwrap_or(convert_library_name_to_path(&library.name, None)?);
+    result.push(library_path.join(path));
   }
   Ok(result)
 }
@@ -578,4 +593,31 @@ pub async fn prepare_legacy_assets(
     .await?;
 
   Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+  use crate::instance::helpers::client_json::LibrariesValue;
+  use crate::launch::helpers::file_validator::merge_library_lists;
+
+  #[test]
+  fn library_merge_preserves_early_classpath_order_while_upgrading_duplicates() {
+    let library = |name: &str| LibrariesValue {
+      name: name.to_string(),
+      ..Default::default()
+    };
+    let base = vec![
+      library("com.github.GTNewHorizons:lwjgl3ify:2.1.16:forgePatches"),
+      library("com.google.guava:guava:15.0"),
+      library("net.minecraftforge:forge:1.7.10-10.13.4.1614-1.7.10:universal"),
+    ];
+    let additional = vec![library("com.google.guava:guava:17.0"), base[0].clone()];
+    for _ in 0..20 {
+      let merged = merge_library_lists(&base, &additional);
+      assert_eq!(merged.len(), 3);
+      assert_eq!(merged[0].name, base[0].name);
+      assert_eq!(merged[1].name, "com.google.guava:guava:17.0");
+      assert_eq!(merged[2].name, base[2].name);
+    }
+  }
 }

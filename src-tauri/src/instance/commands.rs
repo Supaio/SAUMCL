@@ -60,6 +60,7 @@ use crate::instance::models::world::base::WorldInfo;
 use crate::instance::models::world::level::LevelData;
 use crate::launch::helpers::file_validator::{get_invalid_assets, get_invalid_library_files};
 use crate::launch::helpers::jre_selector::{get_minimum_java_version_by_game, select_java_runtime};
+use crate::launch::helpers::lwjgl3ify::prepare_lwjgl3ify;
 use crate::launch::models::LaunchError;
 use crate::launcher_config::helpers::java::build_mojang_java_download_params;
 use crate::launcher_config::helpers::misc::get_global_game_config;
@@ -1136,6 +1137,18 @@ pub async fn create_instance(
 
   let mut task_params = Vec::<PTaskParam>::new();
 
+  // Read bundled modern-Java launch metadata before selecting/downloading Java
+  // and planning libraries. GTNH's MultiMC patches are outside .minecraft/.
+  if let Some(modpack_path) = modpack_path.as_ref() {
+    let file = fs::File::open(modpack_path).map_err(|_| InstanceError::FileNotFoundError)?;
+    extract_overrides(&file, &version_path)?;
+    if game.id == "1.7.10" && mod_loader.loader_type == ModLoaderType::Forge {
+      let dirs = get_instance_subdir_paths(&app, &instance, &[&InstanceSubdirType::Libraries])
+        .ok_or(InstanceError::InstanceNotFoundByID)?;
+      prepare_lwjgl3ify(&version_path.join("mods"), &dirs[0], &mut version_info)?;
+    }
+  }
+
   // auto download recommended java if needed
   let mut java_version_to_download: Option<String> = None;
   if auto_download_java {
@@ -1234,7 +1247,6 @@ pub async fn create_instance(
     let path = PathBuf::from(modpack_path);
     let file = fs::File::open(&path).map_err(|_| InstanceError::FileNotFoundError)?;
     task_params.extend(get_download_params(&app, &file, &version_path).await?);
-    extract_overrides(&file, &version_path)?;
   }
 
   schedule_progressive_task_group(

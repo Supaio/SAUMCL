@@ -5,7 +5,7 @@ use serde_json::Value;
 use shlex::try_quote;
 use sjmcl_types::error::{SJMCLError, SJMCLResult};
 use std::borrow::Cow;
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 use std::path::PathBuf;
 use std::sync::Mutex;
 use tauri::{AppHandle, Manager};
@@ -168,8 +168,6 @@ pub async fn generate_launch_command(
     libraries_dir,
     selected_instance.mod_loader.loader_type,
   )?
-  .into_iter()
-  .collect::<HashSet<_>>()
   .into_iter()
   .map(|p| p.to_string_lossy().to_string())
   .collect();

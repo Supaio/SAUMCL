@@ -112,13 +112,14 @@ pub fn extract_overrides(file: &File, instance_path: &Path) -> SJMCLResult<()> {
     None
   };
   let overrides_path = get_overrides_path(file).ok_or(InstanceError::ModpackManifestParseError)?;
+  let overrides_path = format!("{}/", overrides_path.trim_end_matches('/'));
   let mut archive = ZipArchive::new(file)?;
   for i in 0..archive.len() {
     let mut file = archive.by_index(i)?;
     let path = file.mangled_name()?;
-    let outpath = if path.starts_with(format!("{}/", overrides_path)) {
+    let outpath = if path.starts_with(&overrides_path) {
       // Remove "{overrides}/" prefix and join with instance path
-      let relative_path = path.strip_prefix(format!("{}/", overrides_path)).unwrap();
+      let relative_path = path.strip_prefix(&overrides_path).unwrap();
       instance_path.join(relative_path)
     } else {
       continue;
@@ -138,4 +139,65 @@ pub fn extract_overrides(file: &File, instance_path: &Path) -> SJMCLResult<()> {
     }
   }
   Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+  use std::fs::{self, File};
+  use std::io::Write;
+  use uuid::Uuid;
+  use zip::ZipWriter;
+  use zip::write::SimpleFileOptions;
+
+  use crate::instance::helpers::modpack::import::extract_overrides;
+
+  #[test]
+  fn extracts_multimc_game_files_from_root_and_nested_archives() {
+    let root = std::env::temp_dir().join(format!("saumcl-multimc-{}", Uuid::new_v4()));
+    fs::create_dir_all(&root).unwrap();
+    for (index, prefix) in [
+      "",
+      "GT New Horizons 2.8.4/",
+      "bundle/GT New Horizons 2.8.4/",
+    ]
+    .iter()
+    .enumerate()
+    {
+      let archive_path = root.join(format!("{index}.zip"));
+      let mut archive = ZipWriter::new(File::create(&archive_path).unwrap());
+      let options = SimpleFileOptions::default();
+      for (name, contents) in [
+        (
+          "mmc-pack.json",
+          r#"{"formatVersion":1,"components":[{"uid":"net.minecraft","version":"1.7.10"}]}"#,
+        ),
+        ("instance.cfg", "InstanceType=OneSix\nname=GTNH 2.8.4\n"),
+        (".minecraft/mods/example.jar", "mod contents"),
+        (".minecraft/config/lwjgl3ify.cfg", "pack configuration"),
+        (
+          "patches/net.minecraft.json",
+          "metadata outside the game directory",
+        ),
+      ] {
+        archive
+          .start_file(format!("{prefix}{name}"), options)
+          .unwrap();
+        archive.write_all(contents.as_bytes()).unwrap();
+      }
+      archive.finish().unwrap();
+      let destination = root.join(format!("instance-{index}"));
+      extract_overrides(&File::open(&archive_path).unwrap(), &destination).unwrap();
+      assert_eq!(
+        fs::read_to_string(destination.join("mods/example.jar")).unwrap(),
+        "mod contents"
+      );
+      assert_eq!(
+        fs::read_to_string(destination.join("config/lwjgl3ify.cfg")).unwrap(),
+        "pack configuration"
+      );
+      assert!(!destination.join("patches").exists());
+    }
+    assert_eq!(root.parent(), Some(std::env::temp_dir().as_path()));
+    fs::remove_dir_all(root).unwrap();
+  }
 }

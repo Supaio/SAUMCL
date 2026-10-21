@@ -20,7 +20,9 @@ use crate::account::helpers::{authlib_injector, microsoft};
 use crate::account::models::PlayerType;
 use crate::instance::helpers::client_json::{McClientInfo, replace_native_libraries};
 use crate::instance::helpers::misc::{get_instance_game_config, get_instance_subdir_paths};
-use crate::instance::models::misc::{Instance, InstanceError, InstanceSubdirType, ModLoaderStatus};
+use crate::instance::models::misc::{
+  Instance, InstanceError, InstanceSubdirType, ModLoaderStatus, ModLoaderType,
+};
 use crate::launch::helpers::command_generator::{
   LaunchCommand, export_full_launch_command, generate_launch_command,
 };
@@ -32,13 +34,16 @@ use crate::launch::helpers::graphics_handler::{
 };
 use crate::launch::helpers::jre_selector::select_java_runtime;
 use crate::launch::helpers::log_parser::parse_crash_report_path_from_log;
+use crate::launch::helpers::lwjgl3ify::prepare_lwjgl3ify;
 use crate::launch::helpers::misc::get_separator;
 use crate::launch::helpers::process_monitor::{
   kill_process, monitor_process, set_process_priority,
 };
 use crate::launch::models::{LaunchError, LaunchingState};
 use crate::launcher_config::helpers::java::refresh_and_update_javas;
-use crate::launcher_config::models::{FileValidatePolicy, LauncherConfig, LauncherVisiablity};
+use crate::launcher_config::models::{
+  FileValidatePolicy, JavaInfo, LauncherConfig, LauncherVisiablity,
+};
 use crate::resource::helpers::misc::get_source_priority_list;
 use crate::tasks::commands::schedule_progressive_task_group;
 use crate::utils::fs::create_zip_from_dirs;
@@ -67,13 +72,43 @@ pub async fn select_suitable_jre(
   let client_path = instance
     .version_path
     .join(format!("{}.json", instance.name));
-  let client_info = load_json_async::<McClientInfo>(&client_path).await?;
-
+  let mut client_info = load_json_async::<McClientInfo>(&client_path).await?;
   refresh_and_update_javas(&app).await;
+
+  let mut game_java = game_config.game_java.clone();
+  if instance.version == "1.7.10"
+    && matches!(
+      instance.mod_loader.loader_type,
+      ModLoaderType::Forge | ModLoaderType::LegacyForge
+    )
+  {
+    let dirs = get_instance_subdir_paths(
+      &app,
+      &instance,
+      &[&InstanceSubdirType::Mods, &InstanceSubdirType::Libraries],
+    )
+    .ok_or(InstanceError::InstanceNotFoundByID)?;
+    let prepared = prepare_lwjgl3ify(&dirs[0], &dirs[1], &mut client_info)?;
+    // An old Java 8 override must not force this modern-Java pack into its relauncher.
+    if prepared && !game_java.auto {
+      let java_list = app.state::<Mutex<Vec<JavaInfo>>>();
+      let required = client_info
+        .java_version
+        .as_ref()
+        .map_or(21, |java| java.major_version);
+      if !java_list
+        .lock()?
+        .iter()
+        .any(|java| java.exec_path == game_java.exec_path && java.major_version >= required)
+      {
+        game_java.auto = true;
+      }
+    }
+  }
 
   let selected_java = select_java_runtime(
     &app,
-    Some(&game_config.game_java),
+    Some(&game_java),
     &instance,
     client_info
       .java_version

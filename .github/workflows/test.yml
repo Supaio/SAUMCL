@@ -164,6 +164,8 @@ jobs:
       - name: Test launcher configuration and archives
         run: |
           cargo test --manifest-path src-tauri/Cargo.toml --locked --lib launcher_config::
+          cargo test --manifest-path src-tauri/Cargo.toml --locked --lib launch::helpers::
+          cargo test --manifest-path src-tauri/Cargo.toml --locked --lib instance::helpers::modpack::import::tests
           cargo test --manifest-path src-tauri/Cargo.toml --locked --test zip_regressions
 
       - name: Build portable artifact
