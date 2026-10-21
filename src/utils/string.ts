@@ -135,7 +135,7 @@ export const displayLauncherVersion = (info: {
   isPortable: boolean;
 }): string => {
   if (info.launcherVersion.endsWith("-indev")) {
-    return `Indev ${info.launcherVersion.slice(0, -"-indev".length)}`;
+    return `Indev ${info.launcherVersion.slice(0, -"-indev".length).replace(/\.0$/, "")}`;
   }
   if (info.buildType !== BuildType.Release) {
     // non-release builds: show the commit short hash in parentheses when
