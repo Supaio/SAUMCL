@@ -478,6 +478,7 @@ pub fn retrieve_auth_server_list(app: AppHandle) -> SJMCLResult<Vec<AuthServer>>
   let auth_servers = state
     .auth_servers
     .iter()
+    .filter(|server| normalize_url(&server.auth_url) != "https://skin.mc.sjtu.cn/api/yggdrasil")
     .map(|server| AuthServer::from(server.clone()))
     .collect();
   Ok(auth_servers)
