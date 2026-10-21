@@ -14,7 +14,9 @@ import { IconType } from "react-icons";
 import { FaRegStar, FaStar } from "react-icons/fa6";
 import { GoDotFill } from "react-icons/go";
 import {
+  LuArrowLeftRight,
   LuBookDashed,
+  LuCheck,
   LuEarth,
   LuFullscreen,
   LuHaze,
@@ -63,9 +65,15 @@ const InstanceDetailsLayoutContent: React.FC<{ children: React.ReactNode }> = ({
   const selectedTab = router.pathname.split("/")[4] || "overview";
 
   const { summary, handleUpdateInstanceConfig } = useInstanceSharedData();
-  const { config, isZh } = useLauncherConfig();
+  const { config, update, isZh } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
   const navBarType = config.general.functionality.instancesNavType;
+  const isLaunchInstance =
+    !!summary && config.states.shared.selectedInstanceId === summary.id;
+
+  const handleSelectLaunchInstance = () => {
+    if (summary) update("states.shared.selectedInstanceId", summary.id);
+  };
 
   const {
     isOpen: isExportModpackModalOpen,
@@ -191,7 +199,7 @@ const InstanceDetailsLayoutContent: React.FC<{ children: React.ReactNode }> = ({
         </HStack>
       }
       headExtra={
-        <HStack spacing={2}>
+        <HStack spacing={2} flexWrap="wrap" justify="flex-end">
           {instanceSecMenuOperations.map((btn, index) => (
             <CommonIconButton
               key={index}
@@ -205,8 +213,22 @@ const InstanceDetailsLayoutContent: React.FC<{ children: React.ReactNode }> = ({
             />
           ))}
           <Button
+            leftIcon={isLaunchInstance ? <LuCheck /> : <LuArrowLeftRight />}
+            size="sm"
+            variant="outline"
+            colorScheme={primaryColor}
+            aria-pressed={isLaunchInstance}
+            isDisabled={!summary || isLaunchInstance}
+            _disabled={{ opacity: 1, cursor: "default" }}
+            onClick={handleSelectLaunchInstance}
+          >
+            {t(
+              `InstanceDetailsLayout.button.${isLaunchInstance ? "selectedForLaunch" : "selectForLaunch"}`
+            )}
+          </Button>
+          <Button
             leftIcon={<LuPlay />}
-            size="xs"
+            size="sm"
             ml={1}
             colorScheme={primaryColor}
             onClick={() => {

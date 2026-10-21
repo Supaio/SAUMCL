@@ -1522,7 +1522,9 @@
       "settings": "Settings"
     },
     "button": {
-      "launch": "Launch Instance"
+      "launch": "Launch Instance",
+      "selectForLaunch": "Set as launch instance",
+      "selectedForLaunch": "Selected for launch"
     }
   },
   "InstanceIconSelector": {
@@ -1552,7 +1554,7 @@
         "info": "Mod Info",
         "update": "Update",
         "search": "Search",
-        "placeholder": " Search mods..."
+        "placeholder": "Name / Pinyin / ID"
       }
     }
   },
@@ -2115,6 +2117,8 @@
     }
   },
   "SelectInstanceModal": {
+    "clearSearch": "Clear search",
+    "searchPlaceholder": "Search instances...",
     "header": {
       "title": "Select Instance",
       "titleForLaunch": "Select Instance to Launch"

@@ -1522,7 +1522,9 @@
       "settings": "設定"
     },
     "button": {
-      "launch": "啟動實例"
+      "launch": "啟動實例",
+      "selectForLaunch": "設為啟動實例",
+      "selectedForLaunch": "目前啟動實例"
     }
   },
   "InstanceIconSelector": {
@@ -1552,7 +1554,7 @@
         "info": "檢視資訊",
         "update": "檢查更新",
         "search": "搜尋",
-        "placeholder": "搜尋模組..."
+        "placeholder": "名稱 / 拼音 / ID"
       }
     }
   },
@@ -2115,6 +2117,8 @@
     }
   },
   "SelectInstanceModal": {
+    "clearSearch": "清空搜尋",
+    "searchPlaceholder": "搜尋實例...",
     "header": {
       "title": "選擇實例",
       "titleForLaunch": "選擇要啟動的實例"

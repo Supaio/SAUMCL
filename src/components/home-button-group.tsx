@@ -66,6 +66,8 @@ const ButtonWithPopover: React.FC<CustomButtonProps> = ({
       onClose={handleClose}
       placement="top-end"
       gutter={12}
+      isLazy
+      lazyBehavior="unmount"
     >
       <Tooltip label={tooltip} placement="top-end" isDisabled={tooltipDisabled}>
         <Box lineHeight={0}>
@@ -228,6 +230,7 @@ const HomeButtonGroup = () => {
                   selectedInstance={selectedInstance}
                   viewType="list"
                   withMenu={false}
+                  searchable
                 />
               }
               onClick={() => router.push("/instances/list")}

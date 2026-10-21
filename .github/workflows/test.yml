@@ -105,6 +105,9 @@ jobs:
       
       - name: Lint JavaScript/TypeScript Frontend
         run: pnpm eslint 'src/**/*.{js,jsx,ts,tsx}' 'scripts/qa/*.mjs' --no-fix --max-warnings=0
+
+      - name: Test local instance and mod search
+        run: node --experimental-strip-types scripts/qa/search-regressions.mjs
       
       - uses: dtolnay/rust-toolchain@stable
         with:

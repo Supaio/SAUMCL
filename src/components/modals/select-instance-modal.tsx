@@ -42,6 +42,7 @@ const SelectInstanceModal: React.FC<SelectInstanceModalProps> = ({
             selectedInstance={selectedInstance}
             viewType="list"
             withMenu={false}
+            searchable
             onSelectInstance={onInstanceSelected}
             onWheel={(e) => {
               e.stopPropagation();

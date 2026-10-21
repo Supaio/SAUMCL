@@ -1522,7 +1522,9 @@
       "settings": "设置"
     },
     "button": {
-      "launch": "启动实例"
+      "launch": "启动实例",
+      "selectForLaunch": "设为启动实例",
+      "selectedForLaunch": "当前启动实例"
     }
   },
   "InstanceIconSelector": {
@@ -1552,7 +1554,7 @@
         "info": "查看信息",
         "update": "检查更新",
         "search": "搜索",
-        "placeholder": "搜索模组..."
+        "placeholder": "名称 / 拼音 / ID"
       }
     }
   },
@@ -2115,6 +2117,8 @@
     }
   },
   "SelectInstanceModal": {
+    "clearSearch": "清空搜索",
+    "searchPlaceholder": "搜索实例...",
     "header": {
       "title": "选择实例",
       "titleForLaunch": "选择要启动的实例"

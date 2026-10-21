@@ -4,12 +4,21 @@ import {
   HStack,
   Icon,
   Image,
+  Input,
+  InputGroup,
+  InputLeftElement,
+  InputRightElement,
   Radio,
   RadioGroup,
   Text,
+  useColorModeValue,
 } from "@chakra-ui/react";
+import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { FaStar } from "react-icons/fa6";
 import { GoDotFill } from "react-icons/go";
+import { LuSearch, LuX } from "react-icons/lu";
+import { CommonIconButton } from "@/components/common/common-icon-button";
 import Empty from "@/components/common/empty";
 import {
   OptionItemGroup,
@@ -21,6 +30,7 @@ import { useLauncherConfig } from "@/contexts/config";
 import { isChakraColor } from "@/enums/misc";
 import { InstanceSummary } from "@/models/instance/misc";
 import { generateInstanceDesc, getInstanceIconSrc } from "@/utils/instance";
+import { createTextSearch } from "@/utils/search";
 
 interface InstancesViewProps extends BoxProps {
   instances: InstanceSummary[];
@@ -29,6 +39,7 @@ interface InstancesViewProps extends BoxProps {
   onSelectInstance?: (instance: InstanceSummary) => void;
   onSelectCallback?: () => void;
   withMenu?: boolean;
+  searchable?: boolean;
 }
 
 const InstancesView: React.FC<InstancesViewProps> = ({
@@ -38,10 +49,27 @@ const InstancesView: React.FC<InstancesViewProps> = ({
   onSelectInstance,
   onSelectCallback = () => {},
   withMenu = true,
+  searchable = false,
   ...boxProps
 }) => {
   const { config, update } = useLauncherConfig();
+  const { t } = useTranslation();
   const primaryColor = config.appearance.theme.primaryColor;
+  const searchBackground = useColorModeValue("white", "gray.800");
+  const [query, setQuery] = useState("");
+  const searchInstances = useMemo(
+    () =>
+      searchable
+        ? createTextSearch(instances, (instance) => [
+            instance.name,
+            instance.description,
+            generateInstanceDesc(instance),
+            instance.id,
+          ])
+        : undefined,
+    [instances, searchable]
+  );
+  const visibleInstances = searchInstances?.(query) ?? instances;
 
   const handleSelectInstance = (instance: InstanceSummary) => {
     if (onSelectInstance) {
@@ -52,7 +80,7 @@ const InstancesView: React.FC<InstancesViewProps> = ({
     onSelectCallback();
   };
 
-  const listItems: OptionItemProps[] = instances.map((instance) => ({
+  const listItems: OptionItemProps[] = visibleInstances.map((instance) => ({
     title: instance.name,
     description: [generateInstanceDesc(instance), instance.description]
       .filter(Boolean)
@@ -103,7 +131,7 @@ const InstancesView: React.FC<InstancesViewProps> = ({
     ),
   }));
 
-  const gridItems = instances.map((instance) => ({
+  const gridItems = visibleInstances.map((instance) => ({
     cardContent: {
       title: (
         <HStack spacing={1} justify="center">
@@ -144,7 +172,34 @@ const InstancesView: React.FC<InstancesViewProps> = ({
 
   return (
     <Box {...boxProps}>
-      {instances.length > 0 ? (
+      {searchable && (
+        <Box position="sticky" top={0} zIndex={1} bg={searchBackground} p={2}>
+          <InputGroup size="sm">
+            <InputLeftElement pointerEvents="none">
+              <Icon as={LuSearch} color="gray.500" />
+            </InputLeftElement>
+            <Input
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder={t("SelectInstanceModal.searchPlaceholder")}
+              aria-label={t("SelectInstanceModal.searchPlaceholder")}
+              focusBorderColor={`${primaryColor}.500`}
+              pr={8}
+            />
+            {query && (
+              <InputRightElement>
+                <CommonIconButton
+                  icon={LuX}
+                  size="xs"
+                  label={t("SelectInstanceModal.clearSearch")}
+                  onClick={() => setQuery("")}
+                />
+              </InputRightElement>
+            )}
+          </InputGroup>
+        </Box>
+      )}
+      {visibleInstances.length > 0 ? (
         <RadioGroup value={selectedInstance?.id}>
           {viewType === "list" ? (
             <OptionItemGroup items={listItems} />

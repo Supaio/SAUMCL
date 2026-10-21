@@ -16,7 +16,7 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import { revealItemInDir } from "@tauri-apps/plugin-opener";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   LuChevronRight,
@@ -58,6 +58,7 @@ import { InstanceService } from "@/services/instance";
 import { ResourceService } from "@/services/resource";
 import { UtilsService } from "@/services/utils";
 import { parseModLoaderVersion } from "@/utils/instance";
+import { createTextSearch } from "@/utils/search";
 import { base64ImgSrc } from "@/utils/string";
 
 const MOD_FILE_EXTENSIONS = ["jar", "zip", "litemod", "disabled"];
@@ -92,7 +93,6 @@ const InstanceModsPage = () => {
   );
 
   const [localMods, setLocalMods] = useState<LocalModInfo[]>([]);
-  const [filteredMods, setFilteredMods] = useState<LocalModInfo[]>([]);
   const [query, setQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const [targetLoaderType, setTargetLoaderType] = useState<ModLoaderType>(
@@ -175,28 +175,18 @@ const InstanceModsPage = () => {
     return unlisten;
   }, [getLocalModListWrapper]);
 
-  useEffect(() => {
-    const keywords = query.trim().toLowerCase().split(/\s+/);
-    if (keywords.length === 0 || keywords[0] === "") {
-      setFilteredMods(localMods);
-    } else {
-      const filtered = localMods.filter((mod) => {
-        const name = mod.name?.toLowerCase() || "";
-        const fileName = mod.fileName?.toLowerCase() || "";
-        const relativePath = mod.relativePath?.toLowerCase() || "";
-        const translatedName = mod.translatedName?.toLowerCase() || "";
-        return keywords.some(
-          (kw) =>
-            name.includes(kw) ||
-            fileName.includes(kw) ||
-            relativePath.includes(kw) ||
-            translatedName.includes(kw)
-        );
-      });
-
-      setFilteredMods(filtered);
-    }
-  }, [query, localMods]);
+  const searchMods = useMemo(
+    () =>
+      createTextSearch(localMods, (mod) => [
+        mod.modId,
+        mod.name,
+        mod.translatedName,
+        mod.fileName,
+        mod.relativePath,
+      ]),
+    [localMods]
+  );
+  const filteredMods = useMemo(() => searchMods(query), [searchMods, query]);
 
   useEffect(() => {
     if (isSearching) searchInputRef.current?.focus();
@@ -511,7 +501,7 @@ const InstanceModsPage = () => {
           );
         }}
         headExtra={
-          <HStack spacing={2}>
+          <HStack spacing={2} flexWrap="wrap" justify="flex-end">
             {modSecMenuOperations.map((btn, index) => (
               <CommonIconButton
                 key={index}
@@ -534,9 +524,10 @@ const InstanceModsPage = () => {
                     setQuery(e.target.value);
                   }}
                   size="xs"
-                  w={140}
+                  w={{ base: 140, lg: 190 }}
                   fontSize="sm"
                   placeholder={t("InstanceModsPage.modList.menu.placeholder")}
+                  aria-label={t("InstanceModsPage.modList.menu.placeholder")}
                   focusBorderColor={`${primaryColor}.500`}
                 />
                 <CommonIconButton
