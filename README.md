@@ -13,7 +13,7 @@ SAUMCL is under development on `codex/saumcl-development`. The Java Edition laun
 - Update checks use this fork's GitHub Releases. No upstream SJMCL updates are installed. Development builds skip release update checks.
 - Upstream usage statistics are disabled, and the default community-news subscription list is empty.
 - Microsoft sign-in currently retains the upstream integration. A separate application identity is needed before a school-wide release. Optional settings-code sharing still uses the upstream service.
-- The SAU letter icon is a temporary project icon.
+- The application icon uses the SAU monogram.
 
 ## Test builds
 

@@ -26,7 +26,7 @@ export const TitleFull: React.FC<LogoTitleProps> = (props) => {
 export const TitleFullWithLogo: React.FC<LogoTitleProps> = (props) => {
   return (
     <HStack>
-      <Image src="/images/icons/saumcl.svg" alt="SAUMCL" boxSize="36px" />
+      <Image src="/images/icons/saumcl.png" alt="SAUMCL" boxSize="36px" />
       <TitleFull {...props} />
     </HStack>
   );

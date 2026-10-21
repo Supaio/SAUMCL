@@ -236,7 +236,7 @@ const WindowTitlebar = () => {
         align="center"
       >
         {(isWindows || isLinux) && (
-          <Image src="/images/icons/saumcl.svg" alt="SAUMCL" boxSize="16px" />
+          <Image src="/images/icons/saumcl.png" alt="SAUMCL" boxSize="16px" />
         )}
         {!isMainWindow && windowTitle && (
           <Text
