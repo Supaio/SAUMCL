@@ -1750,6 +1750,9 @@
     }
   },
   "LaunchProcessModal": {
+    "trivia": {
+      "label": "冷知識："
+    },
     "header": {
       "title": "啟動遊戲 - {{name}}"
     },

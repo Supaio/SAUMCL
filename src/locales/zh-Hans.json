@@ -1750,6 +1750,9 @@
     }
   },
   "LaunchProcessModal": {
+    "trivia": {
+      "label": "冷知识："
+    },
     "header": {
       "title": "启动游戏 - {{name}}"
     },

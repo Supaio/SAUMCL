@@ -21,6 +21,7 @@ import {
   StepTitle,
   Stepper,
   Text,
+  useColorModeValue,
   useDisclosure,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
@@ -61,6 +62,11 @@ const LaunchProcessModal: React.FC<LaunchProcessModalProps> = ({
   const toast = useToast();
   const { config, update } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
+  const triviaTextColor = useColorModeValue("gray.600", "gray.300");
+  const triviaBorderColor = useColorModeValue("gray.100", "whiteAlpha.200");
+  const [triviaItems, setTriviaItems] = useState<string[]>([]);
+  const [triviaSelection] = useState(Math.random);
+  const trivia = triviaItems[Math.floor(triviaSelection * triviaItems.length)];
   const { selectedPlayer, selectedInstance, getPlayerList, getInstanceList } =
     useGlobalData();
   const { openSharedModal, openGenericConfirmDialog, closeSharedModal } =
@@ -111,6 +117,24 @@ const LaunchProcessModal: React.FC<LaunchProcessModalProps> = ({
     onOpen: onSelectInstanceModalOpen,
     onClose: onSelectInstanceModalClose,
   } = useDisclosure();
+
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch("/trivia.txt", { cache: "no-store", signal: controller.signal })
+      .then((response) => (response.ok ? response.text() : ""))
+      .then((text) => {
+        if (!controller.signal.aborted) {
+          setTriviaItems(
+            text
+              .split(/\r?\n/)
+              .map((line) => line.trim())
+              .filter((line) => line && !line.startsWith("#"))
+          );
+        }
+      })
+      .catch(() => {});
+    return () => controller.abort();
+  }, []);
 
   // Reset the local instance override when a new instance request arrives.
   useEffect(() => {
@@ -401,10 +425,35 @@ const LaunchProcessModal: React.FC<LaunchProcessModalProps> = ({
             ))}
           </Stepper>
         </ModalBody>
-        <ModalFooter>
-          <Button variant="ghost" onClick={handleCloseModalWithCancel}>
+        <ModalFooter flexDirection="column" alignItems="stretch">
+          <Button
+            alignSelf="flex-end"
+            variant="ghost"
+            onClick={handleCloseModalWithCancel}
+          >
             {t("General.cancel")}
           </Button>
+          {trivia && (
+            <Box
+              role="note"
+              mt={3}
+              pt={3}
+              borderTopWidth="1px"
+              borderColor={triviaBorderColor}
+            >
+              <Text
+                fontSize="xs-sm"
+                lineHeight="tall"
+                wordBreak="break-word"
+                color={triviaTextColor}
+              >
+                <Text as="span" fontWeight="semibold" mr={1}>
+                  {t("LaunchProcessModal.trivia.label")}
+                </Text>
+                {trivia}
+              </Text>
+            </Box>
+          )}
         </ModalFooter>
       </ModalContent>
       <SelectPlayerModal

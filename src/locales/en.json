@@ -1750,6 +1750,9 @@
     }
   },
   "LaunchProcessModal": {
+    "trivia": {
+      "label": "Did you know?"
+    },
     "header": {
       "title": "Launch Game - {{name}}"
     },
