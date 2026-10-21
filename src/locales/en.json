@@ -28,7 +28,7 @@
         },
         "upstream": {
           "title": "Based on SJMCL",
-          "description": "Original project: https://github.com/UNIkeEN/SJMCL"
+          "description": "Original project: https://github.com/UNIkeEN/SJMCL. Microsoft account sign-in uses its OAuth application."
         }
       }
     },
@@ -210,6 +210,7 @@
       }
     },
     "oauthCommon": {
+      "microsoftApplicationNotice": "Microsoft account sign-in uses the SJMCL OAuth application. The Microsoft authorization page will display the original project's application name.",
       "description": {
         "start": {
           "3rdparty": "This auth source supports the Yggdrasil Connect Proposal",

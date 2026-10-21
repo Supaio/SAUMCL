@@ -28,7 +28,7 @@
         },
         "upstream": {
           "title": "基於 SJMCL",
-          "description": "原專案：https://github.com/UNIkeEN/SJMCL"
+          "description": "原專案：https://github.com/UNIkeEN/SJMCL；Microsoft 帳號驗證沿用其 OAuth 應用。"
         }
       }
     },
@@ -210,6 +210,7 @@
       }
     },
     "oauthCommon": {
+      "microsoftApplicationNotice": "Microsoft 帳號驗證沿用 SJMCL 的 OAuth 應用，微軟授權頁面會顯示原專案的應用名稱。",
       "description": {
         "start": {
           "3rdparty": "此認證源支援 Yggdrasil Connect 規範提案",

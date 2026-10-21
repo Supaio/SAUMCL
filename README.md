@@ -12,7 +12,7 @@ SAUMCL is under development on `codex/saumcl-development`. The Java Edition laun
 - The application uses its own `io.github.supaio.saumcl` identity and `saumcl://` protocol. Existing SJMCL account and application settings are not automatically migrated.
 - Update checks use this fork's GitHub Releases. No upstream SJMCL updates are installed. Development builds skip release update checks.
 - Upstream usage statistics are disabled, and the default community-news subscription list is empty.
-- Microsoft sign-in currently retains the upstream integration. A separate application identity is needed before a school-wide release. Optional settings-code sharing still uses the upstream service.
+- Microsoft account sign-in uses the SJMCL OAuth application, so the Microsoft authorization page displays the original project's application name. This is stated in the login panel and About page. Optional settings-code sharing still uses the upstream service.
 - The application icon uses the SAU monogram.
 
 ## Test builds

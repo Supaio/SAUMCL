@@ -24,37 +24,44 @@ const OAuthLoginPanel: React.FC<OAuthLoginPanelProps> = ({
   const localeSuffix = authCode ? "next" : "start." + authType;
 
   return (
-    <Card
-      h="136px" // same as to inputs
-      w="100%"
-      display="flex"
-      flexDirection="column"
-      alignItems="center"
-      justifyContent="center"
-    >
-      <VStack>
-        {authCode && (
-          <Heading
-            size="lg"
-            color={`${primaryColor}.500`}
-            cursor="pointer"
-            onClick={() => copyText(authCode, { toast })}
+    <VStack w="100%" align="stretch" spacing={2}>
+      <Card
+        h="136px" // same as to inputs
+        w="100%"
+        display="flex"
+        flexDirection="column"
+        alignItems="center"
+        justifyContent="center"
+      >
+        <VStack>
+          {authCode && (
+            <Heading
+              size="lg"
+              color={`${primaryColor}.500`}
+              cursor="pointer"
+              onClick={() => copyText(authCode, { toast })}
+            >
+              {authCode}
+            </Heading>
+          )}
+          <Text fontSize="sm">
+            {t(`AddPlayerModal.oauthCommon.description.${localeSuffix}`)}
+          </Text>
+          <Button
+            colorScheme={primaryColor}
+            onClick={callback}
+            isLoading={isLoading}
           >
-            {authCode}
-          </Heading>
-        )}
-        <Text fontSize="sm">
-          {t(`AddPlayerModal.oauthCommon.description.${localeSuffix}`)}
+            {t(`AddPlayerModal.oauthCommon.button.${localeSuffix}`)}
+          </Button>
+        </VStack>
+      </Card>
+      {authType === PlayerType.Microsoft && (
+        <Text fontSize="xs" className="secondary-text">
+          {t("AddPlayerModal.oauthCommon.microsoftApplicationNotice")}
         </Text>
-        <Button
-          colorScheme={primaryColor}
-          onClick={callback}
-          isLoading={isLoading}
-        >
-          {t(`AddPlayerModal.oauthCommon.button.${localeSuffix}`)}
-        </Button>
-      </VStack>
-    </Card>
+      )}
+    </VStack>
   );
 };
 
