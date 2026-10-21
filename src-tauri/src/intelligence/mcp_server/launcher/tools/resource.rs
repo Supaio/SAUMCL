@@ -93,11 +93,11 @@ pub fn tool_routes() -> Vec<ToolRoute<McpContext>> {
     ),
     mcp_tool!(
       "fetch_resource_list_by_name",
-      "Search remote resources by name from CurseForge or Modrinth.",
+      "Search remote resources by name from Modrinth.",
       |app, params|
       #[serde(deny_unknown_fields)]
       {
-        #[schemars(description = "Download source. Accepted values: `curseforge` or `modrinth`.")]
+        #[schemars(description = "Download source. Accepted value: `modrinth`.")]
         download_source: String,
         #[schemars(description = "Search query options.")]
         query: McpOtherResourceSearchQuery,

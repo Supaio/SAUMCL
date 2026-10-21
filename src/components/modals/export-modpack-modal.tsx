@@ -144,8 +144,6 @@ const ExportModpackModal: React.FC<ExportModpackModalProps> = ({
   const [packWithLauncher, setPackWithLauncher] = useState(false);
   const [minMemoryInput, setMinMemoryInput] = useState("");
   const [noCreateRemoteFiles, setNoCreateRemoteFiles] = useState(false);
-  const [skipCurseForgeRemoteFiles, setSkipCurseForgeRemoteFiles] =
-    useState(false);
 
   const checkNameError = useCallback((value: string): number => {
     if (value.trim() === "") return 1;
@@ -270,7 +268,6 @@ const ExportModpackModal: React.FC<ExportModpackModalProps> = ({
         packWithLauncher: packWithLauncher || undefined,
         minMemory: parsedMinMemory,
         noCreateRemoteFiles: noCreateRemoteFiles || undefined,
-        skipCurseForgeRemoteFiles: skipCurseForgeRemoteFiles || undefined,
       };
 
       const response = await InstanceService.exportModpack(
@@ -315,7 +312,6 @@ const ExportModpackModal: React.FC<ExportModpackModalProps> = ({
     description,
     packWithLauncher,
     noCreateRemoteFiles,
-    skipCurseForgeRemoteFiles,
     instanceId,
     selectedFileList,
     modalProps,
@@ -538,18 +534,6 @@ const ExportModpackModal: React.FC<ExportModpackModalProps> = ({
                     colorScheme={primaryColor}
                     isChecked={noCreateRemoteFiles}
                     onChange={(e) => setNoCreateRemoteFiles(e.target.checked)}
-                  />
-                ),
-              },
-              {
-                title: t("ExportModpackModal.label.skipCurseForgeRemoteFiles"),
-                children: (
-                  <Switch
-                    colorScheme={primaryColor}
-                    isChecked={skipCurseForgeRemoteFiles}
-                    onChange={(e) =>
-                      setSkipCurseForgeRemoteFiles(e.target.checked)
-                    }
                   />
                 ),
               },

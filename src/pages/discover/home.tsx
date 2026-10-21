@@ -506,12 +506,9 @@ export const DiscoverHomePage = () => {
 
   const [communityPosts, setCommunityPosts] = useState<NewsPostSummary[]>([]);
   const [mcPosts, setMcPosts] = useState<NewsPostSummary[]>([]);
-  const [cfModpacks, setCfModpacks] = useState<OtherResourceInfo[]>([]);
   const [mrModpacks, setMrModpacks] = useState<OtherResourceInfo[]>([]);
   const [isLoadingCommunity, setIsLoadingCommunity] = useState<boolean>(false);
   const [isLoadingMC, setIsLoadingMC] = useState<boolean>(false);
-  const [isLoadingCfModpacks, setIsLoadingCfModpacks] =
-    useState<boolean>(false);
   const [isLoadingMrModpacks, setIsLoadingMrModpacks] =
     useState<boolean>(false);
 
@@ -555,25 +552,21 @@ export const DiscoverHomePage = () => {
     }
   }, []);
 
-  const fetchHotModpacks = useCallback(async (source: OtherResourceSource) => {
-    source === OtherResourceSource.CurseForge
-      ? setIsLoadingCfModpacks(true)
-      : setIsLoadingMrModpacks(true);
+  const fetchHotModpacks = useCallback(async () => {
+    setIsLoadingMrModpacks(true);
     try {
       const response = await ResourceService.fetchResourceListByName(
         OtherResourceType.ModPack,
         "",
         "All",
         "All",
-        source === OtherResourceSource.CurseForge ? "Popularity" : "relevance",
-        source,
+        "relevance",
+        OtherResourceSource.Modrinth,
         0,
         MAX_MODPACK_NUM
       );
       if (response.status === "success") {
-        source === OtherResourceSource.CurseForge
-          ? setCfModpacks(response.data.list)
-          : setMrModpacks(response.data.list);
+        setMrModpacks(response.data.list);
       } else {
         // toast({
         //   title: response.message,
@@ -582,17 +575,14 @@ export const DiscoverHomePage = () => {
         // });
       }
     } finally {
-      source === OtherResourceSource.CurseForge
-        ? setIsLoadingCfModpacks(false)
-        : setIsLoadingMrModpacks(false);
+      setIsLoadingMrModpacks(false);
     }
   }, []);
 
   useEffect(() => {
     fetchCommunityNews();
     fetchMinecraftNews();
-    fetchHotModpacks(OtherResourceSource.CurseForge);
-    fetchHotModpacks(OtherResourceSource.Modrinth);
+    fetchHotModpacks();
   }, [fetchCommunityNews, fetchMinecraftNews, fetchHotModpacks]);
 
   return (
@@ -619,17 +609,10 @@ export const DiscoverHomePage = () => {
 
         <VStack spacing={6} align="stretch">
           <HotModpackGrid
-            title={t("DiscoverHomePage.hotModpacks", { source: "CurseForge" })}
-            items={cfModpacks}
-            loading={isLoadingCfModpacks}
-            onRefresh={() => fetchHotModpacks(OtherResourceSource.CurseForge)}
-            accentColor={primaryColor}
-          />
-          <HotModpackGrid
             title={t("DiscoverHomePage.hotModpacks", { source: "Modrinth" })}
             items={mrModpacks}
             loading={isLoadingMrModpacks}
-            onRefresh={() => fetchHotModpacks(OtherResourceSource.Modrinth)}
+            onRefresh={fetchHotModpacks}
             accentColor={primaryColor}
           />
         </VStack>

@@ -65,7 +65,6 @@ export interface ExportModpackOptions {
   packWithLauncher?: boolean;
   minMemory?: number;
   noCreateRemoteFiles?: boolean;
-  skipCurseForgeRemoteFiles?: boolean;
 }
 
 export interface GameServerInfo {

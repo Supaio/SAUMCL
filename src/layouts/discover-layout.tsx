@@ -13,7 +13,6 @@ import { useTranslation } from "react-i18next";
 import { IconType } from "react-icons";
 import {
   LuBoxes,
-  LuEarth,
   LuHaze,
   LuHouse,
   LuMessagesSquare,
@@ -78,7 +77,6 @@ const DiscoverLayout: React.FC<{ children: React.ReactNode }> = ({
         icon: LuSquareLibrary,
         route: "/discover/resource?type=mod",
       },
-      { key: "world", icon: LuEarth, route: "/discover/resource?type=world" },
       {
         key: "resourcepack",
         icon: LuPackage,

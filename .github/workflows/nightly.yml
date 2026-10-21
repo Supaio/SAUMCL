@@ -160,8 +160,6 @@ jobs:
       upload_artifacts: true
       branch: "nightly"
       build_type: "nightly"
-    secrets:
-      SJMCL_CURSEFORGE_API_KEY: ${{ secrets.SJMCL_CURSEFORGE_API_KEY }}
 
   Sign-macOS-Artifacts:
     needs: [Check-and-Prepare, Build-Nightly]

@@ -32,7 +32,6 @@ pub struct ExportModpackOptions {
   pub pack_with_launcher: Option<bool>, // TODO: unused currently
   pub min_memory: Option<u32>,          // for MultiMC
   pub no_create_remote_files: Option<bool>, // for Modrinth
-  pub skip_curseforge_remote_files: Option<bool>, // for Modrinth
 }
 
 /// Validate export options before proceeding

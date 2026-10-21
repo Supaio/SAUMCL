@@ -18,10 +18,7 @@ use crate::instance::helpers::modpack::export::{
 };
 use crate::instance::helpers::modpack::import::{ModpackManifest, ModpackMetaInfo};
 use crate::instance::models::misc::{Instance, InstanceError, ModLoader, ModLoaderType};
-use crate::resource::helpers::{
-  curseforge::fetch_remote_resource_by_local_curseforge,
-  modrinth::fetch_remote_resource_by_local_modrinth,
-};
+use crate::resource::helpers::modrinth::fetch_remote_resource_by_local_modrinth;
 use crate::resource::models::OtherResourceSource;
 use crate::tasks::PTaskParam;
 use crate::tasks::download::DownloadParam;
@@ -159,9 +156,8 @@ pub async fn build_modrinth_export_bundle(
 ) -> SJMCLResult<ModpackExportBundle> {
   let mut manifest = generate_modrinth_manifest(instance, options);
   let no_create_remote_files = options.no_create_remote_files.unwrap_or(false);
-  let skip_curseforge = options.skip_curseforge_remote_files.unwrap_or(false);
   let (modrinth_files, override_files) =
-    collect_modrinth_files(app, selected_files, no_create_remote_files, skip_curseforge).await?;
+    collect_modrinth_files(app, selected_files, no_create_remote_files).await?;
 
   manifest.files = modrinth_files;
   let json = serde_json::to_string_pretty(&manifest)
@@ -210,7 +206,6 @@ async fn build_modrinth_remote_file(
   app: &AppHandle,
   rel: &str,
   full: &Path,
-  skip_curseforge: bool,
 ) -> SJMCLResult<Option<ModrinthFile>> {
   let is_disabled = rel.ends_with(".disabled");
   let manifest_path = if is_disabled {
@@ -223,13 +218,6 @@ async fn build_modrinth_remote_file(
 
   if let Ok(remote) =
     fetch_remote_resource_by_local_modrinth(app, full.to_string_lossy().as_ref()).await
-  {
-    downloads.push(remote.download_url);
-  }
-
-  if !skip_curseforge
-    && let Ok(remote) =
-      fetch_remote_resource_by_local_curseforge(app, full.to_string_lossy().as_ref()).await
   {
     downloads.push(remote.download_url);
   }
@@ -268,7 +256,6 @@ async fn collect_modrinth_files(
   app: &AppHandle,
   selected_files: &[(String, PathBuf)],
   no_create_remote_files: bool,
-  skip_curseforge: bool,
 ) -> SJMCLResult<(Vec<ModrinthFile>, Vec<(String, PathBuf)>)> {
   if no_create_remote_files {
     return Ok((Vec::new(), selected_files.to_vec()));
@@ -299,7 +286,7 @@ async fn collect_modrinth_files(
 
       async move {
         let result = if is_remote_candidate(&rel) {
-          build_modrinth_remote_file(&app, &rel, &full, skip_curseforge)
+          build_modrinth_remote_file(&app, &rel, &full)
             .await
             .ok()
             .flatten()

@@ -107,7 +107,7 @@
       },
       "modpack": {
         "title": "匯入模組包",
-        "description": "從本機檔案或網際網路匯入模組包（CurseForge、Modrinth 或 MultiMC 格式）"
+        "description": "從本機檔案或網際網路匯入模組包（Modrinth 或 MultiMC 格式）"
       },
       "manageDirs": {
         "title": "管理遊戲目錄",
@@ -790,8 +790,7 @@
       "exportOptions": "匯出選項",
       "packWithLauncher": "打包啟動器",
       "minMemory": "最低記憶體 (MiB)",
-      "noCreateRemoteFiles": "停用遠端檔案",
-      "skipCurseForgeRemoteFiles": "略過 CurseForge 遠端檔案"
+      "noCreateRemoteFiles": "停用遠端檔案"
     },
     "button": {
       "export": "匯出"
@@ -1430,10 +1429,6 @@
           "title": "MCMod",
           "description": "Minecraft 模組中文百科"
         },
-        "curseforge": {
-          "title": "CurseForge",
-          "description": "探索世界上最大的 Minecraft 模組儲存庫"
-        },
         "modrinth": {
           "title": "Modrinth",
           "description": "開源、現代的 Minecraft 資源平台"
@@ -1876,7 +1871,6 @@
       "title": "服務連通性測試",
       "offline": "離線",
       "bmclapi": "BMCLAPI",
-      "curseforge": "CurseForge",
       "modrinth": "Modrinth",
       "mojang": "Mojang",
       "forge": "Forge",
@@ -1958,58 +1952,6 @@
       "search": "搜尋"
     },
     "modTagList": {
-      "CurseForge": {
-        "All": "全部",
-        "Addons": "附屬模組",
-        "Adventure and RPG": "冒險 RPG",
-        "API and Library": "API 與程式庫",
-        "Applied Energistics 2": "應用能源 2",
-        "Armor, Tools, and Weapons": "裝備 武器",
-        "Automation": "自動化",
-        "Biomes": "生物群系",
-        "Blood Magic": "血魔法",
-        "Buildcraft": "建築",
-        "Bug Fixes": "錯誤修復",
-        "Cosmetic": "裝飾",
-        "CraftTweaker": "CraftTweaker",
-        "Create": "機械動力",
-        "Dimensions": "維度",
-        "Education": "教育",
-        "Energy": "能源",
-        "Energy, Fluid, and Item Transport": "能源 流體 物品運輸",
-        "Farming": "農業",
-        "Food": "食物",
-        "Forestry": "林業",
-        "Galacticraft": "星系",
-        "Genetics": "遺傳學",
-        "Industrial Craft": "工業時代 2",
-        "Integrated Dynamics": "整合動力",
-        "KubeJS": "KubeJS",
-        "Magic": "魔法",
-        "Map and Information": "地圖 資訊",
-        "MCreator": "MCreator",
-        "Miscellaneous": "雜項",
-        "Mobs": "生物",
-        "Ores and Resources": "礦石 資源",
-        "Performance": "效能",
-        "Player Transport": "玩家運輸",
-        "Processing": "加工處理",
-        "Redstone": "紅石",
-        "Server Utility": "伺服器",
-        "Skyblock": "空島",
-        "Storage": "儲存系統",
-        "Structures": "結構",
-        "Technology": "科技",
-        "Thaumcraft": "神秘時代",
-        "Thermal Expansion": "熱力膨脹",
-        "Tinker's Construct": "匠魂",
-        "Twilight Forest": "暮色森林",
-        "Twitch Integration": "Twitch 整合",
-        "Utility & QoL": "實用功能與最佳化",
-        "World Gen": "世界生成",
-        "Auxiliary": "輔助模組",
-        "World": "世界"
-      },
       "Modrinth": {
         "All": "全部",
         "adventure": "冒險",
@@ -2033,42 +1975,7 @@
         "worldgen": "世界生成"
       }
     },
-    "worldTagList": {
-      "CurseForge": {
-        "All": "全部",
-        "Types": "類型",
-        "Adventure": "冒險模式",
-        "Creation": "創造模式",
-        "Game Map": "遊戲挑戰",
-        "Modded World": "模組",
-        "Parkour": "跑酷",
-        "Puzzle": "解謎地圖",
-        "Survival": "生存模式"
-      }
-    },
     "resourcepackTagList": {
-      "CurseForge": {
-        "All": "全部",
-        "Resolution": "解析度",
-        "16x": "16×",
-        "32x": "32×",
-        "64x": "64×",
-        "128x": "128×",
-        "256x": "256×",
-        "512x and Higher": "512× 以上",
-        "Styles": "風格",
-        "Animated": "動畫",
-        "Special": "特殊",
-        "Data Packs": "資料包",
-        "Font Packs": "字型包",
-        "Medieval": "中世紀",
-        "Miscellaneous": "雜項",
-        "Mod Support": "模組支援",
-        "Modern": "現代",
-        "Photo Realistic": "影視級",
-        "Steampunk": "蒸汽朋克",
-        "Traditional": "傳統"
-      },
       "Modrinth": {
         "All": "全部",
         "Resolution": "解析度",
@@ -2104,13 +2011,6 @@
       }
     },
     "shaderTagList": {
-      "CurseForge": {
-        "All": "全部",
-        "Styles": "風格",
-        "Fantasy": "奇幻",
-        "Realistic": "寫實",
-        "Vanilla": "原版"
-      },
       "Modrinth": {
         "All": "全部",
         "Styles": "風格",
@@ -2137,27 +2037,6 @@
       }
     },
     "modpackTagList": {
-      "CurseForge": {
-        "All": "全部",
-        "Styles": "風格",
-        "Adventure and RPG": "冒險 RPG",
-        "Combat / PvP": "戰鬥 PvP",
-        "Exploration": "探索",
-        "Extra Large": "大型整合",
-        "FTB Official Pack": "FTB",
-        "Hardcore": "極限生存",
-        "Horror": "恐怖",
-        "Magic": "魔法",
-        "Map Based": "基於地圖",
-        "Mini Game": "小遊戲",
-        "Multiplayer": "多人",
-        "Quests": "任務",
-        "Sci-Fi": "科幻",
-        "Skyblock": "空島",
-        "Small / Light": "輕量整合",
-        "Tech": "科技",
-        "Vanilla+": "原版改良"
-      },
       "Modrinth": {
         "All": "全部",
         "styles": "風格",
@@ -2174,18 +2053,6 @@
       }
     },
     "datapackTagList": {
-      "CurseForge": {
-        "All": "全部",
-        "Styles": "風格",
-        "Magic": "魔法",
-        "Miscellaneous": "雜項",
-        "Fantasy": "奇幻",
-        "Mod Support": "模組支援",
-        "Tech": "科技",
-        "Library": "支援庫",
-        "Utility": "實用",
-        "Adventure": "冒險"
-      },
       "Modrinth": {
         "All": "全部",
         "styles": "風格",
@@ -2211,13 +2078,6 @@
       }
     },
     "sortByList": {
-      "CurseForge": {
-        "Popularity": "熱度",
-        "Latest update": "最近更新",
-        "Creation date": "建立日期",
-        "Total downloads": "下載量",
-        "A-Z": "名稱"
-      },
       "Modrinth": {
         "relevance": "相關度",
         "downloads": "下載量",
@@ -3140,7 +3000,6 @@
       "shader": "搜尋關於 {{query}} 的光影",
       "datapack": "搜尋關於 {{query}} 的資料包",
       "modpack": "搜尋關於 {{query}} 的模組包",
-      "curseforge": "在 CurseForge 上",
       "modrinth": "在 Modrinth 上"
     },
     "result": {
@@ -3148,7 +3007,6 @@
       "recentViewed": "最近訪問過",
       "instance": "實例",
       "player": "角色",
-      "curseforge": "在 CurseForge 上搜尋",
       "modrinth": "在 Modrinth 上搜尋"
     }
   },

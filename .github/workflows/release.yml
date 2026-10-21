@@ -70,8 +70,6 @@ jobs:
       version: ${{ needs.Version-Check.outputs.version }}
       branch: ${{ github.ref }}
       upload_artifacts: true
-    secrets:
-      SJMCL_CURSEFORGE_API_KEY: ${{ secrets.SJMCL_CURSEFORGE_API_KEY }}
 
   Code-Sign-macOS:
     needs: [Version-Check, Build-and-Release]

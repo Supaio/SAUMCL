@@ -16,13 +16,7 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IconType } from "react-icons";
-import {
-  LuEarth,
-  LuHaze,
-  LuPackage,
-  LuPuzzle,
-  LuSquareLibrary,
-} from "react-icons/lu";
+import { LuHaze, LuPackage, LuPuzzle, LuSquareLibrary } from "react-icons/lu";
 import NavMenu from "@/components/common/nav-menu";
 import ResourceDownloader from "@/components/resource-downloader";
 import { useLauncherConfig } from "@/contexts/config";
@@ -39,7 +33,7 @@ interface DownloadResourceModalProps extends Omit<ModalProps, "children"> {
 const DownloadResourceModal: React.FC<DownloadResourceModalProps> = ({
   initialResourceType = OtherResourceType.Mod,
   initialSearchQuery = "",
-  initialDownloadSource = OtherResourceSource.CurseForge,
+  initialDownloadSource = OtherResourceSource.Modrinth,
   ...modalProps
 }) => {
   const { t } = useTranslation();
@@ -53,7 +47,6 @@ const DownloadResourceModal: React.FC<DownloadResourceModalProps> = ({
 
   const resourceTypeList: { key: OtherResourceType; icon: IconType }[] = [
     { key: OtherResourceType.Mod, icon: LuSquareLibrary },
-    { key: OtherResourceType.World, icon: LuEarth },
     { key: OtherResourceType.ResourcePack, icon: LuPackage },
     { key: OtherResourceType.ShaderPack, icon: LuHaze },
     { key: OtherResourceType.DataPack, icon: LuPuzzle },

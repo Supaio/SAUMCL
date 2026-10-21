@@ -24,9 +24,6 @@ on:
         required: false
         type: string
         default: 'release'
-    secrets:
-      SJMCL_CURSEFORGE_API_KEY:
-        required: true
 
 jobs:
   Build-and-Release:
@@ -121,7 +118,6 @@ jobs:
       - name: Build the app
         run: pnpm tauri build --target ${{ matrix.target }}
         env:
-          SJMCL_CURSEFORGE_API_KEY: ${{ secrets.SJMCL_CURSEFORGE_API_KEY }}
           SJMCL_BUILD_TYPE: ${{ inputs.build_type }}
           SJMCL_COMMIT_SHA: ${{ steps.build_metadata.outputs.commit_sha }}
 

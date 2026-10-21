@@ -28,7 +28,6 @@ import { useSharedModals } from "@/contexts/shared-modal";
 import { useToast } from "@/contexts/toast";
 import { ExtensionUISlotKey } from "@/enums/extension";
 import { InstanceSubdirType } from "@/enums/instance";
-import { OtherResourceType } from "@/enums/resource";
 import { GetStateFlag } from "@/hooks/get-state";
 import { GameServerInfo } from "@/models/instance/misc";
 import { WorldInfo } from "@/models/instance/world";
@@ -168,14 +167,6 @@ const InstanceWorldsPage = () => {
       icon: "openFolder",
       onClick: () => {
         openInstanceSubdir(InstanceSubdirType.Saves);
-      },
-    },
-    {
-      icon: "download",
-      onClick: () => {
-        openSharedModal("download-resource", {
-          initialResourceType: OtherResourceType.World,
-        });
       },
     },
     {

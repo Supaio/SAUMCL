@@ -83,22 +83,7 @@ const HelpSettingsPage = () => {
             />
           ),
         },
-        {
-          title: t("HelpSettingsPage.minecraft.settings.curseforge.title"),
-          description: t(
-            "HelpSettingsPage.minecraft.settings.curseforge.description"
-          ),
-          children: (
-            <CommonIconButton
-              label="https://www.curseforge.com/minecraft"
-              icon="external"
-              withTooltip
-              tooltipPlacement="bottom-end"
-              size="xs"
-              onClick={() => openUrl("https://www.curseforge.com/minecraft")}
-            />
-          ),
-        },
+
         {
           title: t("HelpSettingsPage.minecraft.settings.modrinth.title"),
           description: t(

@@ -107,7 +107,7 @@
       },
       "modpack": {
         "title": "导入整合包",
-        "description": "从本地文件或互联网导入整合包（CurseForge、Modrinth 或 MultiMC 格式）"
+        "description": "从本地文件或互联网导入整合包（Modrinth 或 MultiMC 格式）"
       },
       "manageDirs": {
         "title": "管理游戏目录",
@@ -790,8 +790,7 @@
       "exportOptions": "导出选项",
       "packWithLauncher": "打包启动器",
       "minMemory": "最低内存 (MiB)",
-      "noCreateRemoteFiles": "禁用远程文件",
-      "skipCurseForgeRemoteFiles": "跳过 CurseForge 远程文件"
+      "noCreateRemoteFiles": "禁用远程文件"
     },
     "button": {
       "export": "导出"
@@ -1430,10 +1429,6 @@
           "title": "MCMod",
           "description": "Minecraft 模组中文百科"
         },
-        "curseforge": {
-          "title": "CurseForge",
-          "description": "探索世界上最大的 Minecraft 模组存储库"
-        },
         "modrinth": {
           "title": "Modrinth",
           "description": "开源、现代的 Minecraft 资源平台"
@@ -1876,7 +1871,6 @@
       "title": "服务连通性测试",
       "offline": "离线",
       "bmclapi": "BMCLAPI",
-      "curseforge": "CurseForge",
       "modrinth": "Modrinth",
       "mojang": "Mojang",
       "forge": "Forge",
@@ -1958,58 +1952,6 @@
       "search": "搜索"
     },
     "modTagList": {
-      "CurseForge": {
-        "All": "全部",
-        "Addons": "附属模组",
-        "Adventure and RPG": "冒险 RPG",
-        "API and Library": "API 和库",
-        "Applied Energistics 2": "应用能源 2",
-        "Armor, Tools, and Weapons": "装备 武器",
-        "Automation": "自动化",
-        "Biomes": "生物群系",
-        "Blood Magic": "血魔法",
-        "Buildcraft": "建筑",
-        "Bug Fixes": "错误修复",
-        "Cosmetic": "装饰",
-        "CraftTweaker": "CraftTweaker",
-        "Create": "机械动力",
-        "Dimensions": "维度",
-        "Education": "教育",
-        "Energy": "能源",
-        "Energy, Fluid, and Item Transport": "能源 流体 物品运输",
-        "Farming": "农业",
-        "Food": "食物",
-        "Forestry": "林业",
-        "Galacticraft": "星系",
-        "Genetics": "遗传学",
-        "Industrial Craft": "工业时代 2",
-        "Integrated Dynamics": "集成动力",
-        "KubeJS": "KubeJS",
-        "Magic": "魔法",
-        "Map and Information": "地图 信息",
-        "MCreator": "MCreator",
-        "Miscellaneous": "杂项",
-        "Mobs": "生物",
-        "Ores and Resources": "矿石 资源",
-        "Performance": "性能",
-        "Player Transport": "玩家运输",
-        "Processing": "加工处理",
-        "Redstone": "红石",
-        "Server Utility": "服务器",
-        "Skyblock": "空岛",
-        "Storage": "存储系统",
-        "Structures": "结构",
-        "Technology": "科技",
-        "Thaumcraft": "神秘时代",
-        "Thermal Expansion": "热力膨胀",
-        "Tinker's Construct": "匠魂",
-        "Twilight Forest": "暮色森林",
-        "Twitch Integration": "Twitch 集成",
-        "Utility & QoL": "实用功能与优化",
-        "World Gen": "世界生成",
-        "Auxiliary": "辅助模组",
-        "World": "世界"
-      },
       "Modrinth": {
         "All": "全部",
         "adventure": "冒险",
@@ -2033,42 +1975,7 @@
         "worldgen": "地形"
       }
     },
-    "worldTagList": {
-      "CurseForge": {
-        "All": "全部",
-        "Types": "类型",
-        "Adventure": "冒险模式",
-        "Creation": "创造模式",
-        "Game Map": "游戏挑战",
-        "Modded World": "模组",
-        "Parkour": "跑酷",
-        "Puzzle": "解谜地图",
-        "Survival": "生存模式"
-      }
-    },
     "resourcepackTagList": {
-      "CurseForge": {
-        "All": "全部",
-        "Resolution": "分辨率",
-        "16x": "16x",
-        "32x": "32x",
-        "64x": "64x",
-        "128x": "128x",
-        "256x": "256x",
-        "512x and Higher": "512x 或更高",
-        "Styles": "风格",
-        "Animated": "动画",
-        "Special": "特殊",
-        "Data Packs": "数据包",
-        "Font Packs": "字体包",
-        "Medieval": "中世纪",
-        "Miscellaneous": "杂项",
-        "Mod Support": "模组支持",
-        "Modern": "现代",
-        "Photo Realistic": "影视级",
-        "Steampunk": "蒸汽朋克",
-        "Traditional": "传统"
-      },
       "Modrinth": {
         "All": "全部",
         "Resolution": "分辨率",
@@ -2104,13 +2011,6 @@
       }
     },
     "shaderTagList": {
-      "CurseForge": {
-        "All": "全部",
-        "Styles": "风格",
-        "Fantasy": "奇幻",
-        "Realistic": "写实",
-        "Vanilla": "原版"
-      },
       "Modrinth": {
         "All": "全部",
         "Styles": "风格",
@@ -2137,27 +2037,6 @@
       }
     },
     "modpackTagList": {
-      "CurseForge": {
-        "All": "全部",
-        "Styles": "风格",
-        "Adventure and RPG": "冒险 RPG",
-        "Combat / PvP": "战斗 PvP",
-        "Exploration": "探索",
-        "Extra Large": "大型整合",
-        "FTB Official Pack": "FTB",
-        "Hardcore": "极限生存",
-        "Horror": "恐怖",
-        "Magic": "魔法",
-        "Map Based": "基于地图",
-        "Mini Game": "小游戏",
-        "Multiplayer": "多人",
-        "Quests": "任务",
-        "Sci-Fi": "科幻",
-        "Skyblock": "空岛",
-        "Small / Light": "轻量整合",
-        "Tech": "科技",
-        "Vanilla+": "原版改良"
-      },
       "Modrinth": {
         "All": "全部",
         "styles": "风格",
@@ -2174,18 +2053,6 @@
       }
     },
     "datapackTagList": {
-      "CurseForge": {
-        "All": "全部",
-        "Styles": "风格",
-        "Magic": "魔法",
-        "Miscellaneous": "杂项",
-        "Fantasy": "奇幻",
-        "Mod Support": "模组支持",
-        "Tech": "科技",
-        "Library": "支持库",
-        "Utility": "实用",
-        "Adventure": "冒险"
-      },
       "Modrinth": {
         "All": "全部",
         "styles": "风格",
@@ -2211,13 +2078,6 @@
       }
     },
     "sortByList": {
-      "CurseForge": {
-        "Popularity": "热度",
-        "Latest update": "最近更新",
-        "Creation date": "创建日期",
-        "Total downloads": "下载量",
-        "A-Z": "名称"
-      },
       "Modrinth": {
         "relevance": "相关度",
         "downloads": "下载量",
@@ -3140,7 +3000,6 @@
       "shader": "搜索关于 {{query}} 的光影",
       "datapack": "搜索关于 {{query}} 的数据包",
       "modpack": "搜索关于 {{query}} 的整合包",
-      "curseforge": "在 CurseForge 上",
       "modrinth": "在 Modrinth 上"
     },
     "result": {
@@ -3148,7 +3007,6 @@
       "recentViewed": "最近访问过",
       "instance": "实例",
       "player": "角色",
-      "curseforge": "在 CurseForge 上搜索",
       "modrinth": "在 Modrinth 上搜索"
     }
   },

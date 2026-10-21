@@ -8,7 +8,6 @@ import {
   modpackTagList,
   resourcePackTagList,
   shaderPackTagList,
-  worldTagList,
 } from "@/enums/resource";
 
 export const getResourceCompatibleModLoader = (
@@ -18,7 +17,6 @@ export const getResourceCompatibleModLoader = (
 
 const tagLists: Record<string, any> = {
   mod: modTagList,
-  world: worldTagList,
   resourcepack: resourcePackTagList,
   shader: shaderPackTagList,
   modpack: modpackTagList,

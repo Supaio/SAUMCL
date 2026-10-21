@@ -1,5 +1,6 @@
 import { Box } from "@chakra-ui/react";
 import { useRouter } from "next/router";
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Section } from "@/components/common/section";
 import ResourceDownloader from "@/components/resource-downloader";
@@ -9,6 +10,14 @@ export const ResourcePage = () => {
   const router = useRouter();
   const { t } = useTranslation();
   const resourceType = router.query.type as OtherResourceType;
+
+  useEffect(() => {
+    if (resourceType === OtherResourceType.World) {
+      router.replace("/discover/resource?type=mod");
+    }
+  }, [resourceType, router]);
+
+  if (resourceType === OtherResourceType.World) return null;
 
   return (
     <Section
