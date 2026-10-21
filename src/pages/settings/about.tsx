@@ -5,7 +5,6 @@ import {
   HStack,
   Text,
   Tooltip,
-  VStack,
   useToast as useChakraToast,
   useColorModeValue,
 } from "@chakra-ui/react";
@@ -113,18 +112,15 @@ const AboutSettingsPage = () => {
             </HStack>
           ),
         },
-        <VStack key="community-notice" role="note" align="stretch" spacing={1}>
-          <Text
-            fontSize="xs-sm"
-            fontWeight="semibold"
-            color={communityNoticeColor}
-          >
-            {t("AboutSettingsPage.about.communityNotice.message")}
-          </Text>
-          <Text fontSize="xs" className="secondary-text">
-            {t("AboutSettingsPage.about.communityNotice.license")}
-          </Text>
-        </VStack>,
+        <Text
+          key="community-notice"
+          role="note"
+          fontSize="xs-sm"
+          fontWeight="semibold"
+          color={communityNoticeColor}
+        >
+          {t("AboutSettingsPage.about.communityNotice.message")}
+        </Text>,
         {
           title: t("AboutSettingsPage.about.settings.maintainer.title"),
           children: (
