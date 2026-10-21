@@ -2,6 +2,10 @@
   "AboutSettingsPage": {
     "about": {
       "title": "About",
+      "communityNotice": {
+        "message": "Community notice: This launcher provides support for current students and alumni of Sichuan Agricultural University, and members of 四川农业大学川泷MC服群（CLMC） (group ID: 719489600). Please do not forward this community build to people outside these groups.",
+        "license": "This is a community request and does not change the rights to use, modify, and redistribute the software granted by the project license."
+      },
       "settings": {
         "version": {
           "title": "Version",

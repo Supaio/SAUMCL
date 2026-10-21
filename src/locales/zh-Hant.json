@@ -2,6 +2,10 @@
   "AboutSettingsPage": {
     "about": {
       "title": "關於",
+      "communityNotice": {
+        "message": "社群使用提醒：本啟動器面向四川农业大学在校學生、畢業校友及「四川农业大学川泷MC服群（CLMC）」（群號：719489600）群友提供支援。請勿將本社群發行包轉發予上述範圍以外的人員。",
+        "license": "此為社群倡議，不改變專案授權條款賦予的使用、修改及再分發權利。"
+      },
       "settings": {
         "version": {
           "title": "版本",

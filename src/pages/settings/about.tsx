@@ -5,7 +5,9 @@ import {
   HStack,
   Text,
   Tooltip,
+  VStack,
   useToast as useChakraToast,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { useCallback, useState } from "react";
@@ -32,6 +34,7 @@ const AboutSettingsPage = () => {
     useLauncherConfig();
   const basicInfo = config.basicInfo;
   const primaryColor = config.appearance.theme.primaryColor;
+  const communityNoticeColor = useColorModeValue("red.600", "red.300");
 
   const [checkingUpdate, setCheckingUpdate] = useState(false);
 
@@ -110,6 +113,18 @@ const AboutSettingsPage = () => {
             </HStack>
           ),
         },
+        <VStack key="community-notice" role="note" align="stretch" spacing={1}>
+          <Text
+            fontSize="xs-sm"
+            fontWeight="semibold"
+            color={communityNoticeColor}
+          >
+            {t("AboutSettingsPage.about.communityNotice.message")}
+          </Text>
+          <Text fontSize="xs" className="secondary-text">
+            {t("AboutSettingsPage.about.communityNotice.license")}
+          </Text>
+        </VStack>,
         {
           title: t("AboutSettingsPage.about.settings.maintainer.title"),
           children: (
