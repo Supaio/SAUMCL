@@ -144,7 +144,7 @@ const AppearanceSettingsPage = () => {
 
           let newSelectedBgKey;
           if (customBgList.length === 1) {
-            newSelectedBgKey = `${builtInBgPrefix}Florwyn`;
+            newSelectedBgKey = `${builtInBgPrefix}SAU-Xi-Marx`;
             if (appearanceConfigs.background.randomCustom)
               update("appearance.background.randomCustom", false);
           } else {
@@ -319,7 +319,7 @@ const AppearanceSettingsPage = () => {
   };
 
   const PresetBackgroundList = () => {
-    const presetBgList = ["Florwyn", "SJTU-eastgate"];
+    const presetBgList = ["SAU-Xi-Marx"];
 
     return (
       <Wrap spacing={3.5} justify="right">
@@ -327,7 +327,7 @@ const AppearanceSettingsPage = () => {
           <WrapItem key={bg}>
             <BackgroundCard
               bgAlt={bg}
-              bgSrc={`/images/backgrounds/${bg}-thumbnail.jpg`}
+              bgSrc={`/images/backgrounds/${bg}.png`}
               selected={selectedBgKey === bg}
               onSelect={() =>
                 update(

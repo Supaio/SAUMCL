@@ -16,9 +16,6 @@ where
   })
 }
 
-// Migrate old built-in wallpaper choices to the new default preset.
-const LEGACY_BUILT_IN_BACKGROUNDS: &[&str] = &["%built-in:Jokull", "%built-in:GNLXC"];
-
 #[derive(Deserialize, Default)]
 #[serde(rename_all = "camelCase", default)]
 struct BackgroundPayload {
@@ -35,9 +32,8 @@ where
 {
   let mut payload = BackgroundPayload::deserialize(deserializer)?;
 
-  if LEGACY_BUILT_IN_BACKGROUNDS.contains(&payload.choice.as_str()) {
-    payload.choice = "%built-in:Florwyn".to_string();
-    payload.auto_darken = false;
+  if payload.choice.starts_with("%built-in:") {
+    payload.choice = AppearanceBackgroundConfig::default().choice;
   }
 
   Ok(AppearanceBackgroundConfig {

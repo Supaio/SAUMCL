@@ -298,7 +298,7 @@ export const defaultConfig: LauncherConfig = {
       logFontFamily: "%built-in",
     },
     background: {
-      choice: "%built-in:Florwyn",
+      choice: "%built-in:SAU-Xi-Marx",
       randomCustom: false,
       autoDarken: false,
     },

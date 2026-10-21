@@ -210,8 +210,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
     const constructBgImgSrc = async () => {
       const bgKey = config.appearance.background.choice;
       if (bgKey.startsWith("%built-in:")) {
-        const builtInKey = bgKey.replace("%built-in:", "");
-        setBgImgSrc(`/images/backgrounds/${builtInKey}-${colorMode}.jpg`);
+        setBgImgSrc("/images/backgrounds/SAU-Xi-Marx.png");
       } else {
         const _appDataDir = await appDataDir();
         setBgImgSrc(

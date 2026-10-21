@@ -283,7 +283,7 @@ structstruck::strike! {
         deserialize_with = "deserialize_background"
       )]
       pub background: struct AppearanceBackgroundConfig {
-        #[default = "%built-in:Florwyn"]
+        #[default = "%built-in:SAU-Xi-Marx"]
         pub choice: String,
         pub random_custom: bool,
         pub auto_darken: bool,
