@@ -134,6 +134,9 @@ export const displayLauncherVersion = (info: {
   buildCommitSha: string;
   isPortable: boolean;
 }): string => {
+  if (info.launcherVersion.endsWith("-indev")) {
+    return `Indev ${info.launcherVersion.slice(0, -"-indev".length)}`;
+  }
   if (info.buildType !== BuildType.Release) {
     // non-release builds: show the commit short hash in parentheses when
     // available; local dev builds have no injected SHA, so no suffix then.

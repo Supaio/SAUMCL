@@ -142,8 +142,8 @@ jobs:
           workspaces: "./src-tauri -> target"
           key: ${{ matrix.platform }}
 
-      - name: Bump version for test build
-        run: pnpm run version bump 0.0.1
+      - name: Check version consistency
+        run: pnpm run version check
 
       - name: Test Build
         run: pnpm tauri build --features devtools --no-bundle -- --profile test-build
@@ -163,12 +163,11 @@ jobs:
         shell: bash
         run: |
           mkdir -p artifacts
-          SHORT_SHA="${GITHUB_SHA:0:7}"
           if [ "${{ matrix.platform }}" = "windows-latest" ]; then
-            OUTPUT_NAME="SAUMCL_${SHORT_SHA}_windows_x86_64_portable.exe"
+            OUTPUT_NAME="SAUMCL.exe"
             python scripts/release/bundle_portable_assets.py -p "src-tauri/target/test-build/" -o "$OUTPUT_NAME" "SAUMCL.exe"
           else
-            OUTPUT_NAME="SAUMCL_${SHORT_SHA}_linux_x86_64_portable"
+            OUTPUT_NAME="SAUMCL"
             python scripts/release/bundle_portable_assets.py -p "src-tauri/target/test-build/" -o "$OUTPUT_NAME" "SAUMCL"
           fi
           cp "src-tauri/target/test-build/$OUTPUT_NAME" artifacts/

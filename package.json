@@ -1,6 +1,6 @@
 {
   "name": "saumcl",
-  "version": "1.3.2",
+  "version": "19.0.1-indev",
   "private": true,
   "browserslist": [
     "Safari >= 14"

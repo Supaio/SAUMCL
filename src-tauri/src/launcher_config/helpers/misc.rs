@@ -31,9 +31,10 @@ impl LauncherConfig {
         (false, "0.0.1") => BuildType::TestBuild,
         _ => BuildType::Release,
       });
-    let version = match build_type {
-      BuildType::Release => pkg_version,
-      _ => build_type.to_string(),
+    let version = if pkg_version.ends_with("-indev") || build_type == BuildType::Release {
+      pkg_version
+    } else {
+      build_type.to_string()
     };
 
     // Set the default download cache directory if unset or not writable, and create it
