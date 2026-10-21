@@ -4,6 +4,7 @@ import {
   Flex,
   HStack,
   Icon,
+  Image,
   Text,
   Tooltip,
   useBreakpointValue,
@@ -55,8 +56,8 @@ const HeadNavBar = () => {
 
   const [isAnimating, setIsAnimating] = useState(false);
   const [indicator, setIndicator] = useState({
-    left: 0,
-    width: 0,
+    top: 0,
+    height: 0,
     visible: false,
   });
   const navListRef = useRef<HTMLDivElement | null>(null);
@@ -142,18 +143,16 @@ const HeadNavBar = () => {
       return;
     }
 
-    const listRect = listEl.getBoundingClientRect();
-    const tabRect = selectedEl.getBoundingClientRect();
-    const nextLeft = Math.round(tabRect.left - listRect.left);
-    const nextWidth = Math.round(tabRect.width);
+    const nextTop = selectedEl.offsetTop;
+    const nextHeight = selectedEl.offsetHeight;
 
     setIndicator((prev) => {
-      if (prev.visible && prev.left === nextLeft && prev.width === nextWidth) {
+      if (prev.visible && prev.top === nextTop && prev.height === nextHeight) {
         return prev;
       }
       return {
-        left: nextLeft,
-        width: nextWidth,
+        top: nextTop,
+        height: nextHeight,
         visible: true,
       };
     });
@@ -200,19 +199,40 @@ const HeadNavBar = () => {
   };
 
   return (
-    <Flex justify="center" p={4}>
+    <Flex
+      as="aside"
+      w={isSimplified ? "88px" : "200px"}
+      flexShrink={0}
+      minH={0}
+      p={4}
+      pr={0}
+    >
       <AdvancedCard
         level="back"
-        pl={8}
-        pr={isDownloadIndicatorShown ? 4 : 8}
-        py={2}
+        w="100%"
+        minH={0}
+        p={2}
         className={`animated-card ${isAnimating ? "animate" : ""}`}
       >
-        <HStack spacing={4} h="100%">
-          <TitleShort />
+        <Flex direction="column" gap={4} h="100%" minH={0}>
           <HStack
+            justify={isSimplified ? "center" : "flex-start"}
+            px={2}
+            py={2}
+          >
+            <Image src="/images/icons/saumcl.png" alt="SAUMCL" boxSize="28px" />
+            {!isSimplified && <TitleShort fontSize="lg" />}
+          </HStack>
+          <Divider />
+          <Flex
             ref={navListRef}
+            direction="column"
+            gap={2}
+            flex="1"
+            minH={0}
+            overflowY="auto"
             role="tablist"
+            aria-orientation="vertical"
             className={styles.tabList}
             style={
               {
@@ -224,8 +244,8 @@ const HeadNavBar = () => {
           >
             <Box
               className={`${styles.indicator} ${indicator.visible ? styles.indicatorVisible : ""}`}
-              transform={`translateX(${indicator.left}px)`}
-              w={`${indicator.width}px`}
+              transform={`translateY(${indicator.top}px)`}
+              h={`${indicator.height}px`}
             />
             {navList.map((item, index) => {
               const isSelected = selectedIndex === index;
@@ -233,8 +253,8 @@ const HeadNavBar = () => {
                 <Tooltip
                   key={`${item.label}-${item.path ?? "action"}`}
                   label={t(`HeadNavBar.navList.${item.label}`)}
-                  placement="bottom"
-                  isDisabled={!isSimplified || isSelected}
+                  placement="right"
+                  isDisabled={!isSimplified}
                 >
                   <Box
                     as="button"
@@ -244,6 +264,7 @@ const HeadNavBar = () => {
                     type="button"
                     role="tab"
                     aria-selected={isSelected}
+                    aria-label={t(`HeadNavBar.navList.${item.label}`)}
                     onClick={() => handleTabChange(index)}
                     fontWeight={isSelected ? "600" : "normal"}
                     color={isSelected ? selectedTextColor : unselectTabColor}
@@ -251,14 +272,17 @@ const HeadNavBar = () => {
                   >
                     <HStack
                       id={`head-navbar-tab-${item.label}`}
+                      justify={isSimplified ? "center" : "flex-start"}
+                      spacing={3}
+                      w="100%"
                       className={styles.tabContent}
                     >
                       <Icon
                         as={item.icon}
-                        boxSize={3.5}
+                        boxSize={4}
                         className={styles.tabIcon}
                       />
-                      {(!isSimplified || isSelected) && (
+                      {!isSimplified && (
                         <Text fontSize="sm" lineHeight="1">
                           {t(`HeadNavBar.navList.${item.label}`)}
                         </Text>
@@ -268,19 +292,16 @@ const HeadNavBar = () => {
                 </Tooltip>
               );
             })}
-          </HStack>
+          </Flex>
           {isDownloadIndicatorShown && (
             <>
-              <Divider
-                orientation="vertical"
-                size="xl"
-                h="100%"
-                borderColor="var(--chakra-colors-chakra-placeholder-color)"
-              />
-              <DownloadIndicator />
+              <Divider borderColor="var(--chakra-colors-chakra-placeholder-color)" />
+              <Flex justify="center" pb={1}>
+                <DownloadIndicator />
+              </Flex>
             </>
           )}
-        </HStack>
+        </Flex>
       </AdvancedCard>
     </Flex>
   );

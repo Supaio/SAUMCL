@@ -323,30 +323,19 @@ const MainLayout = ({ children }: MainLayoutProps) => {
       style={getGlobalExtraStyle(config)}
     >
       <WindowTitlebar />
-      <Box
-        position="relative"
-        display="flex"
-        flex="1"
-        flexDir="column"
-        minH={0}
-      >
+      <Box position="relative" display="flex" flex="1" flexDir="row" minH={0}>
         <FileDnDProvider>
           <MainLayoutFileDnD />
           <HeadNavBar />
-          {router.pathname === "/launch" ? (
-            <>{children}</>
-          ) : (
-            <AdvancedCard
-              level="back"
-              flex="1"
-              overflow="auto"
-              mt={1}
-              mb={4}
-              mx={4}
-            >
-              {children}
-            </AdvancedCard>
-          )}
+          <Flex direction="column" flex="1" minW={0} minH={0} overflow="hidden">
+            {router.pathname === "/launch" ? (
+              <>{children}</>
+            ) : (
+              <AdvancedCard level="back" flex="1" overflow="auto" m={4}>
+                {children}
+              </AdvancedCard>
+            )}
+          </Flex>
 
           <WelcomeAndTermsModal
             isOpen={isWelcomeAndTermsModalOpen}

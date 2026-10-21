@@ -110,13 +110,13 @@ export const GuidedTourProvider: React.FC<TourProviderProps> = ({
       id: "head-navbar-tab-instances",
       title: t("GuidedTourProvider.step1.title"),
       content: t("GuidedTourProvider.step1.content"),
-      placement: "bottom",
+      placement: "right",
     },
     {
       id: "head-navbar-tab-accounts",
       title: t("GuidedTourProvider.step2.title"),
       content: t("GuidedTourProvider.step2.content"),
-      placement: "bottom",
+      placement: "right",
     },
     {
       id: "head-navbar-tab-discover",
@@ -134,7 +134,7 @@ export const GuidedTourProvider: React.FC<TourProviderProps> = ({
           }}
         />
       ),
-      placement: "bottom",
+      placement: "right",
     },
     {
       id: "main-launch-button",

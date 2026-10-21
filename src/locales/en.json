@@ -293,7 +293,7 @@
           "description": "When enabled, parts of the interface will use the 'Liquid Glass' effect, which may impact performance."
         },
         "headNavStyle": {
-          "title": "Navigation Bar Style",
+          "title": "Sidebar Style",
           "type": {
             "standard": "Standard",
             "simplified": "Simplified",
