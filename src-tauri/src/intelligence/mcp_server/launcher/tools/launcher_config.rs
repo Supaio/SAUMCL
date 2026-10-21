@@ -1,11 +1,18 @@
 use rmcp::handler::server::tool::ToolRoute;
 
 use crate::intelligence::mcp_server::launcher::McpContext;
-use crate::launcher_config::commands::{retrieve_launcher_config, update_launcher_config};
+use crate::launcher_config::commands::{
+  retrieve_java_list, retrieve_launcher_config, update_launcher_config,
+};
 use crate::mcp_tool;
 
 pub fn tool_routes() -> Vec<ToolRoute<McpContext>> {
   vec![
+    mcp_tool!(
+      "retrieve_java_list",
+      retrieve_java_list,
+      "Refresh and list detected Java runtimes, including their major versions and executable paths."
+    ),
     mcp_tool!(
       sync "retrieve_launcher_config",
       retrieve_launcher_config,

@@ -8,6 +8,7 @@ on:
     paths:
       - src/**
       - src-tauri/**
+      - scripts/qa/**
       - package.json
       - pnpm-lock.yaml
       - pnpm-workspace.yaml
@@ -18,6 +19,7 @@ on:
     paths:
       - src/**
       - src-tauri/**
+      - scripts/qa/**
       - package.json
       - pnpm-lock.yaml
       - pnpm-workspace.yaml
@@ -56,6 +58,7 @@ jobs:
               - 'pnpm-lock.yaml'
               - 'pnpm-workspace.yaml'
               - '.github/workflows/test.yml'
+              - 'scripts/qa/**'
 
       - id: compute
         shell: bash
@@ -92,7 +95,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       
       - name: Lint JavaScript/TypeScript Frontend
-        run: pnpm eslint 'src/**/*.{js,jsx,ts,tsx}' --no-fix --max-warnings=0
+        run: pnpm eslint 'src/**/*.{js,jsx,ts,tsx}' 'scripts/qa/*.mjs' --no-fix --max-warnings=0
       
       - uses: dtolnay/rust-toolchain@stable
         with:
@@ -179,3 +182,18 @@ jobs:
           path: artifacts/${{ steps.portable.outputs.output_name }}
           archive: false
           if-no-files-found: error
+
+      - name: Test clean installation and automatic Java download (Windows)
+        if: matrix.platform == 'windows-latest'
+        timeout-minutes: 15
+        shell: pwsh
+        run: ./scripts/qa/installation-smoke.ps1 -LauncherPath "artifacts/${{ steps.portable.outputs.output_name }}"
+
+      - name: Upload installation test report
+        if: always() && matrix.platform == 'windows-latest'
+        uses: actions/upload-artifact@v7
+        with:
+          name: installation-smoke-report
+          path: artifacts/installation-smoke.json
+          archive: false
+          if-no-files-found: warn
