@@ -1,246 +1,48 @@
 # SAUMCL
 
-**SAU Minecraft Launcher** 是面向四川农业大学（SAU）玩家的校園社群 Minecraft 啟動器，基於 SJMCL Team 開發的 [SJMCL](https://github.com/UNIkeEN/SJMCL)。本修改版在 [Supaio/SAUMCL](https://github.com/Supaio/SAUMCL/tree/codex/saumcl-development) 獨立維護。
+**SAU Minecraft Launcher** 是面向四川农业大学（SAU）玩家社群的 Minecraft Java 版啟動器，基於 [SJMCL](https://github.com/UNIkeEN/SJMCL) 開發。
 
-[English](../README.md) · [简体中文](README.zh-Hans.md)
+[English](../README.md) · [简体中文](README.zh-Hans.md) · **繁體中文**
 
-<a id="project-status"></a>
-## 開發狀態
+## 下載
 
-目前在 `codex/saumcl-development` 分支開發。Java 版啟動器基底已通過 Windows、Linux CI 建置；校服位址、遊戲版本和整合包稍後配置。
+在 [Supaio/SAUMCL Releases](https://github.com/Supaio/SAUMCL/releases) 下載 **Indev 19.0.1**。
 
-- 應用使用獨立的 `io.github.supaio.saumcl` 識別碼及 `saumcl://` 協定，不自動遷移原版 SJMCL 的帳號與應用設定。
-- 更新檢查使用本倉庫的 GitHub Releases，不安裝上游 SJMCL 更新；開發版跳過正式版本更新檢查。
-- 已停用上游使用統計，預設社群消息訂閱為空。
-- Microsoft 帳號驗證沿用 SJMCL 的 OAuth 應用，微軟授權頁面會顯示原專案的應用名稱；登入面板和關於頁均有說明。可選的設定碼分享仍使用上游服務。
-- 應用圖示使用 SAU 字母組合標誌。
+- Windows x64：`SAUMCL.exe`。
+- Linux x64：`SAUMCL`，執行前先執行 `chmod +x ./SAUMCL`。
+- `SHA256SUMS.txt` 提供下載檔案的校驗值。
 
-## 測試版下載
+歡迎視窗與「關於」頁包含面向四川农业大学在校學生、畢業校友及 CLMC 群友（群號：719489600）的社群使用提醒。
 
-登入 GitHub，開啟 [Actions / Test](https://github.com/Supaio/SAUMCL/actions/workflows/test.yml?query=branch%3Acodex%2Fsaumcl-development)，進入開發分支最新一次成功的執行紀錄，在底部 **Artifacts** 下載 Windows 或 Linux 檔案。CI 產物與 Releases 發布頁分開；Windows 可攜版 EXE 可直接執行。
+## 目前功能
 
-## 本機開發
+- Microsoft 正版帳戶登入、遊戲安裝和 Java 下載。
+- 實例管理和 Modrinth 資源下載。
+- 簡體中文、繁體中文和英語。
+- SAUMCL 標識、校服背景和左側自適應導覽。
+- 從本倉庫的 Releases 檢查更新，包括更高版本的 Indev。
 
-需要 pnpm **10.26.1**、Rust **1.98.1 或更新版本**，以及對應平台的 Tauri 建置環境。
+Microsoft 帳戶驗證仍沿用 SJMCL 的 OAuth 應用，登入面板與「關於」頁均已說明。智慧與擴充外掛功能暫時停用；校服停服期間尚未完成校服連線驗證。
+
+## 開發
+
+需要 Node.js 22 或更新版本、pnpm **10.26.1**、Rust **1.98.1 或更新版本**，以及所在平台的 Tauri 建置依賴。
 
 ```sh
-git clone --branch codex/saumcl-development https://github.com/Supaio/SAUMCL.git
+git clone https://github.com/Supaio/SAUMCL.git
 cd SAUMCL
 pnpm install --frozen-lockfile
 pnpm tauri dev
 ```
 
-SAUMCL 問題請提交到[本倉庫 Issues](https://github.com/Supaio/SAUMCL/issues)。
+`main` 儲存目前 SAUMCL 基底，後續開發使用 `codex/saumcl-development`。
 
-## 版權與上游來源
+應用程式碼位於 `src/` 和 `src-tauri/`，前端資源位於 `public/`；`scripts/` 儲存建置、多語言與安裝檢查腳本。保留的 GitHub 工作流負責測試、依賴審計、資料更新和 Indev 發佈；發行說明位於 `docs/releases/`。
 
-SAUMCL 基於 **SJMCL**，原專案位址：**https://github.com/UNIkeEN/SJMCL**。原始版權 © 2024–2026 SJMCL Team；SAUMCL 修改部分 © 2026 SAUMCL 貢獻者。保留原有 [LICENSE](../LICENSE)、[LICENSE.EXTRA](../LICENSE.EXTRA)、上游致謝與適用的第三方聲明。
+問題回報請提交至 [Supaio/SAUMCL/issues](https://github.com/Supaio/SAUMCL/issues)。
 
-以下摺疊區域保留原版 SJMCL README 作為來源參考，其中的下載、安裝指令和服務連結指向原專案。
+## 上游與许可证
 
-<details>
-<summary>Original SJMCL README · 上游原始說明</summary>
+SAUMCL 基於 **SJMCL**：https://github.com/UNIkeEN/SJMCL。原專案版權 © 2024–2026 SJMCL Team；SAUMCL 修改部分版權 © 2026 SAUMCL contributors。
 
-<img src="figs/banner.png" alt="SJMCL" />
-
-[![Test Build](https://img.shields.io/github/actions/workflow/status/UNIkeEN/SJMCL/test.yml?label=test%20build&logo=github&style=for-the-badge)](https://github.com/UNIkeEN/SJMCL/blob/main/.github/workflows/test.yml)
-![Downloads](https://img.shields.io/github/downloads/UNIkeEN/SJMCL/total?logo=github&style=for-the-badge)
-![Stars](https://img.shields.io/github/stars/UNIkeEN/SJMCL?style=for-the-badge)
-![Runs](https://img.shields.io/badge/dynamic/json?color=blue&style=for-the-badge&label=runs&query=$.total_count_str&url=https%3A%2F%2Fmc.sjtu.cn%2Fapi-sjmcl%2Fcount)
-[![Deepwiki](https://img.shields.io/badge/Ask-DeepWiki-20B2AA?logo=&style=for-the-badge)](https://deepwiki.com/UNIkeEN/SJMCL)
-
-[English](../README.md) · [简体中文](README.zh-Hans.md) · **繁體中文**
-
-## 功能特性
-
-* **跨平臺支援**：相容 Windows 10/11、macOS 與 Linux。
-* **高效的實例管理**：支援多個遊戲目錄與實例，集中管理所有實例資源（如存檔、模組、資源包、光影包、截圖等）與設定。
-* **便捷的資源下載**：支援從 CurseForge 與 Modrinth 等源下載遊戲用戶端、模組載入器、各類遊戲資源與模組包。
-* **多帳戶系統支援**：內建 Microsoft 登入與第三方認證伺服器支援，相容 Yggdrasil Connect 的 OAuth 登入流程規範提案。
-* **外部服務協同**：透過深度連結與 MCP 服務，與外部網頁、程式及 Agent 服務協同運作，提供一系列便捷功能與自動化能力。
-* **開放擴展系統**：支援開發擴展，為啟動器擴展更多有趣且實用的功能。[>> 查看社區擴展](https://github.com/SJMC-Dev/awesome-SJMCL-extensions/blob/main/README.zh-Hant.md)
-
-> 注意：部分功能可能受地區、執行平臺或程式發行類型限制。
-
-### 技術堆疊
-
-[![Tauri](https://img.shields.io/badge/Tauri-v2-FFC131?style=for-the-badge&logo=tauri&logoColor=white&labelColor=24C8DB)](https://tauri.app/)
-[![Next JS](https://img.shields.io/badge/next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)](https://nextjs.org/)
-[![Chakra UI](https://img.shields.io/badge/chakra_ui-v2-38B2AC?style=for-the-badge&logo=chakraui&logoColor=white&labelColor=319795)](https://v2.chakra-ui.com/)
-
-## 開始使用
-
-開始使用 SJMCL，只需前往 [官網](https://mc.sjtu.cn/sjmcl/downloads) 下載最新版即可。
-
-您也可以在 [GitHub Releases](https://github.com/UNIkeEN/SJMCL/releases) 獲取所有版本，包括週期性構建。
-
-SJMCL 目前支援以下平臺：
-
-| 平臺    | 系統版本            | 架構               | 提供的發行類型                              |
-|---------|---------------------|--------------------|--------------------------------------------|
-| Windows | 10 及以上         | `aarch64`, `i686`, `x86_64`   | 安裝版 `.exe`，便攜版 `.exe` |
-| macOS   | 10.15 及以上        | `aarch64`, `x86_64`| `.app`，`.dmg`                   |
-| Linux   | webkit2gtk 4.1 (如 Ubuntu 22.04) | `aarch64`, `x86_64` | `.deb`, `.rpm`, 便攜版二進位制檔案 |
-
-了解更多功能與常見問題，請參閱 [使用者文件](https://mc.sjtu.cn/sjmcl/docs)。
-
-<details>
-<summary><h3>從命令列安裝</h3></summary>
-
-<details>
-<summary><h4>Linux</h4></summary>
-
-使用 Linux 一鍵安裝腳本安裝最新正式版：
-
-```bash
-curl -LsSf https://mc.sjtu.cn/sjmcl/releases/install.sh | sh -s -- --source sjmc
-```
-
-如果安裝了 [Homebrew](https://brew.sh)，可以透過 [Homebrew](https://brew.sh) Cask 來安裝：
-
-```bash
-brew install --cask sjmcl
-```
-
-不使用 root 權限安裝 Linux 便攜版：
-
-```bash
-curl -LsSf https://mc.sjtu.cn/sjmcl/releases/install.sh | sh -s -- --portable --source sjmc
-```
-
-透過常見的 [AUR 助手](https://wiki.archlinux.org/title/AUR_helpers) 從 Arch Linux 使用者套件庫（AUR）安裝：
-
-```bash
-yay -S sjmcl-bin
-```
-
-若不使用 AUR 助手，您也可以手動安裝：
-
-```bash
-git clone https://aur.archlinux.org/sjmcl-bin.git
-cd sjmcl-bin
-makepkg -si
-```
-
-透過 Snap Store 安裝：
-
-```bash
-sudo snap install sjmcl
-```
-
-> [!WARNING]
-> 使用 Snap 安裝時，遊戲資料可能會預設存放在沙盒目錄內。解除安裝啟動器前，請及時備份存檔、資源包、模組等重要資料。
-
-</details>
-
-<details>
-<summary><h4>macOS</h4></summary>
-
-透過 Homebrew 安裝：
-
-```bash
-brew install --cask sjmcl
-```
-
-</details>
-
-<details>
-<summary><h4>Windows</h4></summary>
-
-透過 Winget 安裝：
-
-```powershell
-winget install SJMC.SJMCL
-```
-
-> [!WARNING]
-> Winget 的索引倉庫是公開協作維護的。安裝前建議執行 `winget show SJMC.SJMCL` 檢視安裝器位址，並確認下載來源來自 `github.com/UNIkeEN/SJMCL` 或 `sjmcl.club`。
-
-</details>
-
-更多安裝方式與平臺注意事項，請參閱 [使用者文件](https://mc.sjtu.cn/sjmcl/docs/install)。
-
-</details>
-
-## 開發與貢獻
-
-首先複製（clone）本專案並安裝前端依賴：
-
-```bash
-git clone git@github.com:UNIkeEN/SJMCL.git
-pnpm install
-```
-
-使用開發模式執行：
-
-```bash
-pnpm tauri dev
-```
-
-我們熱烈歡迎每一位開發者的貢獻。
-
-* 在開始前，請先閱讀我們的 [貢獻指南](https://github.com/UNIkeEN/SJMCL/blob/main/CONTRIBUTING.md)（內含開發流程詳細說明）。
-* API 參考與部分開發者筆記見 [開發者文件](https://mc.sjtu.cn/sjmcl/dev)。
-* 歡迎透過 [Pull Request](https://github.com/UNIkeEN/SJMCL/pulls) 或 [GitHub Issues](https://github.com/UNIkeEN/SJMCL/issues) 分享您的想法。
-
-### 開發擴展
-
-如果您希望為 SJMCL 開發擴展，歡迎查看 [擴展文件](https://mc.sjtu.cn/sjmcl/dev/extension/)。內含擴展系統的介紹、API 參考。我們還提供了腳手架，便於快速建立範本專案並上手。
-
-### 貢獻者
-
-![貢獻者](https://contrib.rocks/image?repo=UNIkeEN/SJMCL "貢獻者")
-
-## 版權宣告
-
-版權所有 © 2024-2026 SJMCL 團隊。
-
-> 本軟體並非官方 Minecraft 服務。未獲得 Mojang 或 Microsoft 批准或關聯許可。
-
-本專案基於 [GNU 通用公眾授權條款 v3.0](../LICENSE) 釋出。
-
-依據 GPLv3 第 7 條款，當您分發本軟體的修改版本時，除遵守 GPLv3 外，還須遵守以下 [附加條款](../LICENSE.EXTRA)：
-
-1. 必須更換軟體名稱，禁止使用 SJMCL 或 SJMC Launcher；
-2. 在您的專案 README、分發網站或相關文件、軟體的關於頁面中，須明確標註您的程式基於 SJMCL，並註明原專案連結。
-3. 當對本軟體的修改僅限於**增加**（而非修改或刪除）預置認證伺服器（`src-tauri/src/account/helpers/authlib_injector/constants.rs`）時，前述第 1 條之限制不適用。在此情形下，您得繼續使用原始軟體名稱進行編譯與分發。
-
-另根據我們網站的使用者協議，當您分發本軟體的修改版本時，請僅向我們的資訊統計伺服器（`src-tauri/src/utils/sys_info.rs`）傳送帶字首（不少於兩個字母，如 `XX-0.0.1`）的版本號，除非您的修改滿足上述第 3 條限制。
-
-## 聯絡我們
-
-SJMCL 使用者 QQ 交流群：860851380
-
-您還可以傳送郵件至 [launcher@sjmc.club](mailto:launcher@sjmc.club) 來聯絡我們。
-
-## 社群合作伙伴
-
-衷心感謝以下組織對 SJMCL 專案開發與社群的支援。
-
-[
-  <picture>
-    <source srcset="figs/partners/sjmc-dark.png" media="(prefers-color-scheme: dark)">
-    <source srcset="figs/partners/sjmc.png" media="(prefers-color-scheme: light)">
-    <img src="figs/partners/sjmc.png" alt="SJMC" style="height: 65px;">
-  </picture>
-](https://mc.sjtu.cn)
-&nbsp;&nbsp;
-[<img src="figs/partners/sues-mc.png" alt="SUES-MC" style="height: 65px;"/>](https://www.suesmc.ltd/)
-
-[
-  <picture>
-    <source srcset="figs/partners/mua-dark.png" media="(prefers-color-scheme: dark)">
-    <source srcset="figs/partners/mua.png" media="(prefers-color-scheme: light)">
-    <img src="figs/partners/mua.png" alt="MUA" style="height: 45px;">
-  </picture>
-](https://www.mualliance.cn)
-&nbsp;&nbsp;&nbsp;&nbsp;
-[
-  <picture>
-    <source srcset="figs/partners/gnwork-dark.png" media="(prefers-color-scheme: dark)">
-    <source srcset="figs/partners/gnwork.png" media="(prefers-color-scheme: light)">
-    <img src="figs/partners/gnwork.png" alt="GNWORK" style="height: 45px;">
-  </picture>
-](https://space.bilibili.com/403097853)
-
-</details>
+請參閱 [LICENSE](../LICENSE) 與 [LICENSE.EXTRA](../LICENSE.EXTRA)。保留既有第三方聲明與上游致謝。

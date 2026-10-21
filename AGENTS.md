@@ -1,19 +1,19 @@
-# SJMC Launcher 项目开发指南
+# SAUMCL 项目开发指南
 
 > 本文件为 AI 编程助手提供项目上下文和开发规范。
 
 ## 项目信息
 
-- 跨平台 Minecraft 启动器，简称 SJMCL
+- 面向四川农业大学玩家社群的 Minecraft 启动器 SAUMCL，基于 SJMCL 开发
 - 使用 [Tauri](https://tauri.app/) 框架开发，前端 React + Next.js + [Chakra UI v2](https://v2.chakra-ui.com/)，后端 Rust
-- 支持多游戏目录与实例、多账户、MCP 集成、扩展系统、国际化
+- 支持多游戏目录与实例、多账户和三种界面语言；智能、MCP 与扩展插件功能暂时停用
 
 ### 项目结构
 
 > 以下为精简后的核心结构示意，仅列出高频开发目录与关键入口，不展开所有文件。
 
 ```text
-SJMCL/
+SAUMCL/
 ├── src/                      # 前端源码（React）
 │   ├── pages/                # 前端页面路由（Next JS Page Router）
 │   │   ├── ...               
@@ -73,16 +73,6 @@ SJMCL/
 
 - 前端导入优先使用已配置别名和绝对路径、不使用相对路径；后端导入使用绝对路径（`use crate::...`），不使用相对路径（`use super::...`）。
 - 新增或修改 `src/locales` 下的国际化文本时，同时更新所有语言文件。注意语言文件的一级 key 使用字母序排序。
-
-## 扩展开发规范
-
-SJMCL 的扩展系统允许开发者在不修改核心代码的情况下添加各类有趣功能
-
-- 我们推荐使用 [脚手架](https://www.npmjs.com/package/create-sjmcl-extension) 初始化项目。
-- 具体的扩展接口可以参考 [API 文档](https://mc.sjtu.cn/sjmcl/dev/extension/api.html) 或 `src/contexts/extension/host.tsx`。
-- 开发完成后，可以在 [社区精选列表](https://github.com/SJMC-Dev/awesome-SJMCL-extensions) 提交扩展。
-
----
 
 ## 编码行为准则
 

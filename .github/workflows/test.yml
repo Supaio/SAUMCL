@@ -7,6 +7,7 @@ on:
       - codex/saumcl-development
     paths:
       - src/**
+      - public/**
       - src-tauri/**
       - scripts/qa/**
       - package.json
@@ -20,6 +21,7 @@ on:
       - main
     paths:
       - src/**
+      - public/**
       - src-tauri/**
       - scripts/qa/**
       - package.json
@@ -58,6 +60,7 @@ jobs:
             tauri:
               - 'src-tauri/**'
             config:
+              - 'public/**'
               - 'package.json'
               - 'pnpm-lock.yaml'
               - 'pnpm-workspace.yaml'
