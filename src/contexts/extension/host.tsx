@@ -52,6 +52,7 @@ import { TaskTypeEnums } from "@/models/task";
 import { ExtensionService } from "@/services/extension";
 import { TaskService } from "@/services/task";
 import { UtilsService } from "@/services/utils";
+import { launcherFeatures } from "@/utils/features";
 import { logger } from "@/utils/logging";
 import { sanitizeFileName } from "@/utils/string";
 import { createWindow } from "@/utils/window";
@@ -354,10 +355,56 @@ export const ExtensionHostContextProvider: React.FC<{
     return <>{children}</>;
   }
 
+  if (!launcherFeatures.extensions) {
+    return (
+      <PausedExtensionHostContextProvider>
+        {children}
+      </PausedExtensionHostContextProvider>
+    );
+  }
+
   return (
     <ActiveExtensionHostContextProvider>
       {children}
     </ActiveExtensionHostContextProvider>
+  );
+};
+
+const PausedExtensionHostContextProvider: React.FC<{
+  children: React.ReactNode;
+}> = ({ children }) => {
+  const { config } = useLauncherConfig();
+  const { selectedPlayer, selectedInstance } = useGlobalData();
+  const value = useMemo<ExtensionHostContextType>(
+    () => ({
+      data: {
+        config,
+        selectedPlayer,
+        selectedInstance,
+        playerList: [],
+        instanceList: [],
+      },
+      stateStore: {
+        getValue: (_identifier, _key, initialValue) => initialValue,
+        setValue: () => {},
+        subscribe: () => () => {},
+      },
+      extensionList: [],
+      enabledExtensionList: [],
+      homeWidgets: [],
+      getExtensionSettingsPage: () => undefined,
+      getExtensionPage: () => undefined,
+      getExtensionSlotItems: () => [],
+      getExtensionList: () => [],
+      handleAddExtension: async () => {},
+    }),
+    [config, selectedPlayer, selectedInstance]
+  );
+
+  return (
+    <ExtensionHostContext.Provider value={value}>
+      {children}
+    </ExtensionHostContext.Provider>
   );
 };
 

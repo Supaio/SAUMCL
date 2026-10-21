@@ -40,6 +40,7 @@ import { useLauncherConfig } from "@/contexts/config";
 import { useExtensionHost } from "@/contexts/extension/host";
 import { useSharedModals } from "@/contexts/shared-modal";
 import { isDev } from "@/utils/env";
+import { isPausedFeatureRoute, launcherFeatures } from "@/utils/features";
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -48,6 +49,7 @@ interface MainLayoutProps {
 const MainLayout = ({ children }: MainLayoutProps) => {
   const router = useRouter();
   const isStandAlone = router.pathname.startsWith("/standalone");
+  const isPausedPage = isPausedFeatureRoute(router.pathname);
   const { config, update } = useLauncherConfig();
   const primaryColor = config.appearance.theme.primaryColor;
   const { colorMode } = useColorMode();
@@ -57,6 +59,10 @@ const MainLayout = ({ children }: MainLayoutProps) => {
 
   const [bgImgSrc, setBgImgSrc] = useState<string>("");
   const isStartupFlowStarted = useRef(false);
+
+  useEffect(() => {
+    if (isPausedPage) router.replace("/settings/general");
+  }, [isPausedPage, router]);
 
   const {
     isOpen: isWelcomeAndTermsModalOpen,
@@ -280,6 +286,8 @@ const MainLayout = ({ children }: MainLayoutProps) => {
     borderRadius: "lg",
   };
 
+  if (isPausedPage) return null;
+
   if (isStandAlone) {
     return (
       <Flex
@@ -353,7 +361,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
   );
 };
 
-// support modpack and extension import by DnD on the whole main-layout level
+// Support modpack and extension import by DnD on the whole main-layout level.
 const MainLayoutFileDnD = () => {
   const { openSharedModal } = useSharedModals();
   const { handleAddExtension } = useExtensionHost();
@@ -369,16 +377,20 @@ const MainLayoutFileDnD = () => {
     },
   });
 
-  useFileDnD({
-    extensions: ["sjmclx"],
-    titleKey: "ExtensionSettingsPage.fileDnD.title",
-    descKey: "ExtensionSettingsPage.fileDnD.desc",
-    icon: LuGrid2X2Plus,
-    onDrop: async ([path]) => {
-      if (!path) return;
-      await handleAddExtension(path);
-    },
-  });
+  useFileDnD(
+    launcherFeatures.extensions
+      ? {
+          extensions: ["sjmclx"],
+          titleKey: "ExtensionSettingsPage.fileDnD.title",
+          descKey: "ExtensionSettingsPage.fileDnD.desc",
+          icon: LuGrid2X2Plus,
+          onDrop: async ([path]) => {
+            if (!path) return;
+            await handleAddExtension(path);
+          },
+        }
+      : []
+  );
 
   return null;
 };

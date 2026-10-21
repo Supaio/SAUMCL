@@ -347,7 +347,7 @@ export const defaultConfig: LauncherConfig = {
   intelligence: {
     mcpServer: {
       launcher: {
-        enabled: true,
+        enabled: false,
         port: 18970,
       },
     },

@@ -1,8 +1,8 @@
 mod account;
 mod discover;
-mod extension;
+// mod extension; // Temporarily paused in SAUMCL.
 mod instance;
-mod intelligence;
+// mod intelligence; // Paused in the SAUMCL school build.
 mod launch;
 mod launcher_config;
 mod resource;
@@ -182,9 +182,10 @@ pub async fn run() {
         resource::commands::fetch_remote_resource_by_id,
         discover::commands::fetch_news_sources_info,
         discover::commands::fetch_news_post_summaries,
-        extension::commands::retrieve_extension_list,
-        extension::commands::add_extension,
-        extension::commands::delete_extension,
+        // Extension commands are temporarily paused.
+        // extension::commands::retrieve_extension_list,
+        // extension::commands::add_extension,
+        // extension::commands::delete_extension,
         tasks::commands::schedule_progressive_task_group,
         tasks::commands::cancel_progressive_task,
         tasks::commands::resume_progressive_task,
@@ -224,7 +225,6 @@ pub async fn run() {
         launcher_config.setup_with_app(app.handle()).unwrap();
         launcher_config.save().unwrap();
         let auto_purge_launcher_logs = launcher_config.general.advanced.auto_purge_launcher_logs;
-        let launcher_mcp_config = launcher_config.intelligence.mcp_server.launcher.clone();
         app.manage(Mutex::new(launcher_config));
 
         let account_info = AccountInfo::load().unwrap_or_default();
@@ -345,10 +345,10 @@ pub async fn run() {
           }
         }
 
-        // Start the launcher MCP server if enabled
-        if launcher_mcp_config.enabled {
-          intelligence::mcp_server::launcher::run(app.handle().clone(), &launcher_mcp_config);
-        }
+        // Intelligence / MCP is paused in the SAUMCL school build.
+        // if launcher_mcp_config.enabled {
+        //   intelligence::mcp_server::launcher::run(app.handle().clone(), &launcher_mcp_config);
+        // }
 
         Ok(())
       })

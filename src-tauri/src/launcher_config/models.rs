@@ -343,7 +343,7 @@ structstruck::strike! {
     pub intelligence: struct IntelligenceConfig {
       pub mcp_server: struct {
         pub launcher: struct LauncherMcpServerConfig{
-          #[default = true]
+          #[default = false]
           pub enabled: bool,
           #[default = 18970]
           pub port: u16,

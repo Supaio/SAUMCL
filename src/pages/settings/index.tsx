@@ -1,6 +1,7 @@
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { useRoutingHistory } from "@/contexts/routing-history";
+import { isPausedFeatureRoute } from "@/utils/features";
 
 const SettingsPage = () => {
   const router = useRouter();
@@ -8,8 +9,12 @@ const SettingsPage = () => {
 
   useEffect(() => {
     const lastRecord =
-      [...history].reverse().find((route) => route.startsWith("/settings/")) ||
-      "/settings/general";
+      [...history]
+        .reverse()
+        .find(
+          (route) =>
+            route.startsWith("/settings/") && !isPausedFeatureRoute(route)
+        ) || "/settings/general";
 
     // always redirect to top-level settings page (e.g. /settings/download/ping-test → /settings/download)
     const segments = lastRecord.split("/");

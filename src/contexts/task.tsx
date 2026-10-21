@@ -35,6 +35,7 @@ import {
 import { InstanceService } from "@/services/instance";
 import { RESOURCE_REFRESH_EVENT } from "@/services/resource";
 import { TaskService } from "@/services/task";
+import { launcherFeatures } from "@/utils/features";
 
 interface TaskContextType {
   tasks: TaskGroupDesc[];
@@ -613,6 +614,7 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
                 break;
               }
               case "extension-update": {
+                if (!launcherFeatures.extensions) break;
                 let group = newTasks.find(
                   (t) => t.taskGroup === payload.taskGroup
                 );

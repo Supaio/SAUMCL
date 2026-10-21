@@ -24,6 +24,7 @@ import {
 } from "react-icons/lu";
 import NavMenu from "@/components/common/nav-menu";
 import { useLauncherConfig } from "@/contexts/config";
+import { launcherFeatures } from "@/utils/features";
 
 interface SettingsLayoutProps {
   children: React.ReactNode;
@@ -44,8 +45,12 @@ const SettingsLayout: React.FC<SettingsLayoutProps> = ({ children }) => {
       { key: "general", icon: LuSettings },
       { key: "appearance", icon: LuPalette },
       { key: "download", icon: LuCloudDownload },
-      { key: "intelligence", icon: LuSparkles },
-      { key: "extension", icon: LuGrid2X2Plus },
+      ...(launcherFeatures.intelligence
+        ? [{ key: "intelligence", icon: LuSparkles }]
+        : []),
+      ...(launcherFeatures.extensions
+        ? [{ key: "extension", icon: LuGrid2X2Plus }]
+        : []),
       { key: "help", icon: LuCircleHelp },
       { key: "about", icon: LuInfo },
     ],

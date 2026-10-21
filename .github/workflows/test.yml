@@ -183,17 +183,18 @@ jobs:
           archive: false
           if-no-files-found: error
 
-      - name: Test clean installation and automatic Java download (Windows)
-        if: matrix.platform == 'windows-latest'
-        timeout-minutes: 15
-        shell: pwsh
-        run: ./scripts/qa/installation-smoke.ps1 -LauncherPath "artifacts/${{ steps.portable.outputs.output_name }}"
+      # MCP-driven installation tests are paused with the intelligence feature.
+      # - name: Test clean installation and automatic Java download (Windows)
+      #   if: matrix.platform == 'windows-latest'
+      #   timeout-minutes: 15
+      #   shell: pwsh
+      #   run: ./scripts/qa/installation-smoke.ps1 -LauncherPath "artifacts/${{ steps.portable.outputs.output_name }}"
 
-      - name: Upload installation test report
-        if: always() && matrix.platform == 'windows-latest'
-        uses: actions/upload-artifact@v7
-        with:
-          name: installation-smoke-report
-          path: artifacts/installation-smoke.json
-          archive: false
-          if-no-files-found: warn
+      # - name: Upload installation test report
+      #   if: always() && matrix.platform == 'windows-latest'
+      #   uses: actions/upload-artifact@v7
+      #   with:
+      #     name: installation-smoke-report
+      #     path: artifacts/installation-smoke.json
+      #     archive: false
+      #     if-no-files-found: warn
