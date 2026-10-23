@@ -50,7 +50,7 @@
     "fuse.js": "^7.3.0",
     "i18next": "^24.0.0",
     "masonic": "^4.0.1",
-    "next": "16.3.8",
+    "next": "16.4.1",
     "pinyin-pro": "^3.29.5",
     "react": "^18",
     "react-dom": "^18",
@@ -63,7 +63,7 @@
     "skinview3d": "^3.1.0"
   },
   "devDependencies": {
-    "@next/bundle-analyzer": "16.3.8",
+    "@next/bundle-analyzer": "16.4.1",
     "@tauri-apps/cli": "^2.11.2",
     "@trivago/prettier-plugin-sort-imports": "^4.3.0",
     "@types/node": "^20",
@@ -72,7 +72,7 @@
     "@types/react-virtualized": "^9.22.0",
     "chalk": "^4.1.2",
     "eslint": "^9.39.4",
-    "eslint-config-next": "16.3.8",
+    "eslint-config-next": "16.4.1",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.2.1",
     "eslint-plugin-unused-imports": "^4.1.4",
