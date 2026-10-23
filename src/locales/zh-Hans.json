@@ -435,6 +435,15 @@
       "lackOfArguments": "缺少必要参数，请开发者检查代码"
     }
   },
+  "CowDropGame": {
+    "drop": "放一只牛（Esc 清空）",
+    "exitHint": "按ESC退出",
+    "full": "窗口已放满（{{count}} / {{limit}}），按 Esc 清空",
+    "grayCount": "你当前抽到过 {{count}} 只灰色牛",
+    "grayFound": "抽到了灰色川农牛！",
+    "launchBlocked": "牛超过 100 只，暂时无法启动游戏。请按 Esc 清空后再启动。",
+    "launchBlockedShort": "牛超过 100 只 · Esc 清空"
+  },
   "CreateInstanceModal": {
     "header": {
       "title": "创建新实例"
@@ -1735,6 +1744,7 @@
   },
   "LaunchPage": {
     "button": {
+      "joinCampusServer": "一键进入校服",
       "launch": "启动游戏",
       "instanceSettings": "实例设置"
     },

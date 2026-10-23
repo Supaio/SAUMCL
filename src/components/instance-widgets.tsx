@@ -38,6 +38,7 @@ import { BeatLoader } from "react-spinners";
 import Empty from "@/components/common/empty";
 import { OptionItem } from "@/components/common/option-item";
 import { useLauncherConfig } from "@/contexts/config";
+import { useCowDrop } from "@/contexts/cow-drop";
 import { useInstanceSharedData } from "@/contexts/instance";
 import { useSharedModals } from "@/contexts/shared-modal";
 import { ModLoaderType } from "@/enums/instance";
@@ -333,6 +334,7 @@ export const InstanceModsWidget = () => {
 
 export const InstanceLastPlayedWidget = () => {
   const { t } = useTranslation();
+  const { isGameLaunchBlocked } = useCowDrop();
   const { config } = useLauncherConfig();
   const { openSharedModal } = useSharedModals();
   const { summary } = useInstanceSharedData();
@@ -412,6 +414,12 @@ export const InstanceLastPlayedWidget = () => {
                 variant="ghost"
                 colorScheme={primaryColor}
                 justifyContent="flex-start"
+                isDisabled={isGameLaunchBlocked}
+                title={
+                  isGameLaunchBlocked
+                    ? t("CowDropGame.launchBlocked")
+                    : undefined
+                }
                 onClick={() => {
                   openSharedModal("launch", {
                     instanceId: summary?.id,

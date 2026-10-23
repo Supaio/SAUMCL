@@ -26,6 +26,7 @@ import {
 } from "react-icons/lu";
 import { BeatLoader } from "react-spinners";
 import AdvancedCard from "@/components/common/advanced-card";
+import CowDropGame from "@/components/cow-drop-game";
 import DevToolbar from "@/components/dev/dev-toolbar";
 import HeadNavBar from "@/components/head-navbar-v2";
 import LanguageMenu from "@/components/language-menu";
@@ -38,6 +39,7 @@ import {
 import { useGuidedTour } from "@/components/special/guided-tour-provider";
 import WindowTitlebar from "@/components/window-titlebar";
 import { useLauncherConfig } from "@/contexts/config";
+import { useCowDrop } from "@/contexts/cow-drop";
 import { useExtensionHost } from "@/contexts/extension/host";
 import { useSharedModals } from "@/contexts/shared-modal";
 import { isDev } from "@/utils/env";
@@ -79,6 +81,15 @@ const MainLayout = ({ children }: MainLayoutProps) => {
     onOpen: onStarUsModalOpen,
     onClose: onStarUsModalClose,
   } = useDisclosure();
+
+  const [cowDropRequest, setCowDropRequest] = useState(0);
+  const { cowCount, cowCapacity, grayCowCount } = useCowDrop();
+  const isCowDropDisabled =
+    cowCount >= cowCapacity ||
+    isWelcomeAndTermsModalOpen ||
+    isStarUsModalOpen ||
+    isGuidedTourOpen ||
+    Object.values(modalStates).some((modal) => modal.isOpen);
 
   const openUnavailableExePathDialog = useCallback(
     (onContinue: () => void) => {
@@ -364,7 +375,12 @@ const MainLayout = ({ children }: MainLayoutProps) => {
       overflow="hidden"
       style={getGlobalExtraStyle(config)}
     >
-      <WindowTitlebar />
+      <WindowTitlebar
+        onDropCow={() => setCowDropRequest((request) => request + 1)}
+        isCowDropDisabled={isCowDropDisabled}
+        hasCows={cowCount > 0}
+        grayCowCount={grayCowCount}
+      />
       <Box position="relative" display="flex" flex="1" flexDir="row" minH={0}>
         <FileDnDProvider>
           <MainLayoutFileDnD />
@@ -390,6 +406,10 @@ const MainLayout = ({ children }: MainLayoutProps) => {
 
           {isDev && <DevToolbar />}
         </FileDnDProvider>
+        <CowDropGame
+          dropRequest={cowDropRequest}
+          topInset={config.basicInfo.osType === "windows" ? 32 : 28}
+        />
       </Box>
     </Flex>
   );

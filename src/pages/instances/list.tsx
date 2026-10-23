@@ -30,6 +30,7 @@ import { Section } from "@/components/common/section";
 import SegmentedControl from "@/components/common/segmented";
 import InstancesView from "@/components/instances-view";
 import { useLauncherConfig } from "@/contexts/config";
+import { useCowDrop } from "@/contexts/cow-drop";
 import { useGlobalData } from "@/contexts/global-data";
 import { useSharedModals } from "@/contexts/shared-modal";
 import { InstanceSummary } from "@/models/instance/misc";
@@ -51,6 +52,7 @@ const InstanceListPage = () => {
   const tag = getQueryString(router.query.tag);
 
   const { openSharedModal } = useSharedModals();
+  const { isGameLaunchBlocked } = useCowDrop();
   const { selectedInstance, getInstanceList } = useGlobalData();
   const [instanceList, setInstanceList] = useState<InstanceSummary[]>([]);
 
@@ -182,7 +184,10 @@ const InstanceListPage = () => {
             leftIcon={<LuPlay />}
             size="xs"
             colorScheme={primaryColor}
-            isDisabled={!selectedInstance}
+            isDisabled={!selectedInstance || isGameLaunchBlocked}
+            title={
+              isGameLaunchBlocked ? t("CowDropGame.launchBlocked") : undefined
+            }
             onClick={() => {
               if (selectedInstance) {
                 openSharedModal("launch", {

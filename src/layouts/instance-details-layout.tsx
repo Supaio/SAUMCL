@@ -33,6 +33,7 @@ import NavMenu from "@/components/common/nav-menu";
 import { Section } from "@/components/common/section";
 import ExportModpackModal from "@/components/modals/export-modpack-modal";
 import { useLauncherConfig } from "@/contexts/config";
+import { useCowDrop } from "@/contexts/cow-drop";
 import {
   InstanceContextProvider,
   useInstanceSharedData,
@@ -57,6 +58,7 @@ const InstanceDetailsLayoutContent: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const router = useRouter();
   const toast = useToast();
+  const { isGameLaunchBlocked } = useCowDrop();
   const { t } = useTranslation();
   const { openSharedModal, openGenericConfirmDialog, closeSharedModal } =
     useSharedModals();
@@ -228,6 +230,10 @@ const InstanceDetailsLayoutContent: React.FC<{ children: React.ReactNode }> = ({
           </Button>
           <Button
             leftIcon={<LuPlay />}
+            isDisabled={isGameLaunchBlocked}
+            title={
+              isGameLaunchBlocked ? t("CowDropGame.launchBlocked") : undefined
+            }
             size="sm"
             ml={1}
             colorScheme={primaryColor}

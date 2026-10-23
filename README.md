@@ -6,7 +6,7 @@
 
 ## Download
 
-Download **Indev 19.0.1** from [Supaio/SAUMCL Releases](https://github.com/Supaio/SAUMCL/releases).
+Download **Indev 19.2** from [Supaio/SAUMCL Releases](https://github.com/Supaio/SAUMCL/releases).
 
 - Windows x64: `SAUMCL.exe`.
 - Linux x64: `SAUMCL`; run `chmod +x ./SAUMCL` before launching.

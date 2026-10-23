@@ -3,6 +3,7 @@ import { getCurrentWindow } from "@tauri-apps/api/window";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { FaCow } from "react-icons/fa6";
 import { LuMaximize2, LuMinimize2, LuMinus, LuX } from "react-icons/lu";
 import { CommonIconButton } from "@/components/common/common-icon-button";
 import { useLauncherConfig } from "@/contexts/config";
@@ -52,7 +53,17 @@ const MainWindowExtensionTitle = () => {
   );
 };
 
-const WindowTitlebar = () => {
+const WindowTitlebar = ({
+  onDropCow,
+  isCowDropDisabled = false,
+  hasCows = false,
+  grayCowCount = 0,
+}: {
+  onDropCow?: () => void;
+  isCowDropDisabled?: boolean;
+  hasCows?: boolean;
+  grayCowCount?: number;
+}) => {
   const { t } = useTranslation();
   const router = useRouter();
   const { config } = useLauncherConfig();
@@ -70,6 +81,7 @@ const WindowTitlebar = () => {
   const [windowTitle, setWindowTitle] = useState("");
 
   const titlebarBg = useColorModeValue("whiteAlpha.600", "blackAlpha.500");
+  const exitHintColor = useColorModeValue("blackAlpha.700", "whiteAlpha.800");
   const titlebarBorderColor = useColorModeValue(
     "blackAlpha.200",
     "whiteAlpha.300"
@@ -249,6 +261,49 @@ const WindowTitlebar = () => {
           </Text>
         )}
       </Flex>
+      {isMainWindow && onDropCow && (
+        <HStack spacing={0} alignSelf="center" flexShrink={0}>
+          {grayCowCount > 0 && (
+            <Text
+              id="gray-cow-count"
+              role="status"
+              fontSize="xs"
+              color={exitHintColor}
+              whiteSpace="nowrap"
+              pointerEvents="none"
+              mr={3}
+            >
+              {t("CowDropGame.grayCount", { count: grayCowCount })}
+            </Text>
+          )}
+          {hasCows && (
+            <Text
+              id="cow-drop-exit-hint"
+              role="status"
+              fontSize="xs"
+              color={exitHintColor}
+              whiteSpace="nowrap"
+              pointerEvents="none"
+            >
+              {t("CowDropGame.exitHint")}
+            </Text>
+          )}
+          <CommonIconButton
+            id="cow-drop-toggle"
+            data-titlebar-control
+            icon={FaCow}
+            label={t("CowDropGame.drop")}
+            isDisabled={isCowDropDisabled}
+            colorScheme={config.appearance.theme.primaryColor}
+            onClick={onDropCow}
+            size="xs"
+            h={6}
+            minW={7}
+            mx={1}
+            alignSelf="center"
+          />
+        </HStack>
+      )}
       {isWindows && (
         <HStack
           id="sjmcl-window-decorum-host"

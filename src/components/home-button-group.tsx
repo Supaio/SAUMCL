@@ -27,6 +27,7 @@ import InstancesView from "@/components/instances-view";
 import PlayerAvatar from "@/components/player-avatar";
 import PlayersView from "@/components/players-view";
 import { useLauncherConfig } from "@/contexts/config";
+import { useCowDrop } from "@/contexts/cow-drop";
 import { useGlobalData } from "@/contexts/global-data";
 import { useSharedModals } from "@/contexts/shared-modal";
 import { PlayerType } from "@/enums/account";
@@ -102,6 +103,7 @@ const HomeButtonGroup = () => {
   const { t } = useTranslation();
   const router = useRouter();
   const { openSharedModal } = useSharedModals();
+  const { isGameLaunchBlocked } = useCowDrop();
   const { selectedPlayer, selectedInstance, getPlayerList, getInstanceList } =
     useGlobalData();
 
@@ -113,6 +115,7 @@ const HomeButtonGroup = () => {
   return (
     <Flex wrap="wrap" justify="flex-end" align="flex-end" gap={4}>
       <Card
+        data-cow-obstacle
         className={styles["selected-user-card"] + " " + cardStyles["card-back"]}
       >
         <Box position="absolute" top={1} right={1}>
@@ -175,71 +178,90 @@ const HomeButtonGroup = () => {
         </HStack>
       </Card>
 
-      <Box position="relative">
+      <VStack align="flex-end" spacing={2}>
         <Button
-          id="main-launch-button"
-          colorScheme="blackAlpha"
-          className={styles["launch-button"]}
-          onClick={() => {
-            if (selectedInstance) {
-              openSharedModal("launch", {
-                instanceId: selectedInstance.id,
-              });
-            }
-          }}
+          id="campus-server-button"
+          size="xs"
+          w="fit-content"
+          minW={0}
+          px={2}
+          colorScheme="gray"
+          isDisabled
         >
-          <VStack spacing={1.5} w="100%" color="white">
-            <Text fontSize="lg" fontWeight="bold">
-              {t("LaunchPage.button.launch")}
-            </Text>
-            <Text fontSize="sm" className="ellipsis-text">
-              {selectedInstance
-                ? selectedInstance.name
-                : t("LaunchPage.Text.noSelectedGame")}
-            </Text>
-          </VStack>
+          {t("LaunchPage.button.joinCampusServer")}
         </Button>
-
-        <Box position="absolute" top={1} right={1}>
-          <CompactButtonGroup
-            colorScheme={useColorModeValue("blackAlpha", "gray")}
-            size="xs"
-          >
-            {selectedInstance && hasInstances && (
-              <CommonIconButton
-                icon={LuSettings}
-                label={t("LaunchPage.button.instanceSettings")}
-                tooltipPlacement="top"
-                onClick={() =>
-                  router.push({
-                    pathname: "/instances/details/[id]/settings",
-                    query: { id: selectedInstance.id },
-                  })
-                }
-              />
-            )}
-
-            <ButtonWithPopover
-              tooltip={t(
-                `LaunchPage.SwitchButton.tooltip.${hasInstances ? "switchInstance" : "addInstance"}`
-              )}
-              aria-label="instance"
-              popoverContent={
-                <InstancesView
-                  instances={instanceList}
-                  selectedInstance={selectedInstance}
-                  viewType="list"
-                  withMenu={false}
-                  searchable
-                />
+        <Box position="relative" data-cow-obstacle>
+          <Button
+            id="main-launch-button"
+            isDisabled={isGameLaunchBlocked}
+            title={
+              isGameLaunchBlocked ? t("CowDropGame.launchBlocked") : undefined
+            }
+            colorScheme="blackAlpha"
+            className={styles["launch-button"]}
+            onClick={() => {
+              if (selectedInstance) {
+                openSharedModal("launch", {
+                  instanceId: selectedInstance.id,
+                });
               }
-              onClick={() => router.push("/instances/list")}
-              showAdd={!hasInstances}
-              onAddClick={() => router.push("/instances/add-import")}
-            />
-          </CompactButtonGroup>
+            }}
+          >
+            <VStack spacing={1.5} w="100%" color="white">
+              <Text fontSize="lg" fontWeight="bold">
+                {t("LaunchPage.button.launch")}
+              </Text>
+              <Text fontSize="sm" className="ellipsis-text">
+                {isGameLaunchBlocked
+                  ? t("CowDropGame.launchBlockedShort")
+                  : selectedInstance
+                    ? selectedInstance.name
+                    : t("LaunchPage.Text.noSelectedGame")}
+              </Text>
+            </VStack>
+          </Button>
+
+          <Box position="absolute" top={1} right={1}>
+            <CompactButtonGroup
+              colorScheme={useColorModeValue("blackAlpha", "gray")}
+              size="xs"
+            >
+              {selectedInstance && hasInstances && (
+                <CommonIconButton
+                  icon={LuSettings}
+                  label={t("LaunchPage.button.instanceSettings")}
+                  tooltipPlacement="top"
+                  onClick={() =>
+                    router.push({
+                      pathname: "/instances/details/[id]/settings",
+                      query: { id: selectedInstance.id },
+                    })
+                  }
+                />
+              )}
+
+              <ButtonWithPopover
+                tooltip={t(
+                  `LaunchPage.SwitchButton.tooltip.${hasInstances ? "switchInstance" : "addInstance"}`
+                )}
+                aria-label="instance"
+                popoverContent={
+                  <InstancesView
+                    instances={instanceList}
+                    selectedInstance={selectedInstance}
+                    viewType="list"
+                    withMenu={false}
+                    searchable
+                  />
+                }
+                onClick={() => router.push("/instances/list")}
+                showAdd={!hasInstances}
+                onAddClick={() => router.push("/instances/add-import")}
+              />
+            </CompactButtonGroup>
+          </Box>
         </Box>
-      </Box>
+      </VStack>
     </Flex>
   );
 };

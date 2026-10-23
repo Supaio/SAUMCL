@@ -34,6 +34,7 @@ import AdvancedCard from "@/components/common/advanced-card";
 import { DownloadIndicator } from "@/components/download-indicator";
 import { TitleShort } from "@/components/logo-title";
 import { useLauncherConfig } from "@/contexts/config";
+import { useCowDrop } from "@/contexts/cow-drop";
 import { useSharedModals } from "@/contexts/shared-modal";
 import { useTaskContext } from "@/contexts/task";
 import styles from "@/styles/head-navbar.module.css";
@@ -42,6 +43,7 @@ const HeadNavBar = () => {
   const router = useRouter();
   const { t, i18n } = useTranslation();
   const { config } = useLauncherConfig();
+  const { cowCount } = useCowDrop();
   const { openSharedModal } = useSharedModals();
   const { tasks } = useTaskContext();
 
@@ -50,6 +52,7 @@ const HeadNavBar = () => {
   const isCompactLayout =
     useBreakpointValue({ base: true, lg: false }) ?? false;
   const isSimplified =
+    cowCount > 0 ||
     headNavStyle === "simplified" ||
     (headNavStyle === "adaptive" && isCompactLayout);
   const isDownloadIndicatorShown = tasks.length > 0;

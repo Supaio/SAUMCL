@@ -435,6 +435,15 @@
       "lackOfArguments": "Missing necessary parameters. Please have the developer check the code"
     }
   },
+  "CowDropGame": {
+    "drop": "Drop a cow (Esc to clear)",
+    "exitHint": "Press ESC to exit",
+    "full": "Window full ({{count}} / {{limit}}) · Press Esc to clear",
+    "grayCount": "Gray cows found: {{count}}",
+    "grayFound": "You found a gray SAU cow!",
+    "launchBlocked": "More than 100 cows are on screen. Press Esc to clear them before launching Minecraft.",
+    "launchBlockedShort": "Over 100 cows · Esc to clear"
+  },
   "CreateInstanceModal": {
     "header": {
       "title": "Create New Instance"
@@ -1735,6 +1744,7 @@
   },
   "LaunchPage": {
     "button": {
+      "joinCampusServer": "Join Campus Server",
       "launch": "Launch Game",
       "instanceSettings": "Instance Settings"
     },

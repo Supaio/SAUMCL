@@ -108,6 +108,9 @@ jobs:
 
       - name: Test local instance and mod search
         run: node --experimental-strip-types scripts/qa/search-regressions.mjs
+
+      - name: Test cow drop physics
+        run: node --experimental-strip-types scripts/qa/cow-drop-regressions.mjs
       
       - uses: dtolnay/rust-toolchain@stable
         with:
