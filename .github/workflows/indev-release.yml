@@ -109,5 +109,16 @@ jobs:
               const uploaded = await github.rest.repos.uploadReleaseAsset({ owner, repo, release_id: release.id, name, data, headers: { 'content-type': 'application/octet-stream', 'content-length': data.length } });
               if (uploaded.data.state !== 'uploaded' || uploaded.data.digest !== digest) throw new Error(`Release asset verification failed: ${name}`);
             }
-            const published = await github.rest.repos.updateRelease({ owner, repo, release_id: release.id, name: process.env.RELEASE_TITLE, body, draft: false, prerelease: true, make_latest: 'false' });
+            const { buildUpdateFeed } = require(`${process.env.GITHUB_WORKSPACE}/scripts/release/update-feed.js`);
+            const ready = (await github.rest.repos.getRelease({ owner, repo, release_id: release.id })).data;
+            ready.body = body;
+            ready.prerelease = false;
+            const history = (await github.rest.repos.listReleases({ owner, repo, per_page: 100 })).data;
+            const feed = buildUpdateFeed([ready, ...history.filter(value => value.id !== ready.id)], ready.id);
+            const data = Buffer.from(JSON.stringify(feed, null, 2) + '\n');
+            const existingFeed = ready.assets.find(asset => asset.name === 'updates.json');
+            if (existingFeed) await github.rest.repos.deleteReleaseAsset({ owner, repo, asset_id: existingFeed.id });
+            const uploadedFeed = await github.rest.repos.uploadReleaseAsset({ owner, repo, release_id: release.id, name: 'updates.json', data, headers: { 'content-type': 'application/json', 'content-length': data.length } });
+            if (uploadedFeed.data.state !== 'uploaded' || uploadedFeed.data.digest !== `sha256:${createHash('sha256').update(data).digest('hex')}`) throw new Error('Update feed checksum mismatch');
+            const published = await github.rest.repos.updateRelease({ owner, repo, release_id: release.id, name: process.env.RELEASE_TITLE, body, draft: false, prerelease: false, make_latest: 'true' });
             core.notice(`Published ${published.data.html_url}`);

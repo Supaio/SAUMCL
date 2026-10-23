@@ -10,6 +10,7 @@ on:
       - public/**
       - src-tauri/**
       - scripts/qa/**
+      - scripts/release/update-feed.js
       - package.json
       - pnpm-lock.yaml
       - pnpm-workspace.yaml
@@ -24,6 +25,7 @@ on:
       - public/**
       - src-tauri/**
       - scripts/qa/**
+      - scripts/release/update-feed.js
       - package.json
       - pnpm-lock.yaml
       - pnpm-workspace.yaml
@@ -68,6 +70,7 @@ jobs:
               - '.github/workflows/indev-release.yml'
               - 'docs/releases/**'
               - 'scripts/qa/**'
+              - 'scripts/release/update-feed.js'
 
       - id: compute
         shell: bash
@@ -104,13 +107,16 @@ jobs:
       - run: pnpm install --frozen-lockfile
       
       - name: Lint JavaScript/TypeScript Frontend
-        run: pnpm eslint 'src/**/*.{js,jsx,ts,tsx}' 'scripts/qa/*.mjs' --no-fix --max-warnings=0
+        run: pnpm eslint 'src/**/*.{js,jsx,ts,tsx}' 'scripts/qa/*.mjs' scripts/release/update-feed.js --no-fix --max-warnings=0
 
       - name: Test local instance and mod search
         run: node --experimental-strip-types scripts/qa/search-regressions.mjs
 
       - name: Test cow drop physics
         run: node --experimental-strip-types scripts/qa/cow-drop-regressions.mjs
+
+      - name: Test release update feed
+        run: node scripts/qa/update-feed-regressions.mjs
       
       - uses: dtolnay/rust-toolchain@stable
         with:

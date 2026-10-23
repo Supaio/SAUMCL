@@ -4,6 +4,7 @@ use std::fs;
 use std::path::PathBuf;
 use std::process::Command;
 use std::sync::Mutex;
+use std::time::Duration;
 use tauri::path::BaseDirectory;
 use tauri::{AppHandle, Manager};
 use tauri_plugin_http::reqwest;
@@ -14,6 +15,8 @@ use crate::tasks::commands::schedule_progressive_task_group;
 use crate::tasks::download::DownloadParam;
 
 const RELEASES_ENDPOINT: &str = "https://api.github.com/repos/Supaio/SAUMCL/releases?per_page=100";
+const UPDATE_FEED_ENDPOINT: &str =
+  "https://github.com/Supaio/SAUMCL/releases/latest/download/updates.json";
 
 pub fn supports_launcher_updates(build_type: &BuildType, version: &str) -> bool {
   (build_type == &BuildType::Release
@@ -104,22 +107,27 @@ fn select_release<'a>(
 }
 
 async fn fetch_releases(client: &reqwest::Client) -> SJMCLResult<Value> {
-  let releases = client
-    .get(RELEASES_ENDPOINT)
-    .header("Accept", "application/vnd.github+json")
-    .header("User-Agent", "SAUMCL")
-    .send()
-    .await
-    .map_err(|_| LauncherConfigError::FetchError)?
-    .error_for_status()
-    .map_err(|_| LauncherConfigError::FetchError)?
-    .json::<Value>()
-    .await
-    .map_err(|_| LauncherConfigError::FetchError)?;
-  if !releases.is_array() {
-    return Err(LauncherConfigError::FetchError.into());
+  fetch_releases_from(client, &[UPDATE_FEED_ENDPOINT, RELEASES_ENDPOINT]).await
+}
+
+async fn fetch_releases_from(client: &reqwest::Client, endpoints: &[&str]) -> SJMCLResult<Value> {
+  for endpoint in endpoints {
+    let response = client
+      .get(*endpoint)
+      .header("Accept", "application/json")
+      .header("User-Agent", "SAUMCL")
+      .timeout(Duration::from_secs(15))
+      .send()
+      .await;
+    if let Ok(response) = response.and_then(reqwest::Response::error_for_status) {
+      if let Ok(releases) = response.json::<Value>().await {
+        if releases.is_array() {
+          return Ok(releases);
+        }
+      }
+    }
   }
-  Ok(releases)
+  Err(LauncherConfigError::FetchError.into())
 }
 
 // Generate the new filename on the local disk.
@@ -427,10 +435,15 @@ rm -rf "$TMPDIR" || true
 #[cfg(test)]
 mod tests {
   use serde_json::{Value, json};
+  use std::io::{Read, Write};
+  use std::net::TcpListener;
+  use std::thread;
+  use std::time::Duration;
+  use tauri_plugin_http::reqwest;
 
   use crate::launcher_config::helpers::updater::{
-    build_local_new_filename, build_resource_filename, release_asset, release_version,
-    select_release, supports_launcher_updates,
+    build_local_new_filename, build_resource_filename, fetch_releases_from, release_asset,
+    release_version, select_release, supports_launcher_updates,
   };
   use crate::launcher_config::models::BuildType;
 
@@ -448,6 +461,112 @@ mod tests {
         )
       }]
     })
+  }
+
+  fn update_server(responses: Vec<(u16, String)>) -> (String, thread::JoinHandle<()>) {
+    let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+    let address = format!("http://{}", listener.local_addr().unwrap());
+    let server = thread::spawn(move || {
+      for (index, (status, body)) in responses.into_iter().enumerate() {
+        let (mut stream, _) = listener.accept().unwrap();
+        stream
+          .set_read_timeout(Some(Duration::from_secs(5)))
+          .unwrap();
+        let mut request = [0; 4096];
+        let length = stream.read(&mut request).unwrap();
+        let path = if index == 0 { "/" } else { "/fallback" };
+        assert!(
+          String::from_utf8_lossy(&request[..length]).starts_with(&format!("GET {path} HTTP/"))
+        );
+        write!(
+          stream,
+          "HTTP/1.1 {status} Test\r\nContent-Type: application/json\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}",
+          body.len()
+        )
+        .unwrap();
+      }
+    });
+    (address, server)
+  }
+
+  #[tokio::test]
+  async fn published_feed_works_without_contacting_the_api() {
+    let feed = json!([release("v19.2.0-indev", false, "SAUMCL.exe")]);
+    let (address, server) = update_server(vec![(200, feed.to_string())]);
+    let client = reqwest::Client::builder().no_proxy().build().unwrap();
+    let releases = fetch_releases_from(&client, &[&address, "http://127.0.0.1:1"])
+      .await
+      .unwrap();
+    let current = semver::Version::parse("19.1.0-indev").unwrap();
+    let (_, version, asset) =
+      select_release(&releases, &current, "windows", "x86_64", true).unwrap();
+    assert_eq!(version.to_string(), "19.2.0-indev");
+    assert_eq!(asset["name"], "SAUMCL.exe");
+    server.join().unwrap();
+  }
+
+  #[tokio::test]
+  async fn rate_limited_source_falls_back_to_available_feed() {
+    let feed = json!([release("v19.2.0-indev", false, "SAUMCL.exe")]);
+    let (address, server) = update_server(vec![
+      (
+        403,
+        json!({"message": "API rate limit exceeded"}).to_string(),
+      ),
+      (200, feed.to_string()),
+    ]);
+    let client = reqwest::Client::builder().no_proxy().build().unwrap();
+    let backup = format!("{address}/fallback");
+    let releases = fetch_releases_from(&client, &[&address, &backup])
+      .await
+      .unwrap();
+    assert_eq!(releases, feed);
+    server.join().unwrap();
+  }
+
+  #[tokio::test]
+  async fn invalid_feed_falls_back_instead_of_hiding_updates() {
+    for invalid in ["not JSON", "{}"] {
+      let feed = json!([release("v19.2.0-indev", false, "SAUMCL.exe")]);
+      let (address, server) =
+        update_server(vec![(200, invalid.to_string()), (200, feed.to_string())]);
+      let client = reqwest::Client::builder().no_proxy().build().unwrap();
+      let backup = format!("{address}/fallback");
+      assert_eq!(
+        fetch_releases_from(&client, &[&address, &backup])
+          .await
+          .unwrap(),
+        feed
+      );
+      server.join().unwrap();
+    }
+  }
+
+  #[tokio::test]
+  async fn unavailable_sources_report_failure_instead_of_up_to_date() {
+    let (address, server) = update_server(vec![(403, "{}".to_string()), (429, "{}".to_string())]);
+    let client = reqwest::Client::builder().no_proxy().build().unwrap();
+    let backup = format!("{address}/fallback");
+    assert!(
+      fetch_releases_from(&client, &[&address, &backup])
+        .await
+        .is_err()
+    );
+    server.join().unwrap();
+  }
+
+  #[tokio::test]
+  async fn unreachable_source_uses_the_next_endpoint() {
+    let feed = json!([release("v19.2.0-indev", false, "SAUMCL.exe")]);
+    let (address, server) = update_server(vec![(200, feed.to_string())]);
+    let client = reqwest::Client::builder().no_proxy().build().unwrap();
+    assert_eq!(
+      fetch_releases_from(&client, &["http://127.0.0.1:1", &address])
+        .await
+        .unwrap(),
+      feed
+    );
+    server.join().unwrap();
   }
 
   #[test]
