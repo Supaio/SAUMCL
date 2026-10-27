@@ -113,7 +113,13 @@ const HomeButtonGroup = () => {
   const hasInstances = instanceList.length > 0;
 
   return (
-    <Flex wrap="wrap" justify="flex-end" align="flex-end" gap={4}>
+    <Flex
+      id="home-button-group"
+      wrap="wrap"
+      justify="flex-end"
+      align="flex-end"
+      gap={4}
+    >
       <Card
         data-cow-obstacle
         className={styles["selected-user-card"] + " " + cardStyles["card-back"]}
@@ -179,17 +185,6 @@ const HomeButtonGroup = () => {
       </Card>
 
       <VStack align="flex-end" spacing={2}>
-        <Button
-          id="campus-server-button"
-          size="xs"
-          w="fit-content"
-          minW={0}
-          px={2}
-          colorScheme="gray"
-          isDisabled
-        >
-          {t("LaunchPage.button.joinCampusServer")}
-        </Button>
         <Box position="relative" data-cow-obstacle>
           <Button
             id="main-launch-button"

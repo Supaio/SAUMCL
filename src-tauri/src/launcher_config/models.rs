@@ -8,9 +8,7 @@ use strum_macros::{Display, EnumString};
 use tauri::{AppHandle, Emitter};
 
 use crate::launcher_config::constants::{CONFIG_PARTIAL_UPDATE_EVENT, LAUNCHER_CFG_FILE_NAME};
-use crate::launcher_config::migrations::{
-  deserialize_background, deserialize_discover_sources, deserialize_language,
-};
+use crate::launcher_config::migrations::{deserialize_background, deserialize_language};
 use crate::utils::string::snake_to_camel_case;
 use crate::utils::sys_info;
 use crate::{APP_DATA_DIR, EXE_DIR, IS_PORTABLE};
@@ -269,6 +267,8 @@ structstruck::strike! {
         pub use_liquid_glass_design: bool,
         #[default = "adaptive"]
         pub head_nav_style: String,
+        #[default = false]
+        pub show_home_globe: bool,
       },
       pub font: struct {
         #[default = "%built-in"]
@@ -357,11 +357,6 @@ structstruck::strike! {
     },
     pub global_game_config: GameConfig,
     pub local_game_directories: Vec<GameDirectory>,
-    #[serde(
-      default,
-      deserialize_with = "deserialize_discover_sources"
-    )]
-    pub discover_source_endpoints: Vec<(String, bool)>,
     pub extra_java_paths: Vec<String>,
     pub suppressed_dialogs: Vec<String>,
     pub states: struct States {

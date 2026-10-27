@@ -10,10 +10,12 @@ on:
       - public/**
       - src-tauri/**
       - scripts/qa/**
+      - scripts/maintenance/**
       - scripts/release/update-feed.js
       - package.json
       - pnpm-lock.yaml
       - pnpm-workspace.yaml
+      - .cargo/config.toml
       - .github/workflows/test.yml
       - .github/workflows/indev-release.yml
       - docs/releases/**
@@ -25,10 +27,12 @@ on:
       - public/**
       - src-tauri/**
       - scripts/qa/**
+      - scripts/maintenance/**
       - scripts/release/update-feed.js
       - package.json
       - pnpm-lock.yaml
       - pnpm-workspace.yaml
+      - .cargo/config.toml
       - .github/workflows/test.yml
       - .github/workflows/indev-release.yml
       - docs/releases/**
@@ -66,10 +70,12 @@ jobs:
               - 'package.json'
               - 'pnpm-lock.yaml'
               - 'pnpm-workspace.yaml'
+              - '.cargo/config.toml'
               - '.github/workflows/test.yml'
               - '.github/workflows/indev-release.yml'
               - 'docs/releases/**'
               - 'scripts/qa/**'
+              - 'scripts/maintenance/**'
               - 'scripts/release/update-feed.js'
 
       - id: compute
@@ -96,7 +102,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      
+
       - uses: actions/setup-node@v4
         with:
           node-version: lts/*
@@ -105,9 +111,9 @@ jobs:
           version: 10.26.1
           run_install: false
       - run: pnpm install --frozen-lockfile
-      
+
       - name: Lint JavaScript/TypeScript Frontend
-        run: pnpm eslint 'src/**/*.{js,jsx,ts,tsx}' 'scripts/qa/*.mjs' scripts/release/update-feed.js --no-fix --max-warnings=0
+        run: pnpm eslint 'src/**/*.{js,jsx,ts,tsx}' 'scripts/qa/*.mjs' 'scripts/maintenance/*.js' scripts/release/update-feed.js --no-fix --max-warnings=0
 
       - name: Test local instance and mod search
         run: node --experimental-strip-types scripts/qa/search-regressions.mjs
@@ -117,7 +123,25 @@ jobs:
 
       - name: Test release update feed
         run: node scripts/qa/update-feed-regressions.mjs
-      
+
+      - name: Test offline maintenance key generator
+        run: node scripts/qa/maintenance-key-regressions.mjs
+
+      - name: Test reviewed community content and reward deadlines
+        run: node --experimental-strip-types scripts/qa/community-regressions.mjs
+
+      - name: Test server list and campus round status
+        run: node --experimental-strip-types scripts/qa/home-server-regressions.mjs
+
+      - name: Test playtime calendar summaries
+        run: node --experimental-strip-types scripts/qa/playtime-regressions.mjs
+
+      - name: Test movable and resizable home tiles
+        run: node --experimental-strip-types scripts/qa/home-tile-regressions.mjs
+
+      - name: Test real-time solar positioning
+        run: node --experimental-strip-types scripts/qa/solar-regressions.mjs
+
       - uses: dtolnay/rust-toolchain@stable
         with:
           components: rustfmt
@@ -135,8 +159,8 @@ jobs:
         include:
           # - platform: macos-latest
           #   args: '--target aarch64-apple-darwin'
-          - platform: 'ubuntu-latest'
-          - platform: 'windows-latest'
+          - platform: "ubuntu-latest"
+          - platform: "windows-latest"
 
     steps:
       - uses: actions/checkout@v4
@@ -179,6 +203,9 @@ jobs:
           cargo test --manifest-path src-tauri/Cargo.toml --locked --lib launch::helpers::
           cargo test --manifest-path src-tauri/Cargo.toml --locked --lib instance::helpers::modpack::import::tests
           cargo test --manifest-path src-tauri/Cargo.toml --locked --test zip_regressions
+          cargo test --manifest-path src-tauri/Cargo.toml --locked --test maintenance_regressions
+          cargo test --manifest-path src-tauri/Cargo.toml --locked --test campus_regressions
+          cargo test --manifest-path src-tauri/Cargo.toml --locked --test playtime_regressions
 
       - name: Build portable artifact
         id: portable

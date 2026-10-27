@@ -316,7 +316,12 @@ pub async fn download_cleanroom_libraries(
 
   schedule_progressive_task_group(
     app.clone(),
-    format!("cleanroom-libraries?{}", instance.id),
+    crate::instance::helpers::campus_plan::loader_task_group(
+      &instance.version_path,
+      &instance.name,
+      &instance.id,
+      "cleanroom-libraries",
+    ),
     task_params,
     true,
   )

@@ -459,6 +459,25 @@ const AppearanceSettingsPage = () => {
           title: t("AppearanceSettingsPage.theme.settings.headNavStyle.title"),
           children: <HeadNavStyleMenu />,
         },
+        {
+          title: t("AppearanceSettingsPage.theme.settings.showHomeGlobe.title"),
+          description: t(
+            "AppearanceSettingsPage.theme.settings.showHomeGlobe.description"
+          ),
+          children: (
+            <Switch
+              id="home-globe-switch"
+              aria-label={t(
+                "AppearanceSettingsPage.theme.settings.showHomeGlobe.title"
+              )}
+              colorScheme={primaryColor}
+              isChecked={appearanceConfigs.theme.showHomeGlobe}
+              onChange={(e) =>
+                update("appearance.theme.showHomeGlobe", e.target.checked)
+              }
+            />
+          ),
+        },
       ],
     },
 

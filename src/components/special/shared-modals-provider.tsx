@@ -1,6 +1,7 @@
 import DownloadSpecificResourceModal from "@/components//modals/download-specific-resource-modal";
 import AddAuthServerModal from "@/components/modals/add-auth-server-modal";
 import AlertResourceDependencyModal from "@/components/modals/alert-resource-dependency-modal";
+import CampusClientModal from "@/components/modals/campus-client-modal";
 import CopyOrMoveModal from "@/components/modals/copy-or-move-modal";
 import DeleteInstanceDialog from "@/components/modals/delete-instance-alert-dialog";
 import DownloadModpackModal from "@/components/modals/download-modpack-modal";
@@ -31,6 +32,7 @@ const SharedModals: React.FC<{ children: React.ReactNode }> = ({
   const { modalStates, closeSharedModal } = useSharedModals();
 
   const modals: Record<string, React.FC<any>> = {
+    "campus-client": CampusClientModal,
     "add-auth-server": AddAuthServerModal,
     "alert-resource-dependency": AlertResourceDependencyModal,
     "copy-or-move": CopyOrMoveModal,

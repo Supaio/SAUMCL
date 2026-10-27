@@ -1,0 +1,3 @@
+[env]
+# Use aws-lc's bundled assembly objects when NASM is unavailable on Windows x64.
+AWS_LC_SYS_PREBUILT_NASM = "1"

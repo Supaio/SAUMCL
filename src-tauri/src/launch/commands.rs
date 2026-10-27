@@ -19,6 +19,7 @@ use crate::account::helpers::offline::yggdrasil_server::YggdrasilServer;
 use crate::account::helpers::{authlib_injector, microsoft};
 use crate::account::models::PlayerType;
 use crate::instance::helpers::client_json::{McClientInfo, replace_native_libraries};
+use crate::instance::helpers::misc::refresh_and_update_instances;
 use crate::instance::helpers::misc::{get_instance_game_config, get_instance_subdir_paths};
 use crate::instance::models::misc::{
   Instance, InstanceError, InstanceSubdirType, ModLoaderStatus, ModLoaderType,
@@ -40,6 +41,7 @@ use crate::launch::helpers::process_monitor::{
   kill_process, monitor_process, set_process_priority,
 };
 use crate::launch::models::{LaunchError, LaunchingState};
+use crate::launch::playtime::{PlaytimeState, PlaytimeStats};
 use crate::launcher_config::helpers::java::refresh_and_update_javas;
 use crate::launcher_config::models::{
   FileValidatePolicy, JavaInfo, LauncherConfig, LauncherVisiablity,
@@ -53,6 +55,27 @@ use crate::utils::window::create_webview_window;
 
 #[cfg(target_os = "windows")]
 use crate::launch::helpers::file_validator::get_invalid_windows_mesa_loader_file;
+
+#[tauri::command]
+pub async fn retrieve_playtime_stats(
+  app: AppHandle,
+  state: State<'_, PlaytimeState>,
+) -> Result<PlaytimeStats, String> {
+  if state.needs_history() {
+    refresh_and_update_instances(&app, false).await;
+    let historical_seconds = app
+      .state::<Mutex<HashMap<String, Instance>>>()
+      .lock()
+      .map_err(|_| "PLAYTIME_UNAVAILABLE")?
+      .values()
+      .fold(0u128, |sum, instance| {
+        sum.saturating_add(instance.play_time)
+      })
+      .min(u64::MAX as u128) as u64;
+    state.import_history(historical_seconds)?;
+  }
+  state.snapshot()
+}
 
 // Step 1: select suitable java runtime environment.
 #[tauri::command]

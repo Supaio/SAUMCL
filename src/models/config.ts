@@ -99,6 +99,7 @@ export interface LauncherConfig {
       colorMode: "light" | "dark" | "system";
       useLiquidGlassDesign: boolean;
       headNavStyle: "standard" | "simplified" | "adaptive";
+      showHomeGlobe: boolean;
     };
     font: {
       fontFamily: string;
@@ -166,7 +167,6 @@ export interface LauncherConfig {
   };
   localGameDirectories: GameDirectory[];
   globalGameConfig: GameConfig;
-  discoverSourceEndpoints: [string, boolean][];
   extraJavaPaths: string[];
   suppressedDialogs: string[];
   states: {
@@ -291,6 +291,7 @@ export const defaultConfig: LauncherConfig = {
       colorMode: "light",
       useLiquidGlassDesign: false,
       headNavStyle: "adaptive",
+      showHomeGlobe: false,
     },
     font: {
       fontFamily: "%built-in",
@@ -358,7 +359,6 @@ export const defaultConfig: LauncherConfig = {
   },
   localGameDirectories: [{ name: "Current", dir: ".minecraft/" }],
   globalGameConfig: defaultGameConfig,
-  discoverSourceEndpoints: [],
   extraJavaPaths: [],
   suppressedDialogs: [],
   states: {

@@ -26,6 +26,7 @@ import {
   LuBox,
   LuCircleUserRound,
   LuCompass,
+  LuLink,
   LuSearch,
   LuSettings,
   LuZap,
@@ -110,6 +111,7 @@ const HeadNavBar = () => {
               },
             ]
           : []),
+      { icon: LuLink, label: "friends", path: "/friends" },
       { icon: LuSettings, label: "settings", path: "/settings" },
     ];
   }, [config.general.functionality.discoverPage, openSharedModal]);

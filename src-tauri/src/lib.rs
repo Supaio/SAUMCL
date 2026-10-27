@@ -5,6 +5,7 @@ mod instance;
 // mod intelligence; // Paused in the SAUMCL school build.
 mod launch;
 mod launcher_config;
+mod maintenance;
 mod resource;
 mod tasks;
 mod utils;
@@ -15,6 +16,7 @@ use account::models::AccountInfo;
 use instance::helpers::misc::refresh_and_update_instances;
 use instance::models::misc::Instance;
 use launch::models::LaunchingState;
+use launch::playtime::PlaytimeState;
 use launcher_config::helpers::java::refresh_and_update_javas;
 use launcher_config::helpers::misc::auto_clear_download_cache;
 use launcher_config::models::{JavaInfo, LauncherConfig};
@@ -87,6 +89,27 @@ pub async fn run() {
 
     builder
       .invoke_handler(tauri::generate_handler![
+        instance::campus::prepare_campus_client,
+        instance::campus::retrieve_campus_install,
+        instance::campus::cancel_campus_install,
+        instance::campus::retrieve_shared_campus_config,
+        maintenance::commands::retrieve_maintenance_status,
+        maintenance::commands::inspect_campus_modpack,
+        maintenance::commands::activate_maintenance_key,
+        maintenance::commands::import_maintenance_key,
+        maintenance::commands::deactivate_maintenance_mode,
+        maintenance::commands::retrieve_campus_draft,
+        maintenance::commands::save_campus_draft,
+        maintenance::commands::export_campus_draft,
+        maintenance::commands::apply_campus_preview,
+        maintenance::commands::retrieve_campus_preview,
+        maintenance::commands::retrieve_community_draft,
+        maintenance::commands::save_community_draft,
+        maintenance::commands::export_community_feed,
+        maintenance::commands::apply_community_preview,
+        maintenance::commands::retrieve_community_preview,
+        maintenance::commands::collect_reward_candidates,
+        instance::commands::query_game_server_addresses,
         launcher_config::commands::retrieve_launcher_config,
         launcher_config::commands::update_launcher_config,
         launcher_config::commands::reset_launcher_config,
@@ -140,6 +163,7 @@ pub async fn run() {
         instance::commands::retrieve_world_list,
         instance::commands::retrieve_world_details,
         instance::commands::retrieve_game_server_list,
+        launch::commands::retrieve_playtime_stats,
         instance::commands::add_game_server,
         instance::commands::delete_game_server,
         instance::commands::retrieve_local_mod_list,
@@ -256,6 +280,21 @@ pub async fn run() {
 
         let launching_queue = Vec::<LaunchingState>::new();
         app.manage(Mutex::new(launching_queue));
+        app.manage(instance::campus::CampusInstallState::default());
+
+        app.manage(PlaytimeState::new(
+          APP_DATA_DIR.get().unwrap().join("playtime.json"),
+        ));
+        let app_handle = app.handle().clone();
+        tauri::async_runtime::spawn(async move {
+          let mut timer = tokio::time::interval(std::time::Duration::from_secs(60));
+          loop {
+            timer.tick().await;
+            if let Err(error) = app_handle.state::<PlaytimeState>().flush() {
+              log::warn!("Playtime checkpoint: {error}");
+            }
+          }
+        });
 
         // start local yggdrasil server for offline accounts
         let local_ygg_server = YggdrasilServer::new();
@@ -394,6 +433,9 @@ pub async fn run() {
           }
           // set normal exit flag.
           tauri::RunEvent::Exit => {
+            if let Some(state) = app_handle.try_state::<PlaytimeState>() {
+              let _ = state.flush();
+            }
             log::info!("Launcher exited normally.");
             let _ = LauncherConfig::load().map(|mut config| {
               config.last_run_exited_normally = true;

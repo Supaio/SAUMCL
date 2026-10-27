@@ -145,17 +145,6 @@
       "serverUrl": "服务器地址"
     }
   },
-  "AddDiscoverSourceModal": {
-    "modal": {
-      "header": "添加数据源"
-    },
-    "label": {
-      "endpointUrl": "源地址"
-    },
-    "placeholder": {
-      "endpointUrl": "源地址"
-    }
-  },
   "AddGameServerModal": {
     "header": {
       "title": "添加游戏服务器"
@@ -302,6 +291,10 @@
             "simplified": "简约",
             "adaptive": "自适应"
           }
+        },
+        "showHomeGlobe": {
+          "title": "显示地球仪",
+          "description": "在主页日期和名言下方显示可旋转的地球仪"
         }
       }
     },
@@ -355,6 +348,52 @@
           "title": "增强对比度"
         }
       }
+    }
+  },
+  "CampusClientModal": {
+    "title": "准备校服客户端",
+    "version": "客户端版本：{{version}}",
+    "description": "正在准备校服所需的整合包、运行库与 Java，完成后将启动游戏并连接校服。首次下载可能需要较长时间。",
+    "preserveData": "更新会建立独立实例，保留旧实例、存档和配置。关闭此窗口会取消准备，不会启动游戏。",
+    "retry": "重试",
+    "continue": "继续进入校服",
+    "errors": {
+      "INVALID_CAMPUS_CONFIG": "校服配置无效，请联系维护人员检查。",
+      "CAMPUS_UNAVAILABLE": "校服未开放、正在维护或本周目已结束。",
+      "INSTALL_BUSY": "另一个校服准备任务尚未结束，请稍后重试。",
+      "MISSING_PACK_URL": "维护人员尚未填写整合包下载地址。",
+      "PACK_VERSION_REQUIRED": "维护人员尚未填写整合包版本。",
+      "NO_GAME_DIRECTORY": "请先添加一个可写入的游戏目录。",
+      "PACK_DOWNLOAD_FAILED": "整合包下载失败，请检查网络、下载代理及下载地址后重试。",
+      "PACK_WRITE_FAILED": "无法保存整合包，请检查磁盘空间和写入权限。",
+      "PACK_READ_FAILED": "无法读取整合包，请重试或联系维护人员。",
+      "PACK_TOO_LARGE": "整合包超出安装大小限制，请联系维护人员。",
+      "PACK_FORMAT_UNSUPPORTED": "整合包格式无效或不受支持。请提供 Modrinth（.mrpack）或 MultiMC 客户端 ZIP 直链。",
+      "PACK_HASH_MISMATCH": "整合包校验值与维护配置不一致，已停止安装，请联系维护人员。",
+      "PACK_UNSAFE_PATH": "整合包包含不安全的文件路径，已停止安装。",
+      "PACK_VERSION_MISMATCH": "整合包中的 Minecraft 或加载器版本与校服配置不一致。",
+      "VERSION_FETCH_FAILED": "无法获取 Minecraft 版本信息，请检查网络后重试。",
+      "DEPENDENCY_DOWNLOAD_FAILED": "客户端或运行库下载失败，请检查网络和下载设置后重试。",
+      "DOWNLOAD_CANCELLED": "下载任务已取消，未启动游戏。",
+      "LOADER_INSTALL_FAILED": "模组加载器安装失败，请检查 Java 和下载任务后重试。",
+      "PREFERENCES_FAILED": "无法复制旧实例的偏好设置，旧实例未被修改。",
+      "INSTALL_FAILED": "客户端安装未完成，请检查磁盘空间、游戏目录及下载任务后重试。",
+      "CANCELLED": "已取消准备，未启动游戏。",
+      "CONFIG_CHANGED": "维护人员已更新校服客户端配置，请重试以准备新版本。",
+      "COW_BLOCKED": "牛已超过启动限制，请按 Esc 清空后继续。",
+      "INSTANCE_NOT_READY": "尚未找到安装完成的校服实例，请重试。",
+      "UNKNOWN": "准备校服客户端失败，请稍后重试。"
+    },
+    "phases": {
+      "preparing": "准备安装",
+      "downloading": "下载整合包",
+      "verifying": "校验整合包",
+      "installing": "下载客户端、运行库与 Java",
+      "paused": "下载已暂停，可在下载任务中继续",
+      "loader": "安装模组加载器",
+      "complete": "客户端已就绪",
+      "cancelled": "已取消",
+      "failed": "准备失败"
     }
   },
   "ChangeLoaderModal": {
@@ -411,6 +450,37 @@
   },
   "ComingSoonSign": {
     "text": "该页面暂未开放，敬请期待"
+  },
+  "Community": {
+    "edition": {
+      "java": "Java 版",
+      "bedrock": "基岩版",
+      "both": "Java / 基岩版",
+      "other": "其他游戏",
+      "unknown": "待核对"
+    },
+    "kind": {
+      "cape": "披风",
+      "skin": "皮肤 / 外观",
+      "addon": "附加包 / 内容",
+      "other": "其他奖励"
+    },
+    "fields": {
+      "title": "活动名称",
+      "description": "领取步骤与资格条件（包括购买、地区等限制）",
+      "kind": "奖励类型",
+      "edition": "适用版本",
+      "sourceUrl": "官方文章链接",
+      "claimUrl": "领取入口链接",
+      "startsAt": "开始时间",
+      "earnUntil": "获取资格 / 领取截止",
+      "redeemUntil": "已有兑换码的兑换截止"
+    },
+    "preview": "本机预览",
+    "loading": "正在读取…",
+    "loadFailed": "读取失败，请重试",
+    "stale": "暂时无法获取最新清单，正在显示上次保存的内容。",
+    "openFailed": "无法打开链接"
   },
   "CopyOrMoveModal": {
     "modal": {
@@ -505,9 +575,7 @@
   },
   "DiscoverCommunityNewsPage": {
     "title": "发现",
-    "noMore": "无更多内容",
-    "sources": "管理数据源",
-    "NoSources": "未添加数据源"
+    "noMore": "无更多内容"
   },
   "DiscoverHomePage": {
     "minecraft-news": "Minecraft 新闻",
@@ -526,15 +594,6 @@
       "resourcepack": "资源包",
       "shader": "光影",
       "datapack": "数据包"
-    }
-  },
-  "DiscoverSourcesPage": {
-    "button": {
-      "addSource": "添加数据源",
-      "deleteSource": "删除数据源"
-    },
-    "tag": {
-      "online": "在线"
     }
   },
   "DownloadJavaModal": {
@@ -679,13 +738,10 @@
       "optifine-libraries": "OptiFine 运行库",
       "launcher-update": "更新启动器",
       "extension-update": "更新扩展 {{param1}} {{param2}}",
-      "mojang-java": "Java {{param}} 运行时"
+      "mojang-java": "Java {{param}} 运行时",
+      "campus-client": "校服客户端 {{param}}",
+      "campus-loader": "校服模组加载器 {{param}}"
     }
-  },
-  "Editable": {
-    "edit": "编辑",
-    "save": "保存",
-    "cancel": "取消"
   },
   "EditGameDirectoryModal": {
     "header": {
@@ -730,6 +786,11 @@
         "invalid": "目录路径不合法"
       }
     }
+  },
+  "Editable": {
+    "edit": "编辑",
+    "save": "保存",
+    "cancel": "取消"
   },
   "Empty": {
     "noData": "无数据"
@@ -888,6 +949,24 @@
   },
   "FileDnDProvider": {
     "fileName": "{{fileName}} 等（共 {{count}} 个）"
+  },
+  "FriendsPage": {
+    "title": "社群友链",
+    "description": "发现更多同好，一起探索方块世界。",
+    "empty": "友链正在筹备中",
+    "emptyHint": "这里将放置社群QQ群与推荐网站，具体内容稍后公布。",
+    "kind": {
+      "qq": "QQ群",
+      "website": "网站"
+    },
+    "groupNumber": "群号：{{number}}",
+    "copyGroup": "复制群号",
+    "join": "查看入群入口",
+    "visit": "访问网站",
+    "sections": {
+      "sau": "SAUMCL 与川农社群",
+      "universities": "各大学"
+    }
   },
   "GameAdvancedSettingsPage": {
     "title": "高级游戏设置",
@@ -1411,7 +1490,8 @@
       "accounts": "账户",
       "discover": "发现",
       "search": "搜索",
-      "settings": "设置"
+      "settings": "设置",
+      "friends": "社群友链"
     }
   },
   "HelpSettingsPage": {
@@ -1460,6 +1540,68 @@
         }
       }
     }
+  },
+  "HomeDateQuote": {
+    "date": "日期：{{date}}",
+    "quote": "Minecraft 主题短句",
+    "globe": "固定倾斜地轴的地球仪",
+    "globeHelp": "自动缓慢旋转 · 拖动时暂停 · 左右方向键旋转 · Home 复位",
+    "time": "{{time}} UTC+8"
+  },
+  "HomeRewardsCard": {
+    "title": "福利速递",
+    "empty": "暂时没有可领取的已审核活动，敬请期待。",
+    "officialNews": "查看官方动态",
+    "state": {
+      "active": "可参与",
+      "upcoming": "即将开始",
+      "codeOnly": "仅限已有兑换码"
+    },
+    "codeOnlyHint": "获取资格的活动已结束；仅已有兑换码的玩家仍可兑换。",
+    "noEndDate": "官方暂未公布截止时间",
+    "claim": "前往领取",
+    "redeem": "兑换已有代码",
+    "rules": "查看官方规则",
+    "rulesHint": "资格、地区、时区及实际发放情况以官方规则为准。仅公布日期的截止时间按本机日期显示。"
+  },
+  "HomeServersCard": {
+    "title": "服务器",
+    "pinned": "校服",
+    "preview": "本机预览",
+    "copied": "服务器地址已复制",
+    "copyFailed": "无法复制服务器地址",
+    "addressPending": "本周目地址待维护人员填写",
+    "status": {
+      "ended": "当前周目已结束",
+      "pending": "待配置",
+      "checking": "检测中…",
+      "online": "在线",
+      "offline": "离线"
+    },
+    "players": "{{online}} / {{max}} 人在线",
+    "maintenance": "维护中",
+    "currentRound": "当前周目：{{round}}周目",
+    "nextRound": "下一周目：{{round}}周目",
+    "chooseInstance": "选择用于连接的实例",
+    "chooseCampusInstance": "请选择校服实例，之后将记住此选择",
+    "campusInstance": "校服实例：{{name}} · {{version}}",
+    "noCampusInstance": "请先安装或导入与校服 Minecraft、加载器及整合包版本相符的实例。",
+    "instance": "所属实例：{{name}} · {{version}}",
+    "join": "使用此实例进入服务器",
+    "loadFailed": "服务器列表读取失败，请点击刷新重试。",
+    "loading": "正在读取服务器…",
+    "noLocalServers": "其他服务器将从各实例的多人游戏列表读取。",
+    "incomplete": "部分实例读取失败，其余服务器仍可使用。",
+    "refreshFailed": "部分服务器状态或配置暂时无法刷新，请稍后重试。",
+    "packVersionRequired": "请维护人员先填写整合包版本。",
+    "autoPrepare": "首次点击自动安装，版本更新时新建校服实例。"
+  },
+  "HomeTile": {
+    "board": "启动页磁贴",
+    "move": "拖动移动{{title}}磁贴，也可使用方向键",
+    "width": "拖动调整{{title}}磁贴宽度",
+    "height": "拖动调整{{title}}磁贴高度",
+    "both": "拖动调整{{title}}磁贴大小"
   },
   "HomeWidget": {
     "extraOpMenu": {
@@ -1786,11 +1928,147 @@
     "notCompatibleWith": "与 {{item}} 不兼容",
     "noVersionSelected": "未选择版本"
   },
+  "MCVersionNumberHelper": {
+    "content": "自 2026 年起，Minecraft 版本号采取新的命名规则，以年份作为版本号首位（如 26.1）以取代原有的 1.x 版本号规则。",
+    "linkText": "阅读官方文档",
+    "url": "https://www.minecraft.net/zh-hans/article/minecraft-new-version-numbering-system"
+  },
   "MainLayout": {
     "fileDnD": {
       "title": "导入整合包",
       "desc": "将整合包文件 {{fileName}} 导入到 SAUMCL"
     }
+  },
+  "MaintenanceCommunity": {
+    "title": "福利审核与社群友链",
+    "localNotice": "采集结果仅进入待审核列表。通过审核后可在本机预览、导出公开清单；当前尚未接通向其他玩家发布的地址。",
+    "rewardsTab": "福利候选",
+    "collectHint": "此页面打开时自动检查，每6小时扫描最近60篇 Minecraft 官方新闻。关键词筛选可能遗漏活动，可以手动补充官方文章；不自动判断领取资格和截止时间。",
+    "collect": "采集官方消息",
+    "saveBeforeCollect": "请先保存更改，再重新采集",
+    "addReward": "手动添加",
+    "lastCollected": "上次采集：{{date}}",
+    "never": "尚未采集",
+    "inboxEmpty": "尚无候选活动。可重新采集，或补充官方文章。",
+    "chooseReward": "选择候选活动",
+    "untitled": "未命名",
+    "reviewHint": "请打开官方规则，核对适用版本、领取步骤、购买 / 地区限制及两个截止时间。编辑已审核内容后需要重新审核。",
+    "incomplete": "尚不符合审核条件",
+    "requiresCode": "需要先获取兑换码",
+    "noEndDate": "已核对：官方暂未公布截止时间",
+    "dateHint": "可填 YYYY-MM-DD，或带时区的 ISO 时间。官方只提供日期时保留日期；精确截止时刻应填写官方时区，不猜测。兑换截止仅用于已有代码。",
+    "status": {
+      "pending": "待审核",
+      "approved": "已审核 · 待发布",
+      "rejected": "已忽略"
+    },
+    "approve": "审核通过并保存",
+    "reject": "忽略并保存",
+    "saved": "草稿已保存",
+    "approvedSaved": "已通过审核，尚未对外发布",
+    "rejectedSaved": "已忽略此消息",
+    "previewApplied": "本机预览已生效",
+    "previewCleared": "已恢复公开清单",
+    "exported": "已导出公开清单",
+    "clearPreview": "退出本机预览",
+    "export": "导出公开清单",
+    "exportHint": "导出仅包含已审核活动与已启用友链，不包含待审核消息或维护Key。导出不等于发布；以后将清单发布到统一地址，玩家客户端每15分钟检查一次。",
+    "linksHint": "第一栏放 SAUMCL 与川农社群入口，第二栏放各大学。大学卡片名称以英文缩写开头，页面自动按缩写排序。QQ群可只填写群号，入群链接选填。",
+    "addLink": "添加友链",
+    "linkKind": "卡片类型",
+    "linkFields": {
+      "name": "名称",
+      "description": "介绍",
+      "groupNumber": "QQ群号",
+      "url": "网站 / 入群链接（QQ群可留空）"
+    },
+    "linkEnabled": "在公开清单中显示",
+    "removeLink": "删除友链",
+    "linkSection": "所属栏目"
+  },
+  "MaintenanceSettingsPage": {
+    "title": "校服维护",
+    "locked": "游玩人员模式",
+    "unlocked": "维护模式已开启",
+    "introduction": "输入项目所有者签发的 Key，即可开启校服维护工具。验证过程无需联网。",
+    "keyLabel": "维护 Key",
+    "keyPlaceholder": "粘贴你的维护 Key",
+    "activate": "验证并开启",
+    "import": "导入 Key 文件",
+    "exit": "退出维护模式",
+    "identity": "维护人员：{{name}}",
+    "permanent": "长期有效",
+    "permanentDescription": "校服换版、整合包更新或维护人员交接，原 Key 继续有效。",
+    "notConfigured": "此构建尚未配置维护授权，需由项目所有者完成初始化后签发 Key。",
+    "invalidSavedKey": "本机保存的授权无法通过验证，请重新输入或导入 Key。",
+    "localDraftNotice": "修改先保存在本机。可应用到启动页预览，向其他玩家发布是单独的操作。",
+    "saved": "草稿已保存到本机",
+    "exported": "玩家配置已导出，尚未发布",
+    "retry": "重试",
+    "save": "保存草稿",
+    "export": "导出玩家配置",
+    "unsaved": "有尚未保存的修改",
+    "localOnly": "仅保存在本机的草稿",
+    "addressPlaceholder": "服务器地址，可附加 :端口",
+    "noLoader": "原版 / 无模组加载器",
+    "modpackDescription": "填写可直接下载的 Modrinth（.mrpack）或 MultiMC 客户端 ZIP 地址，每次发布客户端更新时更改整合包版本。可选择本地整合包读取版本并计算 SHA-256；玩家首次进入时自动安装，更新建立新实例，保留旧实例。",
+    "previewDescription": "核对即将导出的配置，尚未填完也可保存为草稿。上传 GitHub 仍需单独的仓库授权。",
+    "tabs": {
+      "server": "校服配置",
+      "modpack": "整合包",
+      "announcement": "公告与状态",
+      "preview": "导出预览"
+    },
+    "fields": {
+      "serverName": "校服名称",
+      "serverAddress": "服务器地址",
+      "minecraftVersion": "Minecraft 版本",
+      "loader": "模组加载器",
+      "loaderVersion": "加载器版本",
+      "modpackVersion": "整合包版本",
+      "modpackUrl": "整合包下载地址",
+      "announcement": "公告 / 维护提示",
+      "maintenance": "校服维护中",
+      "currentRound": "当前周目（可留空）",
+      "nextRound": "下一周目",
+      "roundState": "周目状态",
+      "offlineSince": "统一离线起始时间（可留空）",
+      "modpackSha256": "SHA-256（选填）"
+    },
+    "errorTitle": "维护操作未完成",
+    "errors": {
+      "NOT_CONFIGURED": "此构建尚未配置有效的维护验证公钥。",
+      "INVALID_KEY": "维护 Key 无效、不完整，或并非为本启动器签发。",
+      "UNAUTHORIZED": "维护授权不可用，请重新输入 Key。",
+      "INVALID_DRAFT": "请检查文字长度和下载地址。服务器地址不能含空格；下载地址须使用 HTTP(S)，且不能包含登录凭据。",
+      "STORAGE_FAILED": "无法读取或写入文件，请检查所选路径和访问权限。",
+      "unknown": "操作暂时无法完成，请重试。",
+      "COLLECTION_FAILED": "无法采集官方消息，已保留原有审核列表，请稍后重试。",
+      "PACK_VERSION_REQUIRED": "维护人员尚未填写整合包版本。",
+      "PACK_DOWNLOAD_FAILED": "整合包下载失败，请检查网络、下载代理及下载地址后重试。",
+      "PACK_WRITE_FAILED": "无法保存整合包，请检查磁盘空间和写入权限。",
+      "PACK_READ_FAILED": "无法读取整合包，请重试或联系维护人员。",
+      "PACK_TOO_LARGE": "整合包超出安装大小限制，请联系维护人员。",
+      "PACK_FORMAT_UNSUPPORTED": "整合包格式无效或不受支持。请提供 Modrinth（.mrpack）或 MultiMC 客户端 ZIP 直链。",
+      "PACK_HASH_MISMATCH": "整合包校验值与维护配置不一致，已停止安装，请联系维护人员。",
+      "PACK_UNSAFE_PATH": "整合包包含不安全的文件路径，已停止安装。",
+      "PACK_VERSION_MISMATCH": "整合包中的 Minecraft 或加载器版本与校服配置不一致。"
+    },
+    "applyPreview": "应用到本机预览",
+    "previewApplied": "本机预览已更新，可返回启动页查看；未向其他玩家发布。",
+    "offlineSinceDescription": "可留空，按本地时间填写。发布后大家使用同一离线起始时间判断 48 小时；未填写时，各电脑按自己的检测记录计时。",
+    "roundStates": {
+      "auto": "自动判断：离线超过 48 小时结束",
+      "active": "进行中（维护人员手动确认）",
+      "ended": "已结束（维护人员手动确认）"
+    },
+    "inspectPack": "读取本地整合包并计算校验值",
+    "packInspected": "已读取整合包版本与 SHA-256，请核对下载地址和发布版本",
+    "playerConfigUrl": "玩家统一配置地址",
+    "copyConfigUrl": "复制配置地址",
+    "configUrlCopied": "配置地址已复制",
+    "openConfigPage": "打开 GitHub 配置编辑页",
+    "publishInstructions": "先保存并导出 campus-server.json，再由有仓库权限的维护人员更新 Supaio/SAUMCL 的 main 分支 public/campus-server.json。玩家每分钟及手动刷新时读取；网络异常时回退到缓存。本机预览与导出不会自动发布。"
   },
   "ManageSkinModal": {
     "skinManage": "管理皮肤",
@@ -1816,11 +2094,6 @@
     "placeholder": {
       "javaPath": "请输入或选择 Java 可执行文件路径"
     }
-  },
-  "MCVersionNumberHelper": {
-    "content": "自 2026 年起，Minecraft 版本号采取新的命名规则，以年份作为版本号首位（如 26.1）以取代原有的 1.x 版本号规则。",
-    "linkText": "阅读官方文档",
-    "url": "https://www.minecraft.net/zh-hans/article/minecraft-new-version-numbering-system"
   },
   "MemoryStatusProgress": {
     "title": "内存状态",
@@ -1911,6 +2184,24 @@
       "refreshing": "正在刷新角色信息",
       "deleting": "正在删除角色"
     }
+  },
+  "PlaytimeCalendarCard": {
+    "title": "游玩日历",
+    "monthLabel": "当月游玩日历，周一为每周首日",
+    "today": "今天",
+    "week": "本周",
+    "total": "累计",
+    "duration": "{{hours}}小时{{minutes}}分",
+    "weekDays": "玩了 {{count}} 天",
+    "totalDays": "累计玩了 {{count}} 天",
+    "playing": "游戏进行中",
+    "includesHistory": "含旧版累计",
+    "localTime": "本机时间 · 周一至周日",
+    "trackingNote": "每日记录从 {{date}} 开始，旧记录仅计入累计时长。统计本机通过 SAUMCL 启动并监测到的游戏，多开实例分别累计；退出启动器后停止记录。",
+    "loading": "正在读取游玩时长…",
+    "loadFailed": "无法读取游玩统计，请点击刷新重试。",
+    "refreshFailed": "暂时无法刷新，正在显示上次读取的记录。",
+    "saveFailed": "游玩记录暂时无法保存，请检查磁盘空间和写入权限。"
   },
   "ProxySettingsGroup": {
     "type": {
@@ -2978,6 +3269,7 @@
       "general": "通用",
       "appearance": "外观",
       "download": "下载资源",
+      "maintenance": "校服维护",
       "intelligence": "智能",
       "extension": "扩展插件",
       "help": "文档与帮助",

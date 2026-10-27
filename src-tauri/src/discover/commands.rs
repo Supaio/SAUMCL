@@ -1,29 +1,25 @@
 use futures::future;
-use sjmcl_types::error::SJMCLResult;
+use sjmcl_types::error::{SJMCLError, SJMCLResult};
 use std::collections::HashMap;
-use std::sync::Mutex;
 use tauri::{AppHandle, Manager};
 use tauri_plugin_http::reqwest;
 
+use crate::discover::constants::MUA_NEWS_ENDPOINT;
 use crate::discover::helpers::mc_news::{MC_NEWS_ENDPOINT, fetch_mc_news_page};
 use crate::discover::models::{NewsPostRequest, NewsPostResponse, NewsSourceInfo};
-use crate::launcher_config::models::LauncherConfig;
 use crate::utils::web::with_retry;
 
 #[tauri::command]
 pub async fn fetch_news_sources_info(app: AppHandle) -> SJMCLResult<Vec<NewsSourceInfo>> {
-  let post_sources = {
-    let binding = app.state::<Mutex<LauncherConfig>>();
-    let state = binding.lock().unwrap();
-    state.discover_source_endpoints.clone()
-  };
+  let post_sources = [MUA_NEWS_ENDPOINT];
 
   let client = with_retry(app.state::<reqwest::Client>().inner().clone());
 
   let tasks: Vec<_> = post_sources
     .into_iter()
-    .map(|(url, _)| {
+    .map(|endpoint| {
       let client = client.clone();
+      let url = endpoint.to_string();
       async move {
         let mut news_source = NewsSourceInfo {
           name: "".to_string(),
@@ -61,13 +57,19 @@ pub async fn fetch_news_post_summaries(
   app: AppHandle,
   requests: Vec<NewsPostRequest>,
 ) -> SJMCLResult<NewsPostResponse> {
+  if requests
+    .iter()
+    .any(|request| request.url != MUA_NEWS_ENDPOINT && request.url != MC_NEWS_ENDPOINT)
+  {
+    return Err(SJMCLError("News sources are managed by SAUMCL".to_string()));
+  }
   let client = with_retry(app.state::<reqwest::Client>().inner().clone());
   let tasks: Vec<_> = requests
     .into_iter()
     .map(|NewsPostRequest { url, cursor }| {
       let client = client.clone();
       async move {
-        if url.starts_with(MC_NEWS_ENDPOINT) {
+        if url == MC_NEWS_ENDPOINT {
           return fetch_mc_news_page(&client, &url, cursor).await;
         }
 

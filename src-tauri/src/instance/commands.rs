@@ -537,6 +537,21 @@ pub async fn retrieve_game_server_list(
 }
 
 #[tauri::command]
+pub async fn query_game_server_addresses(
+  addresses: Vec<String>,
+) -> SJMCLResult<Vec<GameServerInfo>> {
+  let servers = addresses
+    .into_iter()
+    .filter(|address| !address.trim().is_empty())
+    .map(|ip| GameServerInfo {
+      ip,
+      ..Default::default()
+    })
+    .collect();
+  query_servers_online(servers).await
+}
+
+#[tauri::command]
 pub async fn delete_game_server(
   app: AppHandle,
   instance_id: String,
@@ -1054,18 +1069,57 @@ pub async fn create_instance(
   mod_loader: ModLoaderResourceInfo,
   optifine: Option<OptiFineResourceInfo>,
   modpack_path: Option<String>,
+  is_install_fabric_api: Option<bool>,
+  is_install_qf_api: Option<bool>,
+  modpack_version: Option<String>,
+) -> SJMCLResult<()> {
+  create_instance_with_options(
+    app,
+    directory,
+    name,
+    description,
+    icon_src,
+    game,
+    mod_loader,
+    optifine,
+    modpack_path,
+    is_install_fabric_api,
+    is_install_qf_api,
+    modpack_version,
+    None,
+    false,
+  )
+  .await
+  .map(|_| ())
+}
+
+// Campus setup awaits this exact download group and uses an isolated config.
+// The public create_instance command keeps its existing arguments and result.
+pub(crate) async fn create_instance_with_options(
+  app: AppHandle,
+  directory: GameDirectory,
+  name: String,
+  description: String,
+  icon_src: String,
+  game: GameClientResourceInfo,
+  mod_loader: ModLoaderResourceInfo,
+  optifine: Option<OptiFineResourceInfo>,
+  modpack_path: Option<String>,
   mut is_install_fabric_api: Option<bool>,
   mut is_install_qf_api: Option<bool>,
   modpack_version: Option<String>,
-) -> SJMCLResult<()> {
+  spec_game_config: Option<GameConfig>,
+  force_auto_download_java: bool,
+) -> SJMCLResult<String> {
   let client = app.state::<reqwest::Client>();
+  let is_campus = spec_game_config.is_some();
   let launcher_config_state = app.state::<Mutex<LauncherConfig>>();
   // Get priority list
   let (priority_list, auto_download_java) = {
     let launcher_config = launcher_config_state.lock()?;
     (
       get_source_priority_list(&launcher_config),
-      launcher_config.general.functionality.auto_download_java,
+      force_auto_download_java || launcher_config.general.functionality.auto_download_java,
     )
   };
 
@@ -1077,6 +1131,13 @@ pub async fn create_instance(
 
   // Guard removes version_path on any early return (errors), fix #1105 #1310
   let dir_guard = RemoveDirGuard::new(version_path.clone());
+  if is_campus {
+    fs::create_dir_all(&version_path)?;
+    fs::write(
+      version_path.join(crate::instance::helpers::campus_plan::PENDING_FILE),
+      "SAUMCL campus installation\n",
+    )?;
+  }
 
   let optifine_info = optifine.as_ref().map(|info| OptiFine {
     filename: info.filename.clone(),
@@ -1109,8 +1170,8 @@ pub async fn create_instance(
     icon_src,
     starred: false,
     play_time: 0,
-    use_spec_game_config: false,
-    spec_game_config: None,
+    use_spec_game_config: spec_game_config.is_some(),
+    spec_game_config,
     modpack_version: modpack_version.clone(),
   };
 
@@ -1249,11 +1310,15 @@ pub async fn create_instance(
     task_params.extend(get_download_params(&app, &file, &version_path).await?);
   }
 
-  schedule_progressive_task_group(
+  let downloads = schedule_progressive_task_group(
     app.clone(),
-    match java_version_to_download {
-      Some(java_version) => format!("game-client-w-java?{}&{}", name, java_version),
-      None => format!("game-client?{}", name),
+    if is_campus {
+      format!("campus-client?{}", name)
+    } else {
+      match java_version_to_download {
+        Some(java_version) => format!("game-client-w-java?{}&{}", name, java_version),
+        None => format!("game-client?{}", name),
+      }
     },
     task_params,
     true,
@@ -1292,7 +1357,7 @@ pub async fn create_instance(
     .map_err(|_| InstanceError::FileCreationFailed)?;
 
   dir_guard.commit();
-  Ok(())
+  Ok(downloads.task_group)
 }
 
 #[tauri::command]

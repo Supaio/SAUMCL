@@ -5,9 +5,9 @@ import {
   COW_RADIUS,
   CowBody,
   MAX_COW_RADIUS,
-  containCows,
   dropCow,
   getCowCapacity,
+  resizeCows,
   stepCowPhysics,
 } from "@/utils/cow-drop";
 
@@ -187,13 +187,25 @@ const CowDropGame = ({
     sprite.src = COW_SPRITE_URL;
     const resize = () => {
       const rect = canvas.getBoundingClientRect();
+      if (rect.width <= 0 || rect.height <= 0) return;
+      const previous = boundsRef.current;
+      const next = { width: rect.width, height: rect.height };
       const ratio = Math.min(window.devicePixelRatio || 1, 2);
       canvas.width = Math.round(rect.width * ratio);
       canvas.height = Math.round(rect.height * ratio);
       ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
-      boundsRef.current = { width: rect.width, height: rect.height };
+      resizeCows(cowsRef.current, previous, next);
+      boundsRef.current = next;
       setCowCapacity(getCowCapacity(rect.width, rect.height));
-      containCows(cowsRef.current, rect.width, rect.height);
+      setCowCount(cowsRef.current.length);
+      for (const cow of grayEffects.keys()) {
+        if (!cowsRef.current.includes(cow)) grayEffects.delete(cow);
+      }
+      if (previous.width !== next.width || previous.height !== next.height) {
+        lastTime = 0;
+        accumulator = 0;
+      }
+      if (!cowsRef.current.length) stopAnimation();
       draw();
     };
     const tick = (now: number) => {

@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "serverName": "四川农业大学川泷MC服",
+  "serverAddress": "",
+  "minecraftVersion": "",
+  "loader": "none",
+  "loaderVersion": "",
+  "modpackVersion": "",
+  "modpackUrl": "",
+  "modpackSha256": "",
+  "announcement": "",
+  "maintenance": true,
+  "currentRound": null,
+  "nextRound": 20,
+  "roundState": "auto",
+  "offlineSince": null
+}

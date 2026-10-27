@@ -1,7 +1,13 @@
-import { Flex, HStack } from "@chakra-ui/react";
+import { Flex, VStack } from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
+import { HomeTileBoard } from "@/components/common/home-tile";
 import HomeWidgetContainer from "@/components/extension/home-widget-container";
 import HomeButtonGroup from "@/components/home-button-group";
+import HomeDateQuote from "@/components/home-date-quote";
+import HomeRewardsCard from "@/components/home-rewards-card";
+import HomeServersCard from "@/components/home-servers-card";
+import PlaytimeCalendarCard from "@/components/playtime-calendar-card";
+import { HOME_TILE_DEFINITIONS } from "@/models/home-tiles";
 
 const LaunchPage = () => {
   const layoutRef = useRef<HTMLDivElement>(null);
@@ -24,17 +30,44 @@ const LaunchPage = () => {
     updateMaxWidgetWidth();
     const observer = new ResizeObserver(updateMaxWidgetWidth);
     observer.observe(layoutEl);
+    const buttonGroupEl = document.getElementById("home-button-group");
+    if (buttonGroupEl) observer.observe(buttonGroupEl);
     return () => observer.disconnect();
   }, []);
 
   return (
-    <HStack ref={layoutRef} p={7} pt={1} align="stretch" h="100%" spacing={6}>
-      <HomeWidgetContainer maxWidth={maxWidgetWidth} />
+    <Flex ref={layoutRef} p={7} pt={1} h="100%" gap={6} direction="column">
+      <VStack
+        align="stretch"
+        spacing={4}
+        w="100%"
+        minW={0}
+        minH={0}
+        flex={1}
+        overflow="hidden"
+      >
+        <Flex
+          w="100%"
+          minW={0}
+          minH={0}
+          flex={1}
+          gap={4}
+          direction={{ base: "column-reverse", xl: "row" }}
+        >
+          <HomeTileBoard definitions={HOME_TILE_DEFINITIONS}>
+            <HomeServersCard />
+            <PlaytimeCalendarCard />
+            <HomeRewardsCard />
+          </HomeTileBoard>
+          <HomeDateQuote />
+        </Flex>
+        <HomeWidgetContainer maxWidth={maxWidgetWidth} />
+      </VStack>
 
-      <Flex justify="flex-end" align="flex-end" minW="14.5rem" w="100%">
+      <Flex justify="flex-end" align="flex-end" minW="14.5rem" flexShrink={0}>
         <HomeButtonGroup />
       </Flex>
-    </HStack>
+    </Flex>
   );
 };
 

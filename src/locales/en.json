@@ -145,17 +145,6 @@
       "serverUrl": "Server URL"
     }
   },
-  "AddDiscoverSourceModal": {
-    "modal": {
-      "header": "Add Data Source"
-    },
-    "label": {
-      "endpointUrl": "Endpoint URL"
-    },
-    "placeholder": {
-      "endpointUrl": "Endpoint URL"
-    }
-  },
   "AddGameServerModal": {
     "header": {
       "title": "Add Game Server"
@@ -302,6 +291,10 @@
             "simplified": "Simplified",
             "adaptive": "Adaptive"
           }
+        },
+        "showHomeGlobe": {
+          "title": "Show Globe",
+          "description": "Show a rotating globe below the date and quote on the home page"
         }
       }
     },
@@ -355,6 +348,52 @@
           "title": "Enhance Contrast"
         }
       }
+    }
+  },
+  "CampusClientModal": {
+    "title": "Preparing the campus client",
+    "version": "Client version: {{version}}",
+    "description": "Preparing the modpack, libraries and Java. The game will launch and connect to the campus server when ready. The first download may take a while.",
+    "preserveData": "Updates create a separate instance and keep your previous instance, saves and configuration. Closing this window cancels preparation without launching the game.",
+    "retry": "Retry",
+    "continue": "Continue to server",
+    "errors": {
+      "INVALID_CAMPUS_CONFIG": "Invalid campus configuration. Please contact a maintainer.",
+      "CAMPUS_UNAVAILABLE": "The campus server is not open, is under maintenance, or this round has ended.",
+      "INSTALL_BUSY": "Another campus preparation task is still running. Please try again shortly.",
+      "MISSING_PACK_URL": "A maintainer has not set the modpack download URL.",
+      "PACK_VERSION_REQUIRED": "A maintainer has not set the modpack version.",
+      "NO_GAME_DIRECTORY": "Please add a writable game directory first.",
+      "PACK_DOWNLOAD_FAILED": "Modpack download failed. Check your network, download proxy and the download URL, then retry.",
+      "PACK_WRITE_FAILED": "Cannot save the modpack. Check disk space and write permissions.",
+      "PACK_READ_FAILED": "Cannot read the modpack. Retry or contact a maintainer.",
+      "PACK_TOO_LARGE": "The modpack exceeds the installation size limit. Please contact a maintainer.",
+      "PACK_FORMAT_UNSUPPORTED": "Invalid or unsupported modpack. Use a direct link to a Modrinth .mrpack or MultiMC client ZIP.",
+      "PACK_HASH_MISMATCH": "The modpack does not match the configured checksum. Installation stopped; please contact a maintainer.",
+      "PACK_UNSAFE_PATH": "The modpack contains an unsafe file path. Installation stopped.",
+      "PACK_VERSION_MISMATCH": "The modpack Minecraft or loader version does not match the campus configuration.",
+      "VERSION_FETCH_FAILED": "Cannot retrieve Minecraft version information. Check your network and retry.",
+      "DEPENDENCY_DOWNLOAD_FAILED": "Client or library download failed. Check your network and download settings, then retry.",
+      "DOWNLOAD_CANCELLED": "The download was cancelled. The game was not launched.",
+      "LOADER_INSTALL_FAILED": "Mod loader installation failed. Check Java and download tasks, then retry.",
+      "PREFERENCES_FAILED": "Cannot copy preferences from the previous instance. That instance has not been modified.",
+      "INSTALL_FAILED": "Client installation did not finish. Check disk space, the game directory and download tasks, then retry.",
+      "CANCELLED": "Preparation cancelled. The game was not launched.",
+      "CONFIG_CHANGED": "A maintainer updated the campus client configuration. Retry to prepare the new version.",
+      "COW_BLOCKED": "Too many cows to launch. Press Esc to clear them, then continue.",
+      "INSTANCE_NOT_READY": "The installed campus instance is not available yet. Please retry.",
+      "UNKNOWN": "Campus client preparation failed. Please try again later."
+    },
+    "phases": {
+      "preparing": "Preparing installation",
+      "downloading": "Downloading modpack",
+      "verifying": "Verifying modpack",
+      "installing": "Downloading client, libraries and Java",
+      "paused": "Paused; resume in Downloads",
+      "loader": "Installing mod loader",
+      "complete": "Client ready",
+      "cancelled": "Cancelled",
+      "failed": "Preparation failed"
     }
   },
   "ChangeLoaderModal": {
@@ -411,6 +450,37 @@
   },
   "ComingSoonSign": {
     "text": "This page is not available yet, coming soon!"
+  },
+  "Community": {
+    "edition": {
+      "java": "Java Edition",
+      "bedrock": "Bedrock Edition",
+      "both": "Java / Bedrock",
+      "other": "Other game",
+      "unknown": "To verify"
+    },
+    "kind": {
+      "cape": "Cape",
+      "skin": "Skin / cosmetic",
+      "addon": "Add-on / content",
+      "other": "Other reward"
+    },
+    "fields": {
+      "title": "Activity name",
+      "description": "Claim steps and eligibility (including purchases and regional restrictions)",
+      "kind": "Reward type",
+      "edition": "Eligible editions",
+      "sourceUrl": "Official article URL",
+      "claimUrl": "Claim URL",
+      "startsAt": "Starts",
+      "earnUntil": "Eligibility / claim deadline",
+      "redeemUntil": "Existing code redemption deadline"
+    },
+    "preview": "Local preview",
+    "loading": "Loading…",
+    "loadFailed": "Could not load. Please retry.",
+    "stale": "The latest list is unavailable. Showing the last saved content.",
+    "openFailed": "Could not open the link"
   },
   "CopyOrMoveModal": {
     "modal": {
@@ -505,9 +575,7 @@
   },
   "DiscoverCommunityNewsPage": {
     "title": "Discover",
-    "noMore": "No more",
-    "sources": "Manage Sources",
-    "NoSources": "No source added"
+    "noMore": "No more"
   },
   "DiscoverHomePage": {
     "minecraft-news": "Minecraft News",
@@ -526,15 +594,6 @@
       "resourcepack": "Resource Packs",
       "shader": "Shader Packs",
       "datapack": "Data Packs"
-    }
-  },
-  "DiscoverSourcesPage": {
-    "button": {
-      "addSource": "Add Source",
-      "deleteSource": "Delete"
-    },
-    "tag": {
-      "online": "Online"
     }
   },
   "DownloadJavaModal": {
@@ -679,13 +738,10 @@
       "optifine-libraries": "OptiFine Libraries",
       "launcher-update": "Update Launcher",
       "extension-update": "Update Extension {{param1}} {{param2}}",
-      "mojang-java": "Java {{param}} Runtime"
+      "mojang-java": "Java {{param}} Runtime",
+      "campus-client": "Campus client {{param}}",
+      "campus-loader": "Campus mod loader {{param}}"
     }
-  },
-  "Editable": {
-    "edit": "Edit",
-    "save": "Save",
-    "cancel": "Cancel"
   },
   "EditGameDirectoryModal": {
     "header": {
@@ -730,6 +786,11 @@
         "invalid": "Directory path is invalid"
       }
     }
+  },
+  "Editable": {
+    "edit": "Edit",
+    "save": "Save",
+    "cancel": "Cancel"
   },
   "Empty": {
     "noData": "No Data"
@@ -888,6 +949,24 @@
   },
   "FileDnDProvider": {
     "fileName": "{{fileName}} and others ({{count}} total)"
+  },
+  "FriendsPage": {
+    "title": "Community links",
+    "description": "Find more friends to explore the blocky world together.",
+    "empty": "Community links are coming",
+    "emptyHint": "Community QQ groups and recommended websites will appear here once selected.",
+    "kind": {
+      "qq": "QQ group",
+      "website": "Website"
+    },
+    "groupNumber": "Group number: {{number}}",
+    "copyGroup": "Copy group number",
+    "join": "View join link",
+    "visit": "Visit website",
+    "sections": {
+      "sau": "SAUMCL and the SAU community",
+      "universities": "Universities"
+    }
   },
   "GameAdvancedSettingsPage": {
     "title": "Advanced Settings",
@@ -1411,7 +1490,8 @@
       "accounts": "Accounts",
       "discover": "Discover",
       "search": "Search",
-      "settings": "Settings"
+      "settings": "Settings",
+      "friends": "Community links"
     }
   },
   "HelpSettingsPage": {
@@ -1460,6 +1540,68 @@
         }
       }
     }
+  },
+  "HomeDateQuote": {
+    "date": "Date: {{date}}",
+    "quote": "Minecraft themed quote",
+    "globe": "Globe with a fixed tilted axis",
+    "globeHelp": "Rotates slowly · Hold and drag to pause and rotate · Left/Right to rotate · Home to reset",
+    "time": "{{time}} UTC+8"
+  },
+  "HomeRewardsCard": {
+    "title": "Rewards",
+    "empty": "No reviewed rewards are currently available. Check back later.",
+    "officialNews": "Official news",
+    "state": {
+      "active": "Available",
+      "upcoming": "Upcoming",
+      "codeOnly": "Existing codes only"
+    },
+    "codeOnlyHint": "The eligibility period has ended. Only players who already have a code can still redeem it.",
+    "noEndDate": "No end date announced by the organizer",
+    "claim": "Go to claim",
+    "redeem": "Redeem existing code",
+    "rules": "Official rules",
+    "rulesHint": "Official terms govern eligibility, region, time zone and fulfillment. Date-only deadlines are displayed using the device calendar."
+  },
+  "HomeServersCard": {
+    "title": "Servers",
+    "pinned": "Campus",
+    "preview": "Local preview",
+    "copied": "Server address copied",
+    "copyFailed": "Could not copy the address",
+    "addressPending": "The maintainers have not configured this round's address",
+    "status": {
+      "ended": "The current round has ended",
+      "pending": "Awaiting configuration",
+      "checking": "Checking…",
+      "online": "Online",
+      "offline": "Offline"
+    },
+    "players": "{{online}} / {{max}} players online",
+    "maintenance": "Under maintenance",
+    "currentRound": "Current round: {{round}}",
+    "nextRound": "Next round: {{round}}",
+    "chooseInstance": "Choose the instance to use",
+    "chooseCampusInstance": "Choose a campus instance; your choice will be remembered",
+    "campusInstance": "Campus instance: {{name}} · {{version}}",
+    "noCampusInstance": "Install or import an instance matching the campus Minecraft, loader and modpack versions first.",
+    "instance": "Instance: {{name}} · {{version}}",
+    "join": "Join with this instance",
+    "loadFailed": "Could not load the server list. Try refreshing.",
+    "loading": "Reading servers…",
+    "noLocalServers": "Other servers are read from each instance's multiplayer server list.",
+    "incomplete": "Some instances could not be read. The remaining results are available.",
+    "refreshFailed": "Some server status or configuration could not be refreshed. Please retry.",
+    "packVersionRequired": "A maintainer must set the modpack version first.",
+    "autoPrepare": "Installs on first use; updates create a separate campus instance."
+  },
+  "HomeTile": {
+    "board": "Home tiles",
+    "move": "Drag to move the {{title}} tile, or use arrow keys",
+    "width": "Drag to resize the {{title}} tile width",
+    "height": "Drag to resize the {{title}} tile height",
+    "both": "Drag to resize the {{title}} tile"
   },
   "HomeWidget": {
     "extraOpMenu": {
@@ -1786,11 +1928,147 @@
     "notCompatibleWith": "Not compatible with {{item}}",
     "noVersionSelected": "No version selected"
   },
+  "MCVersionNumberHelper": {
+    "content": "Starting in 2026, Minecraft adopts a new version numbering system. The version numbers will begin with the release year (e.g., 26.1), replacing the previous 1.x versioning scheme.",
+    "linkText": "Read the official article",
+    "url": "https://www.minecraft.net/en-us/article/minecraft-new-version-numbering-system"
+  },
   "MainLayout": {
     "fileDnD": {
       "title": "Import Modpack",
       "desc": "Import modpack file {{fileName}} to SAUMCL"
     }
+  },
+  "MaintenanceCommunity": {
+    "title": "Reward review and community links",
+    "localNotice": "Collected news enters the review inbox only. Approved content can be previewed locally and exported. A shared publishing URL has not been connected yet.",
+    "rewardsTab": "Reward inbox",
+    "collectHint": "While this page is open, scan the latest 60 official Minecraft articles every 6 hours. Keyword matching may miss activities; add official articles manually when needed. Eligibility and deadlines require human review.",
+    "collect": "Collect official news",
+    "saveBeforeCollect": "Save changes before collecting again",
+    "addReward": "Add manually",
+    "lastCollected": "Last collected: {{date}}",
+    "never": "Not yet",
+    "inboxEmpty": "No candidates yet. Collect again or add an official article.",
+    "chooseReward": "Select a candidate",
+    "untitled": "Untitled",
+    "reviewHint": "Read the official rules and verify editions, claim steps, purchase / regional requirements and both deadlines. Editing approved details requires another review.",
+    "incomplete": "Not ready for approval",
+    "requiresCode": "A code must be earned first",
+    "noEndDate": "Verified: no deadline announced by the organizer",
+    "dateHint": "Use YYYY-MM-DD or an ISO timestamp with its UTC offset. Preserve date-only terms; do not invent an exact time or time zone. Code redemption applies only to existing codes.",
+    "status": {
+      "pending": "Pending review",
+      "approved": "Approved · unpublished",
+      "rejected": "Dismissed"
+    },
+    "approve": "Approve and save",
+    "reject": "Dismiss and save",
+    "saved": "Draft saved",
+    "approvedSaved": "Approved; not published yet",
+    "rejectedSaved": "Candidate dismissed",
+    "previewApplied": "Local preview applied",
+    "previewCleared": "Public list restored",
+    "exported": "Public list exported",
+    "clearPreview": "Exit local preview",
+    "export": "Export public list",
+    "exportHint": "Exports include approved rewards and enabled links only, with no pending news or maintenance Key. Exporting does not publish. Once a shared URL is deployed, player clients check it every 15 minutes.",
+    "linksHint": "The first section contains SAUMCL and SAU links; the second contains universities. Start university names with their English abbreviation for alphabetical ordering. QQ join URLs are optional.",
+    "addLink": "Add link",
+    "linkKind": "Card type",
+    "linkFields": {
+      "name": "Name",
+      "description": "Description",
+      "groupNumber": "QQ group number",
+      "url": "Website / join URL (optional for QQ groups)"
+    },
+    "linkEnabled": "Include in the public list",
+    "removeLink": "Delete link",
+    "linkSection": "Section"
+  },
+  "MaintenanceSettingsPage": {
+    "title": "Campus Maintenance",
+    "locked": "Player mode",
+    "unlocked": "Maintenance mode enabled",
+    "introduction": "Enter a Key issued by the project owner to open the campus maintenance tools. Verification works offline.",
+    "keyLabel": "Maintenance Key",
+    "keyPlaceholder": "Paste your maintenance Key",
+    "activate": "Verify and enable",
+    "import": "Import Key file",
+    "exit": "Exit maintenance mode",
+    "identity": "Maintainer: {{name}}",
+    "permanent": "Permanent authorization",
+    "permanentDescription": "Remains valid across pack updates and maintainer handovers.",
+    "notConfigured": "Maintenance authorization is not configured in this build. The project owner must initialize it before issuing Keys.",
+    "invalidSavedKey": "The saved authorization could not be verified. Enter or import your Key again.",
+    "localDraftNotice": "Draft changes stay local. Apply a preview to check the launch page; publishing to other players is separate.",
+    "saved": "Draft saved locally",
+    "exported": "Player configuration exported; not published",
+    "retry": "Retry",
+    "save": "Save draft",
+    "export": "Export player configuration",
+    "unsaved": "Unsaved changes",
+    "localOnly": "Local draft only",
+    "addressPlaceholder": "Server address, optionally followed by :port",
+    "noLoader": "Vanilla / no mod loader",
+    "modpackDescription": "Provide a direct Modrinth .mrpack or MultiMC client ZIP URL and change the modpack version for each client update. Inspect a local archive to read its version and calculate SHA-256. Players install automatically on first use; updates create a new instance and keep the old one.",
+    "previewDescription": "Check the configuration to export. Incomplete drafts are allowed. Publishing to GitHub requires separate repository authorization.",
+    "tabs": {
+      "server": "Server",
+      "modpack": "Modpack",
+      "announcement": "Notice & status",
+      "preview": "Export preview"
+    },
+    "fields": {
+      "serverName": "Server name",
+      "serverAddress": "Server address",
+      "minecraftVersion": "Minecraft version",
+      "loader": "Mod loader",
+      "loaderVersion": "Loader version",
+      "modpackVersion": "Pack version",
+      "modpackUrl": "Pack download URL",
+      "announcement": "Announcement / maintenance message",
+      "maintenance": "Server under maintenance",
+      "currentRound": "Current round (optional)",
+      "nextRound": "Next round",
+      "roundState": "Round status",
+      "offlineSince": "Shared offline start time (optional)",
+      "modpackSha256": "SHA-256 (optional)"
+    },
+    "errorTitle": "Maintenance operation failed",
+    "errors": {
+      "NOT_CONFIGURED": "The build has no valid maintenance verification public key configured.",
+      "INVALID_KEY": "This maintenance Key is invalid, incomplete, or was not issued for this launcher.",
+      "UNAUTHORIZED": "Maintenance authorization is unavailable. Enter your Key again.",
+      "INVALID_DRAFT": "Check the field lengths and download URL. Addresses cannot contain spaces; download URLs must use HTTP(S) and contain no login credentials.",
+      "STORAGE_FAILED": "Could not read or write the file. Check the selected path and permissions.",
+      "unknown": "The operation could not be completed. Please retry.",
+      "COLLECTION_FAILED": "Official news could not be collected. The saved review inbox has been kept; try again later.",
+      "PACK_VERSION_REQUIRED": "A maintainer has not set the modpack version.",
+      "PACK_DOWNLOAD_FAILED": "Modpack download failed. Check your network, download proxy and the download URL, then retry.",
+      "PACK_WRITE_FAILED": "Cannot save the modpack. Check disk space and write permissions.",
+      "PACK_READ_FAILED": "Cannot read the modpack. Retry or contact a maintainer.",
+      "PACK_TOO_LARGE": "The modpack exceeds the installation size limit. Please contact a maintainer.",
+      "PACK_FORMAT_UNSUPPORTED": "Invalid or unsupported modpack. Use a direct link to a Modrinth .mrpack or MultiMC client ZIP.",
+      "PACK_HASH_MISMATCH": "The modpack does not match the configured checksum. Installation stopped; please contact a maintainer.",
+      "PACK_UNSAFE_PATH": "The modpack contains an unsafe file path. Installation stopped.",
+      "PACK_VERSION_MISMATCH": "The modpack Minecraft or loader version does not match the campus configuration."
+    },
+    "applyPreview": "Apply local preview",
+    "previewApplied": "Local preview updated. Return to Launch to view it; nothing was published.",
+    "offlineSinceDescription": "Optional shared offline start time, entered in your local time. Once published, clients use it for the 48-hour rule; otherwise each device uses its own observations.",
+    "roundStates": {
+      "auto": "Automatic: end after more than 48 hours offline",
+      "active": "Active (maintainer override)",
+      "ended": "Ended (maintainer override)"
+    },
+    "inspectPack": "Inspect local modpack and calculate checksum",
+    "packInspected": "Modpack version and SHA-256 read. Check the download URL and release version.",
+    "playerConfigUrl": "Shared player configuration URL",
+    "copyConfigUrl": "Copy configuration URL",
+    "configUrlCopied": "Configuration URL copied",
+    "openConfigPage": "Open GitHub configuration editor",
+    "publishInstructions": "Save and export campus-server.json, then have a maintainer with repository access update public/campus-server.json on Supaio/SAUMCL main. Players check every minute and on refresh, falling back to cached data on network errors. Local preview and export do not publish anything."
   },
   "ManageSkinModal": {
     "skinManage": "Manage Skin",
@@ -1816,11 +2094,6 @@
     "placeholder": {
       "javaPath": "Please enter or select the Java executable file path"
     }
-  },
-  "MCVersionNumberHelper": {
-    "content": "Starting in 2026, Minecraft adopts a new version numbering system. The version numbers will begin with the release year (e.g., 26.1), replacing the previous 1.x versioning scheme.",
-    "linkText": "Read the official article",
-    "url": "https://www.minecraft.net/en-us/article/minecraft-new-version-numbering-system"
   },
   "MemoryStatusProgress": {
     "title": "Memory Status",
@@ -1911,6 +2184,24 @@
       "refreshing": "Refreshing player info",
       "deleting": "Deleting player"
     }
+  },
+  "PlaytimeCalendarCard": {
+    "title": "Play calendar",
+    "monthLabel": "Monthly play calendar, Monday first",
+    "today": "Today",
+    "week": "This week",
+    "total": "All time",
+    "duration": "{{hours}} h {{minutes}} min",
+    "weekDays": "Days played: {{count}}",
+    "totalDays": "Total days played: {{count}}",
+    "playing": "Playing",
+    "includesHistory": "Includes earlier records",
+    "localTime": "Local time · Mon–Sun",
+    "trackingNote": "Daily records start on {{date}}. Earlier records contribute to the all-time total only. Counts games launched and monitored by SAUMCL on this computer; simultaneous instances add their playtime. Recording stops when the launcher exits.",
+    "loading": "Reading playtime…",
+    "loadFailed": "Could not read playtime. Try refreshing.",
+    "refreshFailed": "Could not refresh playtime. Showing the last available records.",
+    "saveFailed": "Playtime could not be saved. Check available disk space and write access."
   },
   "ProxySettingsGroup": {
     "type": {
@@ -2978,6 +3269,7 @@
       "general": "General",
       "appearance": "Appearance",
       "download": "Download",
+      "maintenance": "Campus Maintenance",
       "intelligence": "Intelligence",
       "extension": "Extension",
       "help": "Docs & Help",

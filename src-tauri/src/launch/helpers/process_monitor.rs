@@ -17,6 +17,7 @@ use tokio;
 use crate::instance::models::misc::Instance;
 use crate::launch::constants::*;
 use crate::launch::models::{LaunchError, LaunchingState};
+use crate::launch::playtime::PlaytimeState;
 use crate::launcher_config::models::{LauncherVisiablity, ProcessPriority};
 use crate::utils::shell::execute_command_line;
 use crate::utils::window::create_webview_window;
@@ -25,6 +26,7 @@ const POLLING_OPERATION_INTERVAL_MS: u64 = 2000;
 
 struct OutputPipe<T: Read + Send + 'static> {
   app: AppHandle,
+  launching_id: u64,
   out: T,
   label: String,
   start_time: Arc<Mutex<Option<Instant>>>,
@@ -53,7 +55,25 @@ impl<T: Read + Send + 'static> OutputPipe<T> {
           // record Instant::now as game start time
           let mut start_time_lock = self.start_time.lock().unwrap();
           if start_time_lock.is_none() {
-            *start_time_lock = Some(Instant::now());
+            let started = Instant::now();
+            *start_time_lock = Some(started);
+            let historical_seconds = self
+              .app
+              .state::<Mutex<HashMap<String, Instance>>>()
+              .lock()
+              .unwrap()
+              .values()
+              .fold(0u128, |sum, instance| {
+                sum.saturating_add(instance.play_time)
+              })
+              .min(u64::MAX as u128) as u64;
+            if let Err(error) = self.app.state::<PlaytimeState>().start(
+              self.launching_id,
+              historical_seconds,
+              started,
+            ) {
+              log::warn!("Playtime start: {error}");
+            }
           }
           let _ = self.ready_tx.send(());
         }
@@ -125,6 +145,7 @@ pub async fn monitor_process(
   let stdout = child.stdout.take().map(|out| {
     (OutputPipe {
       app: app.clone(),
+      launching_id: id,
       label: label.clone(),
       out,
       start_time: start_time.clone(),
@@ -140,6 +161,7 @@ pub async fn monitor_process(
   let stderr = child.stderr.take().map(|out| {
     (OutputPipe {
       app: app.clone(),
+      launching_id: id,
       label: label.clone(),
       out,
       start_time: start_time.clone(),
@@ -203,6 +225,13 @@ pub async fn monitor_process(
 
     stop_polling_flag.store(true, Ordering::SeqCst);
     drop(log_file);
+    if let Err(error) = app.state::<PlaytimeState>().finish(id) {
+      log::warn!("Playtime finish: {error}");
+    }
+    let start_time_lock = *start_time.lock().unwrap();
+    if let Some(start_time) = start_time_lock {
+      record_play_time(app.clone(), start_time, instance_id_clone).await;
+    }
     // handle launcher main window visiablity
     match launcher_visibility {
       LauncherVisiablity::RunningHidden => {
@@ -224,11 +253,6 @@ pub async fn monitor_process(
         }
       }
       _ => {}
-    }
-
-    let start_time_lock = *start_time.lock().unwrap();
-    if let Some(start_time) = start_time_lock {
-      record_play_time(app.clone(), start_time, instance_id_clone).await;
     }
 
     if exit_ok {

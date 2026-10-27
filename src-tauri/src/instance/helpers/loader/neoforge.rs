@@ -335,7 +335,12 @@ pub async fn download_neoforge_libraries(
 
   schedule_progressive_task_group(
     app.clone(),
-    format!("neoforge-libraries?{}", instance.id),
+    crate::instance::helpers::campus_plan::loader_task_group(
+      &instance.version_path,
+      &instance.name,
+      &instance.id,
+      "neoforge-libraries",
+    ),
     task_params,
     true,
   )

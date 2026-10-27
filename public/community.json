@@ -1,0 +1,96 @@
+{
+  "schemaVersion": 1,
+  "rewards": [],
+  "links": [
+    {
+      "id": "saumcl-github",
+      "section": "sau",
+      "kind": "website",
+      "name": "SAUMCL 项目 GitHub",
+      "description": "项目源码、发行版本与问题反馈。",
+      "groupNumber": "",
+      "url": "https://github.com/Supaio/SAUMCL",
+      "enabled": true
+    },
+    {
+      "id": "supaio-github",
+      "section": "sau",
+      "kind": "website",
+      "name": "Supaio 的 GitHub",
+      "description": "SAUMCL 维护者的 GitHub 主页。",
+      "groupNumber": "",
+      "url": "https://github.com/Supaio",
+      "enabled": true
+    },
+    {
+      "id": "university-sau",
+      "section": "sau",
+      "kind": "qq",
+      "name": "SAU · 四川农业大学",
+      "description": "四川农业大学川泷MC服群（CLMC）",
+      "groupNumber": "719489600",
+      "url": "",
+      "enabled": true
+    },
+    {
+      "id": "sau-oopz",
+      "section": "sau",
+      "kind": "website",
+      "name": "川农社群语音 · Oopz",
+      "description": "社群语音交流使用 Oopz 平台。",
+      "groupNumber": "",
+      "url": "https://oopz.cn/i/U7YzC7",
+      "enabled": true
+    },
+    {
+      "id": "sau-website",
+      "section": "sau",
+      "kind": "website",
+      "name": "川农社群宣传网页",
+      "description": "了解社群与校服。",
+      "groupNumber": "",
+      "url": "http://47.116.98.159:5200/",
+      "enabled": true
+    },
+    {
+      "id": "university-sues",
+      "section": "universities",
+      "kind": "qq",
+      "name": "SUES · 上海工程技术大学",
+      "description": "",
+      "groupNumber": "710596300",
+      "url": "",
+      "enabled": true
+    },
+    {
+      "id": "university-swmu",
+      "section": "universities",
+      "kind": "qq",
+      "name": "SWMU · 西南医科大学",
+      "description": "",
+      "groupNumber": "1033050324",
+      "url": "",
+      "enabled": true
+    },
+    {
+      "id": "university-swust",
+      "section": "universities",
+      "kind": "qq",
+      "name": "SWUST · 西南科技大学",
+      "description": "",
+      "groupNumber": "1054134677",
+      "url": "",
+      "enabled": true
+    },
+    {
+      "id": "university-tyut",
+      "section": "universities",
+      "kind": "qq",
+      "name": "TYUT · 太原理工大学",
+      "description": "",
+      "groupNumber": "681874322",
+      "url": "",
+      "enabled": true
+    }
+  ]
+}

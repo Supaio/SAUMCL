@@ -1,6 +1,5 @@
 use serde::Deserialize;
 use serde::de::Deserializer;
-use serde_json::Value;
 
 use crate::launcher_config::models::AppearanceBackgroundConfig;
 
@@ -43,44 +42,29 @@ where
   })
 }
 
-// Deserializing discover sources from old and new formats.
-// Migrated from Vec<String> to Vec<(String, bool)> with default enabled=true
-pub fn deserialize_discover_sources<'de, D>(
-  deserializer: D,
-) -> Result<Vec<(String, bool)>, D::Error>
-where
-  D: Deserializer<'de>,
-{
-  let value = match Value::deserialize(deserializer) {
-    Ok(value) => value,
-    Err(_) => return Ok(Vec::default()),
-  };
-
-  let items = match value.as_array() {
-    Some(items) => items,
-    None => return Ok(Vec::default()),
-  };
-
-  Ok(
-    items
-      .iter()
-      .filter_map(|item| match item {
-        Value::String(url) => Some((url.to_string(), true)),
-        Value::Array(tuple) if tuple.len() == 2 => {
-          let url = tuple.first()?.as_str()?;
-          let enabled = tuple.get(1)?.as_bool()?;
-          Some((url.to_string(), enabled))
-        }
-        _ => None,
-      })
-      .collect(),
-  )
-}
-
 #[cfg(test)]
 mod tests {
-  use crate::launcher_config::models::GeneralConfig;
+  use crate::launcher_config::models::{GeneralConfig, LauncherConfig};
   use serde_json::json;
+
+  #[test]
+  fn legacy_news_sources_do_not_override_managed_feeds_or_other_preferences() {
+    for sources in [
+      json!(["https://example.invalid/news"]),
+      json!([["https://mc.sjtu.cn/api-sjmcl/article/mua", false]]),
+    ] {
+      let config: LauncherConfig = serde_json::from_value(json!({
+        "discoverSourceEndpoints": sources,
+        "discoverSourcesVersion": 1,
+        "appearance": { "theme": { "primaryColor": "teal" } }
+      }))
+      .expect("legacy news settings must not prevent loading the launcher config");
+      assert_eq!(config.appearance.theme.primary_color, "teal");
+      let serialized = serde_json::to_value(config).unwrap();
+      assert!(serialized.get("discoverSourceEndpoints").is_none());
+      assert!(serialized.get("discoverSourcesVersion").is_none());
+    }
+  }
 
   #[test]
   fn config_keeps_supported_languages() {

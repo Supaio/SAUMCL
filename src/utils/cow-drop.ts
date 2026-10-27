@@ -146,6 +146,42 @@ export const containCows = (cows: CowBody[], width: number, height: number) => {
   }
 };
 
+export const resizeCows = (
+  cows: CowBody[],
+  previous: { width: number; height: number },
+  next: { width: number; height: number }
+) => {
+  const { width, height } = next;
+  // A minimized or temporarily hidden canvas must not discard the current herd.
+  if (width <= 0 || height <= 0) return;
+  const capacity = getCowCapacity(width, height);
+  if (cows.length > capacity) {
+    // Keep rare cows first; ordinary cows retain their original order.
+    cows.sort((a, b) => Number(b.isGray) - Number(a.isGray));
+    cows.length = capacity;
+  }
+  if (previous.width !== width || previous.height !== height) {
+    for (const cow of cows) {
+      // Preserve relative positions instead of piling every offscreen cow on an edge.
+      const diameter = cow.radius * 2;
+      if (previous.width > diameter)
+        cow.x =
+          cow.radius +
+          ((cow.x - cow.radius) / (previous.width - diameter)) *
+            Math.max(0, width - diameter);
+      if (previous.height > diameter)
+        cow.y =
+          cow.radius +
+          ((cow.y - cow.radius) / (previous.height - diameter)) *
+            Math.max(0, height - diameter);
+      cow.vx = 0;
+      cow.vy = 0;
+      cow.angularVelocity = 0;
+    }
+  }
+  containCows(cows, width, height);
+};
+
 export const stepCowPhysics = (
   cows: CowBody[],
   width: number,

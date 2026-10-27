@@ -114,28 +114,35 @@ pub fn extract_overrides(file: &File, instance_path: &Path) -> SJMCLResult<()> {
   let overrides_path = get_overrides_path(file).ok_or(InstanceError::ModpackManifestParseError)?;
   let overrides_path = format!("{}/", overrides_path.trim_end_matches('/'));
   let mut archive = ZipArchive::new(file)?;
-  for i in 0..archive.len() {
-    let mut file = archive.by_index(i)?;
-    let path = file.mangled_name()?;
-    let outpath = if path.starts_with(&overrides_path) {
-      // Remove "{overrides}/" prefix and join with instance path
-      let relative_path = path.strip_prefix(&overrides_path).unwrap();
-      instance_path.join(relative_path)
-    } else {
-      continue;
-    };
+  let mut paths = vec![overrides_path];
+  if archive.by_name("modrinth.index.json").is_ok() {
+    // Modrinth client overrides take priority regardless of ZIP entry order.
+    paths.push("client-overrides/".to_string());
+  }
+  for overrides_path in paths {
+    for i in 0..archive.len() {
+      let mut file = archive.by_index(i)?;
+      let path = file.mangled_name()?;
+      let outpath = if path.starts_with(&overrides_path) {
+        // Remove "{overrides}/" prefix and join with instance path
+        let relative_path = path.strip_prefix(&overrides_path).unwrap();
+        instance_path.join(relative_path)
+      } else {
+        continue;
+      };
 
-    if file.is_file() {
-      // Create parent directories if they don't exist
-      if let Some(p) = outpath.parent()
-        && !p.exists()
-      {
-        fs::create_dir_all(p)?;
+      if file.is_file() {
+        // Create parent directories if they don't exist
+        if let Some(p) = outpath.parent()
+          && !p.exists()
+        {
+          fs::create_dir_all(p)?;
+        }
+
+        // Extract file
+        let mut outfile = File::create(&outpath)?;
+        std::io::copy(&mut file, &mut outfile)?;
       }
-
-      // Extract file
-      let mut outfile = File::create(&outpath)?;
-      std::io::copy(&mut file, &mut outfile)?;
     }
   }
   Ok(())
@@ -150,6 +157,37 @@ mod tests {
   use zip::write::SimpleFileOptions;
 
   use crate::instance::helpers::modpack::import::extract_overrides;
+
+  #[test]
+  fn client_overrides_win_over_common_files_and_exclude_server_files() {
+    let root = std::env::temp_dir().join(format!("saumcl-client-overrides-{}", Uuid::new_v4()));
+    fs::create_dir_all(&root).unwrap();
+    let path = root.join("client.mrpack");
+    let manifest = r#"{"formatVersion":1,"game":"minecraft","versionId":"test","name":"test","files":[],"dependencies":{"minecraft":"1.21.8"}}"#;
+    let mut archive = ZipWriter::new(File::create(&path).unwrap());
+    // Client entries deliberately come first in the ZIP.
+    for (name, text) in [
+      ("modrinth.index.json", manifest),
+      ("client-overrides/options.txt", "client"),
+      ("overrides/options.txt", "common"),
+      ("server-overrides/only-server.txt", "server"),
+    ] {
+      archive
+        .start_file(name, SimpleFileOptions::default())
+        .unwrap();
+      archive.write_all(text.as_bytes()).unwrap();
+    }
+    archive.finish().unwrap();
+    let destination = root.join("instance");
+    extract_overrides(&File::open(path).unwrap(), &destination).unwrap();
+    assert_eq!(
+      fs::read_to_string(destination.join("options.txt")).unwrap(),
+      "client"
+    );
+    assert!(!destination.join("only-server.txt").exists());
+    assert_eq!(root.parent(), Some(std::env::temp_dir().as_path()));
+    fs::remove_dir_all(root).unwrap();
+  }
 
   #[test]
   fn extracts_multimc_game_files_from_root_and_nested_archives() {

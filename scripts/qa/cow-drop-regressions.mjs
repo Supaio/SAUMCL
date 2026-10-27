@@ -3,9 +3,9 @@ import { test } from "node:test";
 import {
   COW_RADIUS,
   MAX_COWS,
-  containCows,
   dropCow,
   getCowCapacity,
+  resizeCows,
   stepCowPhysics,
 } from "../../src/utils/cow-drop.ts";
 
@@ -180,11 +180,85 @@ test("wall clicks, resizing and a full window keep all cows finite and contained
     dropCow(cows, i % 2 ? -100 : 900, 800, 600);
   }
   advance(cows, 3);
-  containCows(cows, 560, 400);
+  resizeCows(cows, { width: 800, height: 600 }, { width: 560, height: 400 });
+  assert.equal(cows.length, getCowCapacity(560, 400));
   assertContained(cows, 560, 400);
   advance(cows, 3, 560, 400);
-  assert.equal(cows.length, capacity);
+  assert.equal(cows.length, getCowCapacity(560, 400));
   assertContained(cows, 560, 400);
+});
+
+test("shrinking a full large window trims excess cows, keeps gray cows and settles", (t) => {
+  let seed = 9127;
+  t.mock.method(Math, "random", () => {
+    seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
+    return seed / 4294967296;
+  });
+  const wide = { width: 2000, height: 1000 };
+  const small = { width: 1050, height: 650 };
+  const launchPanels = [
+    { left: 530, top: 550, right: 740, bottom: 630 },
+    { left: 760, top: 550, right: 1030, bottom: 630 },
+  ];
+  const cows = [];
+  const capacity = getCowCapacity(wide.width, wide.height);
+  for (let frame = 0; frame < 2400; frame++) {
+    if (frame < capacity)
+      dropCow(cows, Math.random() * wide.width, wide.width, wide.height);
+    stepCowPhysics(cows, wide.width, wide.height, 1 / 120);
+  }
+  const gray = cows[cows.length - 1];
+  gray.isGray = true;
+  const orientation = gray.angle;
+  assert.ok(cows.length > getCowCapacity(small.width, small.height));
+  resizeCows(cows, wide, small);
+  assert.equal(cows.length, getCowCapacity(small.width, small.height));
+  assert.ok(cows.includes(gray));
+  assert.equal(gray.angle, orientation);
+  assert.ok(
+    cows.every(
+      (cow) => cow.vx === 0 && cow.vy === 0 && cow.angularVelocity === 0
+    )
+  );
+  assertContained(cows, small.width, small.height);
+  assert.equal(dropCow(cows, 400, small.width, small.height), false);
+  advance(cows, 15, small.width, small.height, launchPanels);
+  assertContained(cows, small.width, small.height);
+  assert.ok(cows.every((cow) => Math.abs(cow.angularVelocity) < 0.05));
+  const positions = cows.map((cow) => ({ x: cow.x, y: cow.y }));
+  advance(cows, 1, small.width, small.height, launchPanels);
+  assert.ok(
+    cows.every(
+      (cow, i) => Math.hypot(cow.x - positions[i].x, cow.y - positions[i].y) < 2
+    )
+  );
+  resizeCows(cows, small, wide);
+  const retained = cows.length;
+  assert.equal(dropCow(cows, 400, wide.width, wide.height), true);
+  assert.equal(cows.length, retained + 1);
+});
+
+test("resizing keeps separated cows spread out instead of clamping them together", () => {
+  const cows = [
+    baseCow({ x: 1000, y: 800, vx: 500, vy: 500, angle: 1 }),
+    baseCow({ x: 1800, y: 800, vx: -500, vy: -500, angle: -1 }),
+  ];
+  resizeCows(cows, { width: 2000, height: 1000 }, { width: 800, height: 600 });
+  assert.ok(cows[1].x - cows[0].x > COW_RADIUS * 2);
+  assert.deepEqual(
+    cows.map((cow) => cow.angle),
+    [1, -1]
+  );
+  assertContained(cows, 800, 600);
+});
+
+test("a zero-size minimized viewport preserves cows until a real resize", () => {
+  const cows = [baseCow({ vx: 10, angularVelocity: 2 })];
+  const original = structuredClone(cows);
+  resizeCows(cows, { width: 800, height: 600 }, { width: 0, height: 0 });
+  assert.deepEqual(cows, original);
+  resizeCows(cows, { width: 800, height: 600 }, { width: 800, height: 600 });
+  assert.deepEqual(cows, original);
 });
 
 const panel = { left: 250, top: 400, right: 550, bottom: 550 };

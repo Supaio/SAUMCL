@@ -1,22 +1,21 @@
 import { Center, HStack, Text } from "@chakra-ui/react";
 import { Masonry } from "masonic";
-import { useRouter } from "next/router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { LuNewspaper } from "react-icons/lu";
 import { BeatLoader } from "react-spinners";
 import { CommonIconButton } from "@/components/common/common-icon-button";
 import Empty from "@/components/common/empty";
 import { Section } from "@/components/common/section";
 import PosterCard from "@/components/poster-card";
-import { useLauncherConfig } from "@/contexts/config";
-import { NewsPostRequest, NewsPostSummary } from "@/models/news-post";
+import {
+  COMMUNITY_NEWS_SOURCE_URL,
+  NewsPostRequest,
+  NewsPostSummary,
+} from "@/models/news-post";
 import { DiscoverService } from "@/services/discover";
 
 export const CommunityNewsPage = () => {
   const { t } = useTranslation();
-  const { config } = useLauncherConfig();
-  const router = useRouter();
 
   const [visiblePosts, setVisiblePosts] = useState<NewsPostSummary[]>([]);
   const [sourceCursors, setSourceCursors] = useState<
@@ -30,12 +29,9 @@ export const CommunityNewsPage = () => {
     setVisiblePosts([]);
     setIsLoading(true);
     try {
-      const sources: NewsPostRequest[] = config.discoverSourceEndpoints
-        .filter(([, enabled]) => enabled)
-        .map(([url]) => ({
-          url,
-          cursor: null,
-        }));
+      const sources: NewsPostRequest[] = [
+        { url: COMMUNITY_NEWS_SOURCE_URL, cursor: null },
+      ];
 
       const response = await DiscoverService.fetchNewsPostSummaries(sources);
       if (response.status === "success") {
@@ -46,19 +42,15 @@ export const CommunityNewsPage = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [config.discoverSourceEndpoints]);
+  }, []);
 
   const loadMore = useCallback(async () => {
     if (isLoading) return;
 
-    const enabledUrls = new Set(
-      config.discoverSourceEndpoints
-        .filter(([, enabled]) => enabled)
-        .map(([url]) => url)
-    );
-
     const pendingSources: NewsPostRequest[] = Object.entries(sourceCursors)
-      .filter(([url, cursor]) => cursor !== null && enabledUrls.has(url))
+      .filter(
+        ([url, cursor]) => cursor !== null && url === COMMUNITY_NEWS_SOURCE_URL
+      )
       .map(([url, cursor]) => ({ url, cursor }));
 
     if (pendingSources.length === 0) return;
@@ -74,21 +66,13 @@ export const CommunityNewsPage = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [isLoading, sourceCursors, config.discoverSourceEndpoints]);
+  }, [isLoading, sourceCursors]);
 
-  const hasMore = config.discoverSourceEndpoints.some(
-    ([url, enabled]) =>
-      enabled && sourceCursors[url] !== undefined && sourceCursors[url] !== null
-  );
+  const hasMore =
+    sourceCursors[COMMUNITY_NEWS_SOURCE_URL] !== undefined &&
+    sourceCursors[COMMUNITY_NEWS_SOURCE_URL] !== null;
 
   const secMenu = [
-    {
-      icon: LuNewspaper,
-      label: t("DiscoverCommunityNewsPage.sources"),
-      onClick: () => {
-        router.push("/discover/sources");
-      },
-    },
     {
       icon: "refresh",
       onClick: fetchFirstPage,
@@ -121,7 +105,6 @@ export const CommunityNewsPage = () => {
             <CommonIconButton
               key={index}
               icon={btn.icon}
-              label={btn.label}
               onClick={btn.onClick}
               size="xs"
               fontSize="sm"

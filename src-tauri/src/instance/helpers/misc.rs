@@ -131,7 +131,7 @@ pub fn unify_instance_name(src_version_path: &PathBuf, tgt_name: &String) -> SJM
   Ok(dst_dir)
 }
 
-async fn refresh_instance(
+pub(crate) async fn refresh_instance(
   app: &AppHandle,
   mut version_path: PathBuf,
   name: String,
@@ -347,6 +347,12 @@ pub async fn refresh_instances(
     };
     let version_path = entry.path();
     if !version_path.is_dir() {
+      continue;
+    }
+    if version_path
+      .join(crate::instance::helpers::campus_plan::PENDING_FILE)
+      .is_file()
+    {
       continue;
     }
 

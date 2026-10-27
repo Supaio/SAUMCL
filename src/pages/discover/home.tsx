@@ -30,7 +30,7 @@ import { Section } from "@/components/common/section";
 import { useLauncherConfig } from "@/contexts/config";
 import { useSharedModals } from "@/contexts/shared-modal";
 import { OtherResourceSource, OtherResourceType } from "@/enums/resource";
-import { NewsPostSummary } from "@/models/news-post";
+import { COMMUNITY_NEWS_SOURCE_URL, NewsPostSummary } from "@/models/news-post";
 import { OtherResourceInfo } from "@/models/resource";
 import { MC_NEWS_SOURCE_URL } from "@/pages/discover/minecraft-news";
 import { DiscoverService } from "@/services/discover";
@@ -515,14 +515,7 @@ export const DiscoverHomePage = () => {
   const fetchCommunityNews = useCallback(async () => {
     setIsLoadingCommunity(true);
     try {
-      const sources = config.discoverSourceEndpoints
-        .filter(([, enabled]) => enabled)
-        .map(([url]) => ({ url, cursor: null }));
-
-      if (sources.length === 0) {
-        setCommunityPosts([]);
-        return;
-      }
+      const sources = [{ url: COMMUNITY_NEWS_SOURCE_URL, cursor: null }];
 
       const response = await DiscoverService.fetchNewsPostSummaries(sources);
       if (response.status === "success") {
@@ -531,7 +524,7 @@ export const DiscoverHomePage = () => {
     } finally {
       setIsLoadingCommunity(false);
     }
-  }, [config.discoverSourceEndpoints]);
+  }, []);
 
   const fetchMinecraftNews = useCallback(async () => {
     setIsLoadingMC(true);

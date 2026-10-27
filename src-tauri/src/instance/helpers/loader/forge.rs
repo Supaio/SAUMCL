@@ -449,7 +449,12 @@ pub async fn download_forge_libraries(
 
   schedule_progressive_task_group(
     app.clone(),
-    format!("forge-libraries?{}", instance.id),
+    crate::instance::helpers::campus_plan::loader_task_group(
+      &instance.version_path,
+      &instance.name,
+      &instance.id,
+      "forge-libraries",
+    ),
     task_params,
     true,
   )

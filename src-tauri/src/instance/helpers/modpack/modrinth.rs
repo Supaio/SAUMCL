@@ -128,6 +128,12 @@ impl ModpackManifest for ModrinthManifest {
     self
       .files
       .iter()
+      .filter(|file| {
+        file
+          .env
+          .as_ref()
+          .is_none_or(|env| env.client != "unsupported")
+      })
       .map(|file| {
         let download_url = file
           .downloads

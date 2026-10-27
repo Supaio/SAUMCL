@@ -26,7 +26,7 @@ pub fn tool_routes() -> Vec<ToolRoute<McpContext>> {
     mcp_tool!(
       "fetch_news_sources_info",
       fetch_news_sources_info,
-      "Retrieve configured community news source metadata, including endpoint URLs used by fetch_news_post_summaries."
+      "Retrieve launcher-managed community news source metadata, including endpoint URLs used by fetch_news_post_summaries."
     ),
     mcp_tool!(
       "fetch_news_post_summaries",
