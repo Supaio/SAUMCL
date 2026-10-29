@@ -59,8 +59,8 @@ build:linux:
   script:
     - cargo fmt --manifest-path src-tauri/Cargo.toml --all -- --check
     - pnpm tauri build --features devtools --no-bundle -- --profile test-build --locked
-    - cargo test --manifest-path src-tauri/Cargo.toml --locked --lib launcher_config::helpers::updater::tests
-    - cargo test --manifest-path src-tauri/Cargo.toml --locked --test campus_regressions
+    - cargo test --manifest-path src-tauri/Cargo.toml --locked --profile test-build --lib launcher_config::helpers::updater::tests
+    - cargo test --manifest-path src-tauri/Cargo.toml --locked --profile test-build --test campus_regressions
     - mkdir -p artifacts
     - python3 scripts/release/bundle_portable_assets.py -p src-tauri/target/test-build -o SAUMCL-portable SAUMCL
     - cp src-tauri/target/test-build/SAUMCL-portable artifacts/SAUMCL

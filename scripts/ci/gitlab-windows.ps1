@@ -30,11 +30,11 @@ pnpm install --frozen-lockfile
 if ($LASTEXITCODE -ne 0) { throw 'Dependency installation failed.' }
 pnpm run version check
 if ($LASTEXITCODE -ne 0) { throw 'Version verification failed.' }
-pnpm tauri build --features devtools --no-bundle -- --profile test-build --locked
+node node_modules/@tauri-apps/cli/tauri.js build --features devtools --no-bundle '--' --profile test-build --locked
 if ($LASTEXITCODE -ne 0) { throw 'Windows build failed.' }
-cargo test --manifest-path src-tauri/Cargo.toml --locked --lib launcher_config::helpers::updater::tests
+cargo test --manifest-path src-tauri/Cargo.toml --locked --profile test-build --lib launcher_config::helpers::updater::tests
 if ($LASTEXITCODE -ne 0) { throw 'Updater regressions failed.' }
-cargo test --manifest-path src-tauri/Cargo.toml --locked --test campus_regressions
+cargo test --manifest-path src-tauri/Cargo.toml --locked --profile test-build --test campus_regressions
 if ($LASTEXITCODE -ne 0) { throw 'School-server regressions failed.' }
 New-Item -ItemType Directory -Path artifacts -Force | Out-Null
 python scripts/release/bundle_portable_assets.py -p src-tauri/target/test-build -o SAUMCL-portable.exe SAUMCL.exe
