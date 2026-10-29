@@ -21,6 +21,8 @@ import { safeCommunityUrl } from "@/utils/community";
 import { copyText } from "@/utils/copy";
 
 const COMMUNITY_LOGOS: Record<string, string> = {
+  "saumcl-gitlab": "/images/icons/saumcl.png",
+  "supaio-gitlab": "/images/community/supaio-avatar.jpg",
   "saumcl-github": "/images/icons/saumcl.png",
   "supaio-github": "/images/community/supaio-avatar.jpg",
   "university-sau": "/images/community/clmc-logo.png",
@@ -120,6 +122,7 @@ const FriendsPage = () => {
                             overflow="hidden"
                             borderRadius={
                               link.id === "university-sau" ||
+                              link.id === "supaio-gitlab" ||
                               link.id === "supaio-github"
                                 ? "full"
                                 : "md"

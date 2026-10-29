@@ -23,6 +23,9 @@ bun.lock
 /build
 /target
 /preview/
+/artifacts/
+/.cache/
+/.ci-tools/
 
 # misc
 .DS_Store

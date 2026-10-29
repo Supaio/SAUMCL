@@ -250,7 +250,7 @@ const MaintenanceSettingsPage = () => {
   const handleOpenConfigPage = async () => {
     try {
       await openUrl(
-        "https://github.com/Supaio/SAUMCL/edit/main/public/campus-server.json"
+        "https://gitlab.com/Supaio/saumcl/-/edit/main/public/campus-server.json"
       );
     } catch (error) {
       handleError(error);

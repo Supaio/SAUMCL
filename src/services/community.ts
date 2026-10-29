@@ -5,7 +5,7 @@ import { parseCommunityFeed } from "@/utils/community";
 
 // Only reviewed public content is published to this shared static file.
 const COMMUNITY_FEED_URL =
-  "https://raw.githubusercontent.com/Supaio/SAUMCL/main/public/community.json";
+  "https://gitlab.com/Supaio/saumcl/-/raw/main/public/community.json";
 const CACHE_KEY = "saumcl.community.feed";
 export const COMMUNITY_CHANGED_EVENT = "saumcl-community-changed";
 

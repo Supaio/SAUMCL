@@ -6,7 +6,7 @@
 
 ## 下載
 
-在 [Supaio/SAUMCL Releases](https://github.com/Supaio/SAUMCL/releases) 下載 **Indev 19.3**。
+在 [Supaio/SAUMCL Releases](https://gitlab.com/Supaio/saumcl/-/releases) 下載 **Indev GL 19.3**。
 
 - Windows x64：`SAUMCL.exe`。
 - Linux x64：`SAUMCL`，執行前先執行 `chmod +x ./SAUMCL`。
@@ -29,17 +29,17 @@ Microsoft 帳戶驗證仍沿用 SJMCL 的 OAuth 應用，登入面板與「關�
 需要 Node.js 22 或更新版本、pnpm **10.26.1**、Rust **1.98.1 或更新版本**，以及所在平台的 Tauri 建置依賴。
 
 ```sh
-git clone https://github.com/Supaio/SAUMCL.git
+git clone https://gitlab.com/Supaio/saumcl.git SAUMCL
 cd SAUMCL
 pnpm install --frozen-lockfile
 pnpm tauri dev
 ```
 
-`main` 儲存目前 SAUMCL 基底，後續開發使用 `codex/saumcl-development`。
+`main` 儲存目前 SAUMCL 基底，後續開發使用 `codex/gitlab-migration`。
 
-應用程式碼位於 `src/` 和 `src-tauri/`，前端資源位於 `public/`；`scripts/` 儲存建置、多語言與安裝檢查腳本。保留的 GitHub 工作流負責測試、依賴審計、資料更新和 Indev 發佈；發行說明位於 `docs/releases/`。
+GitLab CI 负责 Windows／Linux 构建、检查与安装包上传。公开 Release 前须先审核发行说明；旧 GitHub 流程保留供参考。
 
-問題回報請提交至 [Supaio/SAUMCL/issues](https://github.com/Supaio/SAUMCL/issues)。
+問題回報請提交至 [Supaio/SAUMCL/issues](https://gitlab.com/Supaio/saumcl/-/issues)。
 
 ## 上游與许可证
 

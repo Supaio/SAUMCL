@@ -9,6 +9,7 @@ use tauri::path::BaseDirectory;
 use tauri::{AppHandle, Manager};
 
 use crate::launcher_config::commands::retrieve_custom_background_list;
+use crate::launcher_config::helpers::updater::is_indev_version;
 use crate::launcher_config::models::{
   BasicInfo, BuildType, GameConfig, GameDirectory, LauncherConfig,
 };
@@ -31,7 +32,7 @@ impl LauncherConfig {
         (false, "0.0.1") => BuildType::TestBuild,
         _ => BuildType::Release,
       });
-    let version = if pkg_version.ends_with("-indev") || build_type == BuildType::Release {
+    let version = if is_indev_version(&pkg_version) || build_type == BuildType::Release {
       pkg_version
     } else {
       build_type.to_string()

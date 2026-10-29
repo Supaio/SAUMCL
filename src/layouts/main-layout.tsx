@@ -141,7 +141,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
                   <Link
                     color={`${primaryColor}.500`}
                     onClick={() =>
-                      openUrl("https://github.com/Supaio/SAUMCL/issues")
+                      openUrl("https://gitlab.com/Supaio/saumcl/-/issues")
                     }
                   />
                 ),

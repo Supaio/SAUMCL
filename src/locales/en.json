@@ -77,7 +77,7 @@
         },
         "userAgreement": {
           "title": "Project notes",
-          "url": "https://github.com/Supaio/SAUMCL/tree/codex/saumcl-development#project-status"
+          "url": "https://gitlab.com/Supaio/saumcl/-/tree/main#project-status"
         },
         "openSourceLicense": {
           "title": "Open Source License",
@@ -1505,7 +1505,7 @@
         },
         "SAU": {
           "title": "SAU Minecraft",
-          "url": "https://github.com/Supaio/SAUMCL/tree/codex/saumcl-development"
+          "url": "https://gitlab.com/Supaio/saumcl/-/tree/main"
         }
       }
     },
@@ -1531,12 +1531,12 @@
       "settings": {
         "LauncherDocs": {
           "title": "SAUMCL README",
-          "url": "https://github.com/Supaio/SAUMCL/tree/codex/saumcl-development"
+          "url": "https://gitlab.com/Supaio/saumcl/-/tree/main"
         },
         "UserGroup": {
           "title": "SAUMCL Support",
           "description": "Report SAUMCL issues and request features in this repository.",
-          "url": "https://github.com/Supaio/SAUMCL/issues"
+          "url": "https://gitlab.com/Supaio/saumcl/-/issues"
         }
       }
     }
@@ -2012,7 +2012,7 @@
     "addressPlaceholder": "Server address, optionally followed by :port",
     "noLoader": "Vanilla / no mod loader",
     "modpackDescription": "Provide a direct Modrinth .mrpack or MultiMC client ZIP URL and change the modpack version for each client update. Inspect a local archive to read its version and calculate SHA-256. Players install automatically on first use; updates create a new instance and keep the old one.",
-    "previewDescription": "Check the configuration to export. Incomplete drafts are allowed. Publishing to GitHub requires separate repository authorization.",
+    "previewDescription": "Check the configuration to export. Incomplete drafts are allowed. Publishing to GitLab requires separate repository authorization.",
     "tabs": {
       "server": "Server",
       "modpack": "Modpack",
@@ -2067,7 +2067,7 @@
     "playerConfigUrl": "Shared player configuration URL",
     "copyConfigUrl": "Copy configuration URL",
     "configUrlCopied": "Configuration URL copied",
-    "openConfigPage": "Open GitHub configuration editor",
+    "openConfigPage": "Open GitLab configuration editor",
     "publishInstructions": "Save and export campus-server.json, then have a maintainer with repository access update public/campus-server.json on Supaio/SAUMCL main. Players check every minute and on refresh, falling back to cached data on network errors. Local preview and export do not publish anything."
   },
   "ManageSkinModal": {
@@ -3324,9 +3324,9 @@
   },
   "StarUsModal": {
     "header": {
-      "title": "Star Us on GitHub"
+      "title": "Star Us on GitLab"
     },
-    "body": "If you love our product and would like to support us, could you give us a star on GitHub? This small action means a lot to us and will motivate us to continue delivering new features and experiences for you.",
+    "body": "If you love our product and would like to support us, could you give us a star on GitLab? This small action means a lot to us and will motivate us to continue delivering new features and experiences for you.",
     "button": {
       "later": "Later",
       "starUs": "Star Us"

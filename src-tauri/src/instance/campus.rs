@@ -519,7 +519,7 @@ pub async fn retrieve_shared_campus_config(app: AppHandle) -> Result<CampusDraft
   // Use the same User-Agent and download proxy as pack / Java downloads.
   let client = app.state::<reqwest::Client>().inner().clone();
   let response = client
-    .get("https://raw.githubusercontent.com/Supaio/SAUMCL/main/public/campus-server.json")
+    .get("https://gitlab.com/Supaio/saumcl/-/raw/main/public/campus-server.json")
     .header("Cache-Control", "no-cache")
     .send()
     .await
