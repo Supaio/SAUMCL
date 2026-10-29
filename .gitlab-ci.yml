@@ -42,11 +42,10 @@ build:linux:
   cache:
     key:
       files: [src-tauri/Cargo.lock]
-      prefix: linux
+      prefix: linux-registry-v2
     paths:
       - .cache/cargo/registry/
       - .cache/cargo/git/
-      - src-tauri/target/
   before_script:
     - apt-get update
     - apt-get install -y --no-install-recommends libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf build-essential cmake pkg-config libssl-dev python3 curl ca-certificates
@@ -59,8 +58,8 @@ build:linux:
   script:
     - cargo fmt --manifest-path src-tauri/Cargo.toml --all -- --check
     - pnpm tauri build --features devtools --no-bundle -- --profile test-build --locked
-    - cargo test --manifest-path src-tauri/Cargo.toml --locked --profile test-build --lib launcher_config::helpers::updater::tests
-    - cargo test --manifest-path src-tauri/Cargo.toml --locked --profile test-build --test campus_regressions
+    - cargo test --manifest-path src-tauri/Cargo.toml --locked --profile test-build --features devtools --lib launcher_config::helpers::updater::tests
+    - cargo test --manifest-path src-tauri/Cargo.toml --locked --profile test-build --features devtools --test campus_regressions
     - mkdir -p artifacts
     - python3 scripts/release/bundle_portable_assets.py -p src-tauri/target/test-build -o SAUMCL-portable SAUMCL
     - cp src-tauri/target/test-build/SAUMCL-portable artifacts/SAUMCL
