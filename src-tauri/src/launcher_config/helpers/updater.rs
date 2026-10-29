@@ -14,13 +14,18 @@ use crate::tasks::PTaskParam;
 use crate::tasks::commands::schedule_progressive_task_group;
 use crate::tasks::download::DownloadParam;
 
-const RELEASES_ENDPOINT: &str = "https://api.github.com/repos/Supaio/SAUMCL/releases?per_page=100";
 const UPDATE_FEED_ENDPOINT: &str =
-  "https://github.com/Supaio/SAUMCL/releases/latest/download/updates.json";
+  "https://gitlab.com/Supaio/saumcl/-/releases/permalink/latest/downloads/updates.json";
+const UPDATE_FEED_API_ENDPOINT: &str =
+  "https://gitlab.com/api/v4/projects/88266251/releases/permalink/latest/downloads/updates.json";
+
+pub fn is_indev_version(version: &str) -> bool {
+  version.ends_with("-indev") || version.ends_with("-indev.gl")
+}
 
 pub fn supports_launcher_updates(build_type: &BuildType, version: &str) -> bool {
   (build_type == &BuildType::Release
-    || (build_type == &BuildType::TestBuild && version.ends_with("-indev")))
+    || (build_type == &BuildType::TestBuild && is_indev_version(version)))
     && semver::Version::parse(version).is_ok()
 }
 
@@ -75,8 +80,11 @@ fn release_asset<'a>(
       && asset.get("size").and_then(Value::as_u64).unwrap_or(0) > 0
       && url.is_some_and(|url| {
         url.scheme() == "https"
-          && url.host_str() == Some("github.com")
-          && url.path().starts_with("/Supaio/SAUMCL/releases/download/")
+          && url.host_str() == Some("gitlab.com")
+          && (url
+            .path()
+            .starts_with("/api/v4/projects/88266251/packages/generic/saumcl/")
+            || url.path().starts_with("/Supaio/saumcl/-/releases/"))
       })
   })
 }
@@ -107,7 +115,7 @@ fn select_release<'a>(
 }
 
 async fn fetch_releases(client: &reqwest::Client) -> SJMCLResult<Value> {
-  fetch_releases_from(client, &[UPDATE_FEED_ENDPOINT, RELEASES_ENDPOINT]).await
+  fetch_releases_from(client, &[UPDATE_FEED_ENDPOINT, UPDATE_FEED_API_ENDPOINT]).await
 }
 
 async fn fetch_releases_from(client: &reqwest::Client, endpoints: &[&str]) -> SJMCLResult<Value> {
@@ -457,7 +465,7 @@ mod tests {
         "state": "uploaded",
         "size": 1024,
         "browser_download_url": format!(
-          "https://github.com/Supaio/SAUMCL/releases/download/{tag}/{filename}"
+          "https://gitlab.com/Supaio/saumcl/-/releases/{tag}/downloads/{filename}"
         )
       }]
     })
@@ -573,6 +581,10 @@ mod tests {
   fn indev_builds_can_check_updates_without_enabling_other_test_builds() {
     assert!(supports_launcher_updates(
       &BuildType::TestBuild,
+      "19.3.0-indev.gl"
+    ));
+    assert!(supports_launcher_updates(
+      &BuildType::TestBuild,
       "19.0.1-indev"
     ));
     assert!(supports_launcher_updates(&BuildType::Release, "19.0.1"));
@@ -616,8 +628,30 @@ mod tests {
     assert_eq!(asset["name"], "SAUMCL.exe");
     assert_eq!(
       asset["browser_download_url"],
-      "https://github.com/Supaio/SAUMCL/releases/download/indev-19.0.10/SAUMCL.exe"
+      "https://gitlab.com/Supaio/saumcl/-/releases/indev-19.0.10/downloads/SAUMCL.exe"
     );
+  }
+
+  #[test]
+  fn gitlab_migration_updates_sort_after_the_original_indev_version() {
+    let releases = json!([
+      release("v19.3.0-indev.gl", false, "SAUMCL.exe"),
+      release("v19.3.0-indev", false, "SAUMCL.exe")
+    ]);
+    let current = semver::Version::parse("19.3.0-indev").unwrap();
+    let (_, version, _) = select_release(&releases, &current, "windows", "x86_64", true).unwrap();
+    assert!(version > current);
+    assert_eq!(version.to_string(), "19.3.0-indev.gl");
+  }
+
+  #[test]
+  fn own_gitlab_package_downloads_are_accepted() {
+    let version = semver::Version::parse("19.3.0-indev.gl").unwrap();
+    let mut value = release("v19.3.0-indev.gl", false, "SAUMCL.exe");
+    value["assets"][0]["browser_download_url"] = json!(
+      "https://gitlab.com/api/v4/projects/88266251/packages/generic/saumcl/19.3.0-indev.gl/SAUMCL.exe"
+    );
+    assert!(release_asset(&value, &version, "windows", "x86_64", true).is_some());
   }
 
   #[test]
@@ -647,6 +681,9 @@ mod tests {
       "https://example.invalid/SAUMCL.exe",
       "http://github.com/Supaio/SAUMCL/releases/download/indev-19.0.2/SAUMCL.exe",
       "https://github.com/other/project/releases/download/indev-19.0.2/SAUMCL.exe",
+      "http://gitlab.com/Supaio/saumcl/-/releases/v19.3.0-indev.gl/downloads/SAUMCL.exe",
+      "https://gitlab.com/other/project/-/releases/v19.3.0-indev.gl/downloads/SAUMCL.exe",
+      "https://gitlab.com/api/v4/projects/1/packages/generic/saumcl/19.3.0-indev.gl/SAUMCL.exe",
     ] {
       let mut value = release("indev-19.0.2", true, "SAUMCL.exe");
       value["assets"][0]["browser_download_url"] = json!(url);

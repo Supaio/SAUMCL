@@ -44,7 +44,7 @@ const NotifyNewVersionModal: React.FC<NotifyNewVersionModalProps> = ({
 
   const handleDownloadUpdate = () => {
     if (isLinux) {
-      openUrl("https://github.com/Supaio/SAUMCL/releases");
+      openUrl("https://gitlab.com/Supaio/saumcl/-/releases");
     } else {
       ConfigService.downloadLauncherUpdate(newVersion).then((response) => {
         if (response.status !== "success") {

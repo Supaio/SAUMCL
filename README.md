@@ -6,7 +6,7 @@
 
 ## Download
 
-Download **Indev 19.3** from [Supaio/SAUMCL Releases](https://github.com/Supaio/SAUMCL/releases).
+Download **Indev GL 19.3** from [Supaio/SAUMCL Releases](https://gitlab.com/Supaio/saumcl/-/releases).
 
 - Windows x64: `SAUMCL.exe`.
 - Linux x64: `SAUMCL`; run `chmod +x ./SAUMCL` before launching.
@@ -29,17 +29,17 @@ Microsoft authentication still uses SJMCL's OAuth application; the login panel a
 Use Node.js 22 or newer, pnpm **10.26.1**, Rust **1.98.1 or newer**, and the platform's Tauri build prerequisites.
 
 ```sh
-git clone https://github.com/Supaio/SAUMCL.git
+git clone https://gitlab.com/Supaio/saumcl.git SAUMCL
 cd SAUMCL
 pnpm install --frozen-lockfile
 pnpm tauri dev
 ```
 
-`main` contains the current SAUMCL baseline. Ongoing work uses `codex/saumcl-development`.
+`main` contains the current SAUMCL baseline. GitLab migration work uses `codex/gitlab-migration`; the shadcn/ui experiment remains on its own branch.
 
-Application code is in `src/` and `src-tauri/`; frontend assets are in `public/`. Build, localization and installation helpers are in `scripts/`. The retained GitHub workflows run tests, dependency audits, data updates and Indev publishing. Release notes are in `docs/releases/`.
+Application code is in `src/` and `src-tauri/`; frontend assets are in `public/`. Build, localization and installation helpers are in `scripts/`. GitLab CI builds and uploads the Windows/Linux packages. Publishing a Release requires explicit review of its update notes; the old GitHub workflows are retained for reference. Release notes are in `docs/releases/`.
 
-Report SAUMCL issues at [Supaio/SAUMCL/issues](https://github.com/Supaio/SAUMCL/issues).
+Report SAUMCL issues at [Supaio/SAUMCL/issues](https://gitlab.com/Supaio/saumcl/-/issues).
 
 ## Upstream and license
 

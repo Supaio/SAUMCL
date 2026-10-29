@@ -3,23 +3,23 @@
   "rewards": [],
   "links": [
     {
-      "id": "saumcl-github",
+      "id": "saumcl-gitlab",
       "section": "sau",
       "kind": "website",
-      "name": "SAUMCL 项目 GitHub",
+      "name": "SAUMCL 项目 GitLab",
       "description": "项目源码、发行版本与问题反馈。",
       "groupNumber": "",
-      "url": "https://github.com/Supaio/SAUMCL",
+      "url": "https://gitlab.com/Supaio/saumcl",
       "enabled": true
     },
     {
-      "id": "supaio-github",
+      "id": "supaio-gitlab",
       "section": "sau",
       "kind": "website",
-      "name": "Supaio 的 GitHub",
-      "description": "SAUMCL 维护者的 GitHub 主页。",
+      "name": "Supaio 的 GitLab",
+      "description": "SAUMCL 维护者的 GitLab 主页。",
       "groupNumber": "",
-      "url": "https://github.com/Supaio",
+      "url": "https://gitlab.com/Supaio",
       "enabled": true
     },
     {

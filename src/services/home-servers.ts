@@ -6,9 +6,9 @@ import { InstanceService } from "@/services/instance";
 import { MaintenanceService } from "@/services/maintenance";
 import { parseCampusProfile } from "@/utils/home-servers";
 
-// The file will become available when this local 19.3 work is published.
+// Maintainers publish the shared school-server profile in this repository.
 export const CAMPUS_CONFIG_URL =
-  "https://raw.githubusercontent.com/Supaio/SAUMCL/main/public/campus-server.json";
+  "https://gitlab.com/Supaio/saumcl/-/raw/main/public/campus-server.json";
 const CONFIG_CACHE_KEY = "saumcl.campus.profile";
 
 export class HomeServersService {

@@ -1,0 +1,114 @@
+stages:
+  - verify
+  - build
+  - packages
+  - publish
+
+workflow:
+  rules:
+    - if: "$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH"
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api"'
+    - when: never
+
+variables:
+  NEXT_TELEMETRY_DISABLED: "1"
+  SJMCL_BUILD_TYPE: "test-build"
+  SJMCL_COMMIT_SHA: "$CI_COMMIT_SHA"
+
+verify:
+  stage: verify
+  image: node:24-bookworm
+  rules:
+    - if: '$RELEASE_ONLY == "true"'
+      when: never
+    - when: on_success
+  before_script:
+    - npm install --global pnpm@10.26.1
+    - pnpm install --frozen-lockfile
+  script:
+    - pnpm run version check
+    - pnpm eslint 'src/**/*.{js,jsx,ts,tsx}' 'scripts/qa/*.mjs' 'scripts/maintenance/*.js' 'scripts/release/*.js' --no-fix --max-warnings=0
+    - node scripts/locale/index.js diff en
+    - node scripts/locale/index.js diff zh-Hans
+    - node --experimental-strip-types --test scripts/qa/*regressions.mjs
+    - pnpm audit --registry=https://registry.npmjs.org --audit-level=high
+
+build:linux:
+  stage: build
+  image: node:24-bookworm
+  rules:
+    - if: '$RELEASE_ONLY != "true" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+  cache:
+    key:
+      files: [src-tauri/Cargo.lock]
+      prefix: linux
+    paths:
+      - .cache/cargo/registry/
+      - .cache/cargo/git/
+      - src-tauri/target/
+  before_script:
+    - apt-get update
+    - apt-get install -y --no-install-recommends libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf build-essential cmake pkg-config libssl-dev python3 curl ca-certificates
+    - export CARGO_HOME="$CI_PROJECT_DIR/.cache/cargo" RUSTUP_HOME="$CI_PROJECT_DIR/.cache/rustup"
+    - export PATH="$CARGO_HOME/bin:$PATH"
+    - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain stable
+    - rustup component add rustfmt
+    - npm install --global pnpm@10.26.1
+    - pnpm install --frozen-lockfile
+  script:
+    - cargo fmt --manifest-path src-tauri/Cargo.toml --all -- --check
+    - pnpm tauri build --features devtools --no-bundle -- --profile test-build --locked
+    - cargo test --manifest-path src-tauri/Cargo.toml --locked --lib launcher_config::helpers::updater::tests
+    - cargo test --manifest-path src-tauri/Cargo.toml --locked --test campus_regressions
+    - mkdir -p artifacts
+    - python3 scripts/release/bundle_portable_assets.py -p src-tauri/target/test-build -o SAUMCL-portable SAUMCL
+    - cp src-tauri/target/test-build/SAUMCL-portable artifacts/SAUMCL
+    - chmod +x artifacts/SAUMCL
+    - node scripts/release/gitlab-release.js upload artifacts/SAUMCL linux
+  artifacts:
+    paths: [artifacts/linux.json]
+    expire_in: 30 days
+
+build:windows:
+  stage: build
+  tags: [saas-windows-medium-amd64]
+  rules:
+    - if: '$RELEASE_ONLY != "true" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+  cache:
+    key:
+      files: [src-tauri/Cargo.lock]
+      prefix: windows
+    paths:
+      - .cache/cargo/registry/
+      - .cache/cargo/git/
+      - src-tauri/target/
+  script:
+    - "& ./scripts/ci/gitlab-windows.ps1"
+  artifacts:
+    paths: [artifacts/windows.json]
+    expire_in: 30 days
+
+prepare:packages:
+  stage: packages
+  image: node:24-bookworm
+  needs: [build:linux, build:windows]
+  rules:
+    - if: '$RELEASE_ONLY != "true" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+  script:
+    - node scripts/release/gitlab-release.js prepare
+  artifacts:
+    paths:
+      - artifacts/SHA256SUMS.txt
+      - artifacts/updates.json
+      - artifacts/release-build.json
+    expire_in: 30 days
+
+# Publishing is a separate, explicitly approved API-triggered pipeline.
+publish:release:
+  stage: publish
+  image: node:24-bookworm
+  rules:
+    - if: '$RELEASE_ONLY == "true" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+  script:
+    - node scripts/release/gitlab-release.js publish

@@ -1,6 +1,6 @@
 # 福利速递与社群友链（Indev 19.3）
 
-主页新增可移动、缩放并记忆布局的「福利速递」磁贴；左侧「社群友链」展示QQ群与网站卡片。没有自动审核通过的活动。友链按用户提供的内容分为两栏：第一栏为 SAUMCL 项目、Supaio 的 GitHub、四川农业大学 SAU 群、Oopz 语音和宣传网页；第二栏为 SUES、SWMU、SWUST、TYUT 大学群，按英文缩写排序。
+主页新增可移动、缩放并记忆布局的「福利速递」磁贴；左侧「社群友链」展示QQ群与网站卡片。没有自动审核通过的活动。友链按用户提供的内容分为两栏：第一栏为 SAUMCL 项目、Supaio 的 GitLab、四川农业大学 SAU 群、Oopz 语音和宣传网页；第二栏为 SUES、SWMU、SWUST、TYUT 大学群，按英文缩写排序。
 
 ## 收集和审核
 
@@ -20,9 +20,9 @@
 
 公开清单位于 `public/community.json`。19.3 已配置从自己仓库的统一静态地址读取审核后的清单：
 
-`https://raw.githubusercontent.com/Supaio/SAUMCL/main/public/community.json`
+`https://gitlab.com/Supaio/saumcl/-/raw/main/public/community.json`
 
-`src/services/community.ts` 中的 `COMMUNITY_FEED_URL` 指向上述地址。玩家端每15分钟刷新、返回可见页面时检查，可手动刷新，失败后读取缓存或随包清单。公开地址需要对应文件进入 main 分支后才能生效。导出文件本身不向其他玩家发布；尚未实现客户端直接上传，不在玩家客户端保存 GitHub 发布凭据。
+`src/services/community.ts` 中的 `COMMUNITY_FEED_URL` 指向上述地址。玩家端每15分钟刷新、返回可见页面时检查，可手动刷新，失败后读取缓存或随包清单。公开地址需要对应文件进入 main 分支后才能生效。导出文件本身不向其他玩家发布；尚未实现客户端直接上传，不在玩家客户端保存 GitLab 发布凭据。
 
 ## 友链
 
@@ -36,7 +36,7 @@
 
 ## 调研来源（2026-10-25）
 
-卡片图标使用随包文件：川农社群 Logo 由用户提供，SAUMCL Logo 沿用项目现有资源；作者头像取自 [Supaio 的 GitHub 头像](https://avatars.githubusercontent.com/u/145017690?v=4)，Oopz 图标取自[官网图标](https://staticcdn.oopz.cn/images/logo2.png)，宣传网页使用 [Chrome 官方图标](https://www.google.com/chrome/static/images/chrome-logo.svg)。这些图片随启动器打包，不依赖打开页面时联网加载。
+卡片图标使用随包文件：川农社群 Logo 由用户提供，SAUMCL Logo 沿用项目现有资源；作者头像取自 [Supaio 的 GitLab 头像](https://avatars.githubusercontent.com/u/145017690?v=4)，Oopz 图标取自[官网图标](https://staticcdn.oopz.cn/images/logo2.png)，宣传网页使用 [Chrome 官方图标](https://www.google.com/chrome/static/images/chrome-logo.svg)。这些图片随启动器打包，不依赖打开页面时联网加载。
 
 - [Minecraft Dungeons II Capes Promos](https://www.minecraft.net/en-us/article/minecraft-dungeons-ii-capes-promos)：Aurora 披风的观看活动截止和代码兑换截止不同，说明为何需要「仅限已有兑换码」状态；文中付费内容不能一并标作无条件免费。
 - [Camp Out Community Challenge](https://www.minecraft.net/en-us/article/camp-out-community-challenge)：包含 Java 皮肤与基岩版角色物品，需分辨适用版本及挑战、领取阶段。

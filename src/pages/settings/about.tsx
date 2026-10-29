@@ -21,6 +21,7 @@ import { useLauncherConfig } from "@/contexts/config";
 import { useSharedModals } from "@/contexts/shared-modal";
 import { useToast } from "@/contexts/toast";
 import { BuildType } from "@/enums/misc";
+import { isIndevLauncherVersion } from "@/utils/launcher-version";
 import { displayLauncherVersion, isValidSemanticVersion } from "@/utils/string";
 
 const AboutSettingsPage = () => {
@@ -70,8 +71,7 @@ const AboutSettingsPage = () => {
   }, [handleCheckLauncherUpdate, t, toast, closeToast, openSharedModal]);
 
   const avatarUserList = ["UNIkeEN", "xunying123", "SundayChen"];
-  const projectUrl =
-    "https://github.com/Supaio/SAUMCL/tree/codex/saumcl-development";
+  const projectUrl = "https://gitlab.com/Supaio/saumcl/-/tree/main";
 
   const aboutSettingGroups: OptionItemGroupProps[] = [
     {
@@ -87,7 +87,7 @@ const AboutSettingsPage = () => {
               </Text>
               {(basicInfo.buildType === BuildType.Release ||
                 (basicInfo.buildType === BuildType.TestBuild &&
-                  basicInfo.launcherVersion.endsWith("-indev"))) &&
+                  isIndevLauncherVersion(basicInfo.launcherVersion))) &&
                 isValidSemanticVersion(basicInfo.launcherVersion) && (
                   <Button
                     variant="subtle"
@@ -134,14 +134,14 @@ const AboutSettingsPage = () => {
               />
               <Text fontSize="xs-sm">Supaio</Text>
               <CommonIconButton
-                label="https://github.com/Supaio"
+                label="https://gitlab.com/Supaio"
                 icon="external"
                 withTooltip
                 tooltipPlacement="bottom-end"
                 size="xs"
                 h={18}
                 onClick={() => {
-                  openUrl("https://github.com/Supaio");
+                  openUrl("https://gitlab.com/Supaio");
                 }}
               />
             </HStack>
@@ -281,14 +281,14 @@ const AboutSettingsPage = () => {
           ),
           children: (
             <CommonIconButton
-              label="https://github.com/Supaio/SAUMCL/blob/codex/saumcl-development/LICENSE.EXTRA"
+              label="https://gitlab.com/Supaio/saumcl/-/blob/main/LICENSE.EXTRA"
               icon="external"
               withTooltip
               tooltipPlacement="bottom-end"
               size="xs"
               onClick={() => {
                 openUrl(
-                  "https://github.com/Supaio/SAUMCL/blob/codex/saumcl-development/LICENSE.EXTRA"
+                  "https://gitlab.com/Supaio/saumcl/-/blob/main/LICENSE.EXTRA"
                 );
               }}
             />

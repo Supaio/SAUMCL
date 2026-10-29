@@ -77,7 +77,7 @@
         },
         "userAgreement": {
           "title": "项目说明",
-          "url": "https://github.com/Supaio/SAUMCL/tree/codex/saumcl-development#project-status"
+          "url": "https://gitlab.com/Supaio/saumcl/-/tree/main#project-status"
         },
         "openSourceLicense": {
           "title": "开源协议",
@@ -1505,7 +1505,7 @@
         },
         "SAU": {
           "title": "SAU Minecraft",
-          "url": "https://github.com/Supaio/SAUMCL/tree/codex/saumcl-development"
+          "url": "https://gitlab.com/Supaio/saumcl/-/tree/main"
         }
       }
     },
@@ -1531,12 +1531,12 @@
       "settings": {
         "LauncherDocs": {
           "title": "SAUMCL README",
-          "url": "https://github.com/Supaio/SAUMCL/tree/codex/saumcl-development"
+          "url": "https://gitlab.com/Supaio/saumcl/-/tree/main"
         },
         "UserGroup": {
           "title": "SAUMCL 支持",
           "description": "通过本仓库反馈 SAUMCL 问题或提出功能建议。",
-          "url": "https://github.com/Supaio/SAUMCL/issues"
+          "url": "https://gitlab.com/Supaio/saumcl/-/issues"
         }
       }
     }
@@ -2012,7 +2012,7 @@
     "addressPlaceholder": "服务器地址，可附加 :端口",
     "noLoader": "原版 / 无模组加载器",
     "modpackDescription": "填写可直接下载的 Modrinth（.mrpack）或 MultiMC 客户端 ZIP 地址，每次发布客户端更新时更改整合包版本。可选择本地整合包读取版本并计算 SHA-256；玩家首次进入时自动安装，更新建立新实例，保留旧实例。",
-    "previewDescription": "核对即将导出的配置，尚未填完也可保存为草稿。上传 GitHub 仍需单独的仓库授权。",
+    "previewDescription": "核对即将导出的配置，尚未填完也可保存为草稿。上传 GitLab 仍需单独的仓库授权。",
     "tabs": {
       "server": "校服配置",
       "modpack": "整合包",
@@ -2067,7 +2067,7 @@
     "playerConfigUrl": "玩家统一配置地址",
     "copyConfigUrl": "复制配置地址",
     "configUrlCopied": "配置地址已复制",
-    "openConfigPage": "打开 GitHub 配置编辑页",
+    "openConfigPage": "打开 GitLab 配置编辑页",
     "publishInstructions": "先保存并导出 campus-server.json，再由有仓库权限的维护人员更新 Supaio/SAUMCL 的 main 分支 public/campus-server.json。玩家每分钟及手动刷新时读取；网络异常时回退到缓存。本机预览与导出不会自动发布。"
   },
   "ManageSkinModal": {
@@ -3339,9 +3339,9 @@
   },
   "StarUsModal": {
     "header": {
-      "title": "在 GitHub 为我们点亮星标"
+      "title": "在 GitLab 为我们点亮星标"
     },
-    "body": "如果您喜爱 SAUMCL，并希望支持我们，可以在 GitHub 为我们点一颗星吗？这个小小的动作对我们来说意义重大，能激励我们为您持续提供特性体验。",
+    "body": "如果您喜爱 SAUMCL，并希望支持我们，可以在 GitLab 为我们点一颗星吗？这个小小的动作对我们来说意义重大，能激励我们为您持续提供特性体验。",
     "button": {
       "later": "稍后",
       "starUs": "点亮星标"

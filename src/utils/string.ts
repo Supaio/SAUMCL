@@ -1,5 +1,6 @@
 import { t } from "i18next";
 import { BuildType } from "@/enums/misc";
+import { indevLauncherVersionLabel } from "@/utils/launcher-version";
 
 export const base64ImgSrc = (base64: string): string => {
   return `data:image/png;base64,${base64}`;
@@ -134,9 +135,8 @@ export const displayLauncherVersion = (info: {
   buildCommitSha: string;
   isPortable: boolean;
 }): string => {
-  if (info.launcherVersion.endsWith("-indev")) {
-    return `Indev ${info.launcherVersion.slice(0, -"-indev".length).replace(/\.0$/, "")}`;
-  }
+  const indevLabel = indevLauncherVersionLabel(info.launcherVersion);
+  if (indevLabel) return indevLabel;
   if (info.buildType !== BuildType.Release) {
     // non-release builds: show the commit short hash in parentheses when
     // available; local dev builds have no injected SHA, so no suffix then.
