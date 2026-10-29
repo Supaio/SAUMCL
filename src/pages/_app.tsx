@@ -23,6 +23,7 @@ import SettingsLayout from "@/layouts/settings-layout";
 import { localeResources } from "@/locales";
 import chakraExtendTheme from "@/styles/chakra-theme";
 import "@/styles/globals.css";
+import "@/styles/shadcn-preview.css";
 import { isProd } from "@/utils/env";
 import { setupLogger } from "@/utils/logging";
 

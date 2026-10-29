@@ -1,5 +1,7 @@
-import { Flex, VStack } from "@chakra-ui/react";
+import { Button, Flex, VStack } from "@chakra-ui/react";
+import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { HomeTileBoard } from "@/components/common/home-tile";
 import HomeWidgetContainer from "@/components/extension/home-widget-container";
 import HomeButtonGroup from "@/components/home-button-group";
@@ -10,6 +12,8 @@ import PlaytimeCalendarCard from "@/components/playtime-calendar-card";
 import { HOME_TILE_DEFINITIONS } from "@/models/home-tiles";
 
 const LaunchPage = () => {
+  const router = useRouter();
+  const { t } = useTranslation();
   const layoutRef = useRef<HTMLDivElement>(null);
   const [maxWidgetWidth, setMaxWidgetWidth] = useState<number>(550);
 
@@ -37,6 +41,13 @@ const LaunchPage = () => {
 
   return (
     <Flex ref={layoutRef} p={7} pt={1} h="100%" gap={6} direction="column">
+      <Button
+        size="xs"
+        alignSelf="flex-start"
+        onClick={() => void router.push("/standalone/ui-preview")}
+      >
+        {t("ShadcnPreview.try")}
+      </Button>
       <VStack
         align="stretch"
         spacing={4}

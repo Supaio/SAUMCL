@@ -1,0 +1,361 @@
+@import "tailwindcss/theme.css" layer(theme) prefix(tw);
+@import "tailwindcss/utilities.css" prefix(tw) source(none);
+@source "../components/ui";
+@source "../pages/standalone/ui-preview.tsx";
+
+@custom-variant dark (&:where(.chakra-ui-dark, .chakra-ui-dark *));
+
+@theme inline {
+  --color-background: var(--sp-background);
+  --color-foreground: var(--sp-foreground);
+  --color-card: var(--sp-card);
+  --color-card-foreground: var(--sp-foreground);
+  --color-primary: var(--sp-primary);
+  --color-primary-foreground: var(--sp-primary-foreground);
+  --color-secondary: var(--sp-secondary);
+  --color-secondary-foreground: var(--sp-foreground);
+  --color-muted: var(--sp-secondary);
+  --color-muted-foreground: var(--sp-muted);
+  --color-accent: var(--sp-accent);
+  --color-accent-foreground: var(--sp-primary);
+  --color-border: var(--sp-border);
+  --color-input: var(--sp-border);
+  --color-ring: var(--sp-primary);
+  --color-destructive: #dc2626;
+}
+
+/* Tailwind preflight is intentionally omitted so Chakra pages keep their reset. */
+:where(.saumcl-ui-preview *) {
+  box-sizing: border-box;
+  border-width: 0;
+  border-style: solid;
+  border-color: var(--sp-border);
+}
+
+.saumcl-ui-preview {
+  --sp-background: #f5f7fb;
+  --sp-foreground: #192231;
+  --sp-card: #fff;
+  --sp-primary: #2463eb;
+  --sp-primary-foreground: #fff;
+  --sp-secondary: #f0f3f8;
+  --sp-muted: #7b8798;
+  --sp-accent: #edf3ff;
+  --sp-border: #e4e9f0;
+  display: grid;
+  grid-template-columns: 190px minmax(0, 1fr);
+  height: 100%;
+  min-height: 0;
+  color: var(--sp-foreground);
+  background: var(--sp-background);
+  font-size: 13px;
+}
+
+.chakra-ui-dark .saumcl-ui-preview {
+  --sp-background: #141a24;
+  --sp-foreground: #e4ebf7;
+  --sp-card: #1b2330;
+  --sp-primary: #81b1ff;
+  --sp-primary-foreground: #11213b;
+  --sp-secondary: #242e3e;
+  --sp-muted: #9daac0;
+  --sp-accent: #25364f;
+  --sp-border: #303b4c;
+}
+
+.sp-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  padding: 24px 14px 18px;
+  border-right: 1px solid var(--sp-border);
+  background: var(--sp-card);
+}
+
+.sp-brand {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 0 10px;
+}
+
+.sp-brand strong {
+  display: block;
+  font-size: 19px;
+  letter-spacing: -0.6px;
+}
+
+.sp-brand span,
+.sp-sidebar-footer p {
+  color: var(--sp-muted);
+  font-size: 10px;
+  line-height: 1.8;
+}
+
+.sp-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.sp-nav [aria-current="page"] {
+  color: var(--sp-primary);
+  background: var(--sp-accent);
+}
+
+.sp-sidebar-footer {
+  margin-top: auto;
+}
+
+.sp-sidebar-footer p {
+  margin-top: 12px;
+  text-align: center;
+}
+
+.sp-main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+
+.sp-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 58px;
+  padding: 0 24px;
+  border-bottom: 1px solid var(--sp-border);
+  background: var(--sp-card);
+}
+
+.sp-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--sp-muted);
+  font-size: 12px;
+}
+
+.sp-breadcrumb strong {
+  color: var(--sp-foreground);
+  font-weight: 500;
+}
+
+.sp-toolbar,
+.sp-account,
+.sp-instance-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sp-workspace {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 18px;
+  min-width: 0;
+  min-height: 0;
+  padding: 22px 24px;
+}
+
+.sp-hero {
+  position: relative;
+  display: flex;
+  flex: 0 0 clamp(140px, 19vh, 200px);
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  overflow: hidden;
+  padding: 24px 28px;
+  border: 0;
+  background-color: #346a91;
+  background-image:
+    linear-gradient(90deg, rgba(20, 39, 65, 0.83), rgba(20, 39, 65, 0.14)),
+    url("/images/backgrounds/SAU-Xi-Marx.png");
+  background-position:
+    center,
+    center 42%;
+  background-size: cover;
+  color: #fff;
+}
+
+.sp-hero h1 {
+  margin: 12px 0 6px;
+  font-size: clamp(22px, 2.5vw, 32px);
+  font-weight: 650;
+  line-height: 1.25;
+  letter-spacing: -1px;
+}
+
+.sp-hero p {
+  color: #dce7f4;
+  font-size: 12px;
+}
+
+.sp-hero #home-date-quote {
+  padding: 0;
+  align-self: center;
+  color: #fff;
+}
+
+.sp-hero #home-current-date {
+  font-size: 20px;
+}
+
+.sp-hero #home-current-time {
+  font-size: 12px;
+}
+
+.sp-hero #home-minecraft-quote {
+  max-width: 260px;
+  margin-left: auto;
+  font-size: 11px;
+}
+
+.sp-section-title {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.sp-section-title span {
+  color: var(--sp-muted);
+  font-size: 11px;
+  font-weight: 400;
+}
+
+.sp-tiles {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+}
+
+.saumcl-ui-preview [data-home-tile] {
+  border: 1px solid var(--sp-border);
+  border-radius: 12px;
+  background-color: var(--sp-card) !important;
+  box-shadow: 0 1px 3px rgb(15 23 42 / 3%);
+  backdrop-filter: none;
+}
+
+.saumcl-ui-preview [data-home-tile] > .chakra-stack:first-child {
+  font-size: 13px;
+}
+
+.saumcl-ui-preview [data-home-tile] .secondary-text {
+  color: var(--sp-muted);
+}
+
+.sp-launch-bar {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  min-height: 84px;
+  padding: 16px 20px;
+}
+
+.sp-account-icon {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  place-items: center;
+  border: 1px solid var(--sp-border);
+  border-radius: 10px;
+  color: var(--sp-primary);
+  background: var(--sp-secondary);
+}
+
+.sp-account strong {
+  display: block;
+  max-width: 180px;
+  overflow: hidden;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sp-account p {
+  margin-top: 2px;
+  color: var(--sp-muted);
+  font-size: 11px;
+}
+
+.sp-instance-select {
+  width: clamp(150px, 20vw, 260px);
+  height: 38px;
+  padding: 0 28px 0 10px;
+  border: 1px solid var(--sp-border);
+  border-radius: 6px;
+  outline-color: var(--sp-primary);
+  color: var(--sp-foreground);
+  background: var(--sp-card);
+  font-size: 12px;
+}
+
+.sp-launch-button {
+  min-width: 138px;
+}
+
+@media (max-width: 1050px) {
+  .saumcl-ui-preview {
+    grid-template-columns: 72px minmax(0, 1fr);
+  }
+  .sp-brand {
+    justify-content: center;
+    padding: 0;
+  }
+  .sp-brand > div,
+  .sp-nav-label,
+  .sp-sidebar-footer p {
+    display: none;
+  }
+  .sp-sidebar {
+    padding: 20px 10px 14px;
+  }
+  .sp-nav button,
+  .sp-sidebar-footer button {
+    justify-content: center;
+    padding: 0;
+  }
+  .sp-hero #home-date-quote {
+    width: 220px;
+  }
+  .sp-hero h1 {
+    font-size: 23px;
+  }
+}
+
+@media (max-height: 720px) {
+  .sp-workspace {
+    gap: 12px;
+    padding: 14px 20px;
+  }
+  .sp-hero {
+    flex-basis: 126px;
+    padding: 16px 24px;
+  }
+  .sp-hero h1 {
+    margin-top: 8px;
+    font-size: 22px;
+  }
+  .sp-hero #home-minecraft-quote {
+    display: none;
+  }
+  .sp-launch-bar {
+    min-height: 70px;
+    padding: 12px 16px;
+  }
+}

@@ -3276,6 +3276,21 @@
       "about": "關於"
     }
   },
+  "ShadcnPreview": {
+    "addInstance": "新增實例",
+    "back": "返回原介面",
+    "brand": "四川农业大学",
+    "community": "四川农业大学玩家社群",
+    "greeting": "在川农，開啟你的方塊世界。",
+    "localPreview": "本機介面試用",
+    "navigation": "主導覽",
+    "preview": "介面預覽",
+    "subtitle": "從這裡出發，繼續你的下一段冒險。",
+    "switchAccount": "切換帳戶",
+    "tileHint": "拖動標題移動 · 拖動邊緣調整大小",
+    "try": "試用新介面",
+    "workspace": "我的工作臺"
+  },
   "SkinPreview": {
     "cape": "披風",
     "animation": {

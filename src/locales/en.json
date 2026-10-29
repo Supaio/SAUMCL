@@ -3276,6 +3276,21 @@
       "about": "About"
     }
   },
+  "ShadcnPreview": {
+    "addInstance": "Add instance",
+    "back": "Original interface",
+    "brand": "Sichuan Agricultural University",
+    "community": "SAU Minecraft community",
+    "greeting": "Your next adventure starts at SAU.",
+    "localPreview": "Local interface preview",
+    "navigation": "Main navigation",
+    "preview": "UI preview",
+    "subtitle": "A familiar world. A new adventure.",
+    "switchAccount": "Switch account",
+    "tileHint": "Drag titles to move · Drag edges to resize",
+    "try": "Try the new interface",
+    "workspace": "Your workspace"
+  },
   "SkinPreview": {
     "cape": "Cape",
     "animation": {
