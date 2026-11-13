@@ -31,6 +31,10 @@ use crate::instance::helpers::misc::{
   get_instance_game_config, get_instance_subdir_path_by_id, get_instance_subdir_paths,
   refresh_and_update_instances, unify_instance_name,
 };
+use crate::instance::helpers::modpack::curseforge::{
+  CurseForgeImport, CurseForgeImportState, CurseForgeImportStatus, CurseForgeManifest,
+  prism_executable, validate_instance_name,
+};
 use crate::instance::helpers::modpack::export::{
   ExportModpackOptions, build_export_bundle, create_modpack_zip, list_files,
   validate_export_options,
@@ -1088,13 +1092,13 @@ pub async fn create_instance(
     modpack_version,
     None,
     false,
+    None,
   )
   .await
   .map(|_| ())
 }
 
-// Campus setup awaits this exact download group and uses an isolated config.
-// The public create_instance command keeps its existing arguments and result.
+// The campus installer awaits this exact download group.
 pub(crate) async fn create_instance_with_options(
   app: AppHandle,
   directory: GameDirectory,
@@ -1110,9 +1114,11 @@ pub(crate) async fn create_instance_with_options(
   modpack_version: Option<String>,
   spec_game_config: Option<GameConfig>,
   force_auto_download_java: bool,
+  curseforge: Option<CurseForgeImport>,
 ) -> SJMCLResult<String> {
   let client = app.state::<reqwest::Client>();
-  let is_campus = spec_game_config.is_some();
+  let is_campus = spec_game_config.is_some() && curseforge.is_none();
+  let is_modpack = modpack_path.is_some() || curseforge.is_some();
   let launcher_config_state = app.state::<Mutex<LauncherConfig>>();
   // Get priority list
   let (priority_list, auto_download_java) = {
@@ -1125,7 +1131,19 @@ pub(crate) async fn create_instance_with_options(
 
   // Ensure the instance name is unique
   let version_path = directory.dir.join("versions").join(&name);
-  if version_path.exists() {
+  if let Some(pack) = &curseforge {
+    let versions = version_path
+      .parent()
+      .ok_or(InstanceError::InvalidSourcePath)?;
+    fs::create_dir_all(versions)?;
+    pack.validate_target(&versions.canonicalize()?.join(&name))?;
+    if let Err(error) = fs::create_dir(&version_path) {
+      if error.kind() == std::io::ErrorKind::AlreadyExists {
+        return Err(InstanceError::ConflictNameError.into());
+      }
+      return Err(error.into());
+    }
+  } else if version_path.exists() {
     return Err(InstanceError::ConflictNameError.into());
   }
 
@@ -1200,14 +1218,19 @@ pub(crate) async fn create_instance_with_options(
 
   // Read bundled modern-Java launch metadata before selecting/downloading Java
   // and planning libraries. GTNH's MultiMC patches are outside .minecraft/.
-  if let Some(modpack_path) = modpack_path.as_ref() {
+  if let Some(pack) = curseforge {
+    let destination = version_path.clone();
+    tauri::async_runtime::spawn_blocking(move || pack.copy_into(&destination))
+      .await
+      .map_err(|_| InstanceError::FileCopyFailed)??;
+  } else if let Some(modpack_path) = modpack_path.as_ref() {
     let file = fs::File::open(modpack_path).map_err(|_| InstanceError::FileNotFoundError)?;
     extract_overrides(&file, &version_path)?;
-    if game.id == "1.7.10" && mod_loader.loader_type == ModLoaderType::Forge {
-      let dirs = get_instance_subdir_paths(&app, &instance, &[&InstanceSubdirType::Libraries])
-        .ok_or(InstanceError::InstanceNotFoundByID)?;
-      prepare_lwjgl3ify(&version_path.join("mods"), &dirs[0], &mut version_info)?;
-    }
+  }
+  if is_modpack && game.id == "1.7.10" && mod_loader.loader_type == ModLoaderType::Forge {
+    let dirs = get_instance_subdir_paths(&app, &instance, &[&InstanceSubdirType::Libraries])
+      .ok_or(InstanceError::InstanceNotFoundByID)?;
+    prepare_lwjgl3ify(&version_path.join("mods"), &dirs[0], &mut version_info)?;
   }
 
   // auto download recommended java if needed
@@ -1271,7 +1294,7 @@ pub(crate) async fn create_instance_with_options(
 
   // When installing a modpack, skip auto-installing Fabric API / QFAPI to avoid
   // duplicates — the modpack manifest already specifies the exact version needed.
-  if modpack_path.is_some() {
+  if is_modpack {
     is_install_fabric_api = Some(false);
     is_install_qf_api = Some(false);
   }
@@ -1749,6 +1772,110 @@ pub async fn retrieve_modpack_meta_info(
   let path = PathBuf::from(path);
   let file = fs::File::open(&path).map_err(|_| InstanceError::FileNotFoundError)?;
   ModpackMetaInfo::from_archive(&app, &file).await
+}
+
+#[tauri::command]
+pub async fn check_curseforge_import(
+  app: AppHandle,
+  path: PathBuf,
+  source_directory: Option<PathBuf>,
+) -> SJMCLResult<CurseForgeImportStatus> {
+  tauri::async_runtime::spawn_blocking(move || {
+    let pack = CurseForgeImport::resolve(&app, path, source_directory.as_deref())?;
+    let (available_files, required_files) = pack.progress();
+    Ok(CurseForgeImportStatus {
+      available_files,
+      required_files,
+      prism_available: prism_executable(&app).is_some(),
+    })
+  })
+  .await
+  .map_err(|_| InstanceError::FileOperationError)?
+}
+
+#[tauri::command]
+pub fn open_curseforge_zip_in_prism(app: AppHandle, path: PathBuf) -> SJMCLResult<()> {
+  CurseForgeManifest::read(&path)?;
+  let prism = prism_executable(&app).ok_or(InstanceError::CurseForgePrismUnavailable)?;
+  let zip = path.canonicalize()?;
+  let mut command = std::process::Command::new(prism);
+  command.arg("--import").arg(zip);
+  #[cfg(target_os = "windows")]
+  {
+    use std::os::windows::process::CommandExt;
+    command.creation_flags(0x08000000); // CREATE_NO_WINDOW
+  }
+  command
+    .spawn()
+    .map_err(|_| InstanceError::CurseForgePrismUnavailable)?;
+  Ok(())
+}
+
+#[tauri::command]
+pub async fn install_curseforge_zip(
+  app: AppHandle,
+  path: PathBuf,
+  source_directory: Option<PathBuf>,
+  directory: GameDirectory,
+  name: String,
+  description: String,
+  icon_src: String,
+) -> SJMCLResult<()> {
+  validate_instance_name(&name)?;
+  let state = app.state::<CurseForgeImportState>();
+  let _guard = state
+    .0
+    .try_lock()
+    .map_err(|_| InstanceError::InstallationDuplicated)?;
+  let prepare_app = app.clone();
+  let pack = tauri::async_runtime::spawn_blocking(move || {
+    let pack = CurseForgeImport::resolve(&prepare_app, path, source_directory.as_deref())?;
+    let (found, required) = pack.progress();
+    if found != required {
+      return Err(InstanceError::CurseForgeFilesMissing.into());
+    }
+    Ok::<_, sjmcl_types::error::SJMCLError>(pack)
+  })
+  .await
+  .map_err(|_| InstanceError::FileOperationError)??;
+  let metadata = pack.meta_info()?;
+  let loader = if let Some(loader) = metadata.mod_loader {
+    loader
+      .with_branch(&app, metadata.client_version.clone())
+      .await?
+  } else {
+    ModLoader::default()
+  };
+  let game =
+    crate::resource::commands::fetch_game_version_specific(app.clone(), metadata.client_version)
+      .await?;
+  let mut config = get_global_game_config(&app);
+  config.version_isolation = true;
+  config.game_java.auto = true;
+  create_instance_with_options(
+    app.clone(),
+    directory,
+    name,
+    description,
+    icon_src,
+    game,
+    ModLoaderResourceInfo {
+      loader_type: loader.loader_type,
+      version: loader.version,
+      branch: loader.branch,
+      ..Default::default()
+    },
+    None,
+    None,
+    Some(false),
+    Some(false),
+    metadata.version,
+    Some(config),
+    true,
+    Some(pack),
+  )
+  .await
+  .map(|_| ())
 }
 
 #[tauri::command]

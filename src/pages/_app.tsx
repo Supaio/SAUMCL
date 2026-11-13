@@ -12,6 +12,7 @@ import { LauncherConfigContextProvider } from "@/contexts/config";
 import { CowDropProvider } from "@/contexts/cow-drop";
 import { ExtensionHostContextProvider } from "@/contexts/extension/host";
 import { GlobalDataContextProvider } from "@/contexts/global-data";
+import InterfaceThemeProvider from "@/contexts/interface-theme";
 import { RoutingHistoryContextProvider } from "@/contexts/routing-history";
 import { TaskContextProvider } from "@/contexts/task";
 import { ToastContextProvider } from "@/contexts/toast";
@@ -124,27 +125,32 @@ export default function App({ Component, pageProps }: AppProps) {
       <ToastContextProvider>
         <RoutingHistoryContextProvider>
           <LauncherConfigContextProvider>
-            <GlobalDataContextProvider>
-              <GuidedTourProvider>
-                <CowDropProvider>
-                  <SharedModalsProvider>
-                    <TaskContextProvider>
-                      <ExtensionHostContextProvider>
-                        <GlobalEventHandler>
-                          <MainLayout>
-                            <Fade key={router.pathname.split("/")[1] || ""} in>
-                              <SpecLayout>
-                                <Component {...pageProps} />
-                              </SpecLayout>
-                            </Fade>
-                          </MainLayout>
-                        </GlobalEventHandler>
-                      </ExtensionHostContextProvider>
-                    </TaskContextProvider>
-                  </SharedModalsProvider>
-                </CowDropProvider>
-              </GuidedTourProvider>
-            </GlobalDataContextProvider>
+            <InterfaceThemeProvider>
+              <GlobalDataContextProvider>
+                <GuidedTourProvider>
+                  <CowDropProvider>
+                    <SharedModalsProvider>
+                      <TaskContextProvider>
+                        <ExtensionHostContextProvider>
+                          <GlobalEventHandler>
+                            <MainLayout>
+                              <Fade
+                                key={router.pathname.split("/")[1] || ""}
+                                in
+                              >
+                                <SpecLayout>
+                                  <Component {...pageProps} />
+                                </SpecLayout>
+                              </Fade>
+                            </MainLayout>
+                          </GlobalEventHandler>
+                        </ExtensionHostContextProvider>
+                      </TaskContextProvider>
+                    </SharedModalsProvider>
+                  </CowDropProvider>
+                </GuidedTourProvider>
+              </GlobalDataContextProvider>
+            </InterfaceThemeProvider>
           </LauncherConfigContextProvider>
         </RoutingHistoryContextProvider>
       </ToastContextProvider>

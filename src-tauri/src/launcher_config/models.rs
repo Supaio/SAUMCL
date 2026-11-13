@@ -267,6 +267,10 @@ structstruck::strike! {
         pub use_liquid_glass_design: bool,
         #[default = "adaptive"]
         pub head_nav_style: String,
+        #[default = "a"]
+        pub launch_interface: String,
+          #[default = false]
+          pub cow_scene_collision: bool,
         #[default = false]
         pub show_home_globe: bool,
       },
@@ -448,3 +452,26 @@ pub enum LauncherConfigError {
 }
 
 impl std::error::Error for LauncherConfigError {}
+
+#[cfg(test)]
+mod tests {
+  use crate::launcher_config::models::LauncherConfig;
+
+  #[test]
+  fn legacy_config_defaults_to_a_and_selected_b_survives_serialization() {
+    let mut config: LauncherConfig = serde_json::from_value(serde_json::json!({
+      "appearance": { "theme": { "headNavStyle": "adaptive" } }
+    }))
+    .unwrap();
+    assert_eq!(config.appearance.theme.launch_interface, "a");
+    assert_eq!(config.appearance.theme.head_nav_style, "adaptive");
+    assert!(!config.appearance.theme.cow_scene_collision);
+    config.appearance.theme.launch_interface = "b".to_string();
+    config.appearance.theme.cow_scene_collision = true;
+    let saved = serde_json::to_value(&config).unwrap();
+    assert_eq!(saved["appearance"]["theme"]["launchInterface"], "b");
+    let restored: LauncherConfig = serde_json::from_value(saved).unwrap();
+    assert_eq!(restored.appearance.theme.launch_interface, "b");
+    assert!(restored.appearance.theme.cow_scene_collision);
+  }
+}

@@ -8,14 +8,20 @@ import keyTools from "../maintenance/keys.js";
 const { privateKey, publicKey } = generateKeyPairSync("rsa", {
   modulusLength: 2048,
 });
+const accountUuid = "01234567-89AB-4DEF-8ABC-0123456789AB";
 
-test("generated grant verifies offline without expiry, device or version bindings", () => {
-  const grant = keyTools.createGrant(privateKey, "测试维护人员");
+test("the signed grant binds the account UUID without expiry, device or version bindings", () => {
+  const grant = keyTools.createGrant(privateKey, "测试维护人员", accountUuid);
   const [header, payload, signature] = grant
     .slice("SAUMCL-MAINT-1.".length)
     .split(".");
   const claims = JSON.parse(Buffer.from(payload, "base64url").toString());
   assert.equal(claims.name, "测试维护人员");
+  assert.equal(claims.schema, 2);
+  assert.equal(
+    claims.accountUuid,
+    accountUuid.replaceAll("-", "").toLowerCase()
+  );
   assert.equal(claims.role, "maintainer");
   assert.equal(claims.aud, "saumcl-maintenance");
   assert.equal(claims.iss, "saumcl-maintainer");
@@ -41,7 +47,7 @@ test("generated grant verifies offline without expiry, device or version binding
     )
   );
   const altered = Buffer.from(
-    JSON.stringify({ ...claims, name: "改名" })
+    JSON.stringify({ ...claims, accountUuid: "1".repeat(32) })
   ).toString("base64url");
   assert.ok(
     !verify(
@@ -53,14 +59,35 @@ test("generated grant verifies offline without expiry, device or version binding
   );
 });
 
-test("each maintainer receives a distinct grant and invalid names are refused", () => {
+test("each maintainer receives a distinct grant and invalid names or UUIDs are refused", () => {
   const decode = (grant) =>
     JSON.parse(Buffer.from(grant.split(".")[2], "base64url").toString());
-  const first = decode(keyTools.createGrant(privateKey, "维护人员"));
-  const second = decode(keyTools.createGrant(privateKey, "维护人员"));
+  const first = decode(
+    keyTools.createGrant(privateKey, "维护人员", accountUuid)
+  );
+  const second = decode(
+    keyTools.createGrant(privateKey, "维护人员", accountUuid)
+  );
   assert.notEqual(first.sub, second.sub);
-  assert.throws(() => keyTools.createGrant(privateKey, " "));
-  assert.throws(() => keyTools.createGrant(privateKey, "牛".repeat(81)));
+  assert.throws(
+    () => keyTools.createGrant(privateKey, " ", accountUuid),
+    /名称/
+  );
+  assert.throws(
+    () => keyTools.createGrant(privateKey, "牛".repeat(81), accountUuid),
+    /名称/
+  );
+  for (const invalid of [
+    "",
+    "0".repeat(32),
+    "Maintainer",
+    "--" + accountUuid,
+  ]) {
+    assert.throws(
+      () => keyTools.createGrant(privateKey, "维护人员", invalid),
+      /UUID/
+    );
+  }
 });
 
 test("owner tool refuses to write private material or grants inside the repository", () => {

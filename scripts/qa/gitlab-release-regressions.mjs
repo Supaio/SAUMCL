@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
   buildGitlabFeed,
+  githubMirrorAssets,
   normalizeNotes,
   textHash,
   validateManifest,
@@ -22,7 +23,8 @@ const manifest = (name) => ({
 test("GitLab release names use the exact user-facing version order", () => {
   assert.equal(versionLabel(version), "Indev GL 19.3");
   assert.equal(versionLabel("19.3.1-indev.gl"), "Indev GL 19.3.1");
-  assert.throws(() => versionLabel("19.3.0-indev"));
+  assert.equal(versionLabel("19.4.0-indev"), "Indev 19.4");
+  assert.throws(() => versionLabel("19.4.0"));
 });
 
 test("the update feed uses permanent package URLs before a release tag exists", () => {
@@ -79,4 +81,56 @@ test("packages from another repository, commit, or version are rejected", () => 
 test("approval hashes compare normalized release notes exactly", () => {
   assert.equal(textHash(normalizeNotes("Notes\r\n")), textHash("Notes"));
   assert.notEqual(textHash("Notes"), textHash("Changed notes"));
+});
+
+test("the mirror accepts only verified binaries from the approved GitHub release", () => {
+  const mirrorVersion = "19.4.0-indev";
+  const tag = `v${mirrorVersion}`;
+  const notes = "Approved notes";
+  const release = {
+    tag_name: tag,
+    target_commitish: commit,
+    draft: false,
+    prerelease: false,
+    published_at: "2026-11-14T00:00:00Z",
+    body: `${notes}\r\n`,
+    assets: ["SAUMCL.exe", "SAUMCL"].map((name) => ({
+      name,
+      state: "uploaded",
+      size: 1234,
+      digest: `sha256:${"b".repeat(64)}`,
+      browser_download_url: `https://github.com/Supaio/SAUMCL/releases/download/${tag}/${name}`,
+    })),
+  };
+  assert.deepEqual(
+    githubMirrorAssets(release, mirrorVersion, notes, commit).map(
+      (asset) => asset.name
+    ),
+    ["SAUMCL.exe", "SAUMCL"]
+  );
+  for (const mutation of [
+    { draft: true },
+    { target_commitish: "c".repeat(40) },
+    { body: "Unapproved text" },
+    { assets: [release.assets[0]] },
+    { assets: [{ ...release.assets[0], digest: null }, release.assets[1]] },
+    {
+      assets: [
+        {
+          ...release.assets[0],
+          browser_download_url: "https://example.com/SAUMCL.exe",
+        },
+        release.assets[1],
+      ],
+    },
+  ]) {
+    assert.throws(() =>
+      githubMirrorAssets(
+        { ...release, ...mutation },
+        mirrorVersion,
+        notes,
+        commit
+      )
+    );
+  }
 });

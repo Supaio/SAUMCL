@@ -1,9 +1,12 @@
+import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useLauncherConfig } from "@/contexts/config";
 import { useCowDrop } from "@/contexts/cow-drop";
 import {
   COW_RADIUS,
   CowBody,
+  CowObstacle,
   MAX_COW_RADIUS,
   dropCow,
   getCowCapacity,
@@ -83,14 +86,16 @@ const drawCow = (
   ctx.restore();
 };
 
-const CowDropGame = ({
-  dropRequest,
-  topInset,
-}: {
-  dropRequest: number;
-  topInset: number;
-}) => {
+const CowDropGame = ({ dropRequest }: { dropRequest: number }) => {
   const { t } = useTranslation();
+  const { config } = useLauncherConfig();
+  const router = useRouter();
+  const sceneCollision =
+    config.appearance.theme.launchInterface === "a" &&
+    router.pathname === "/launch" &&
+    config.appearance.theme.cowSceneCollision;
+  const sceneCollisionRef = useRef(sceneCollision);
+  sceneCollisionRef.current = sceneCollision;
   const {
     cowCount,
     cowCapacity,
@@ -112,6 +117,8 @@ const CowDropGame = ({
   const lastRequestRef = useRef(dropRequest);
   const startAnimationRef = useRef<() => void>(() => {});
   const clearAnimationRef = useRef<() => void>(() => {});
+  const readObstaclesRef = useRef<() => CowObstacle[]>(() => []);
+  const refreshSceneRef = useRef<() => void>(() => {});
   const isFull = cowCapacity > 0 && cowCount >= cowCapacity;
 
   useEffect(() => {
@@ -128,6 +135,81 @@ const CowDropGame = ({
     const reducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)"
     ).matches;
+    let previousPanels = new Map<HTMLElement, CowObstacle[]>();
+    let previousPanelTime = 0;
+    let previousSceneCollision = sceneCollisionRef.current;
+
+    const readObstacles = () => {
+      const enabled = sceneCollisionRef.current;
+      if (previousSceneCollision !== enabled) previousPanels.clear();
+      previousSceneCollision = enabled;
+      const canvasRect = canvas.getBoundingClientRect();
+      const now = performance.now();
+      const elapsed = (now - previousPanelTime) / 1000;
+      const nextPanels = new Map<HTMLElement, CowObstacle[]>();
+      const obstacles: CowObstacle[] = [];
+      const selector = enabled
+        ? "[data-cow-obstacle], [data-cow-scene-obstacle]"
+        : "[data-cow-obstacle]";
+      for (const element of document.querySelectorAll<HTMLElement>(selector)) {
+        const style = getComputedStyle(element);
+        if (style.visibility === "hidden" || style.display === "none") continue;
+        const shape = element.dataset.cowSceneObstacle;
+        let rects: DOMRect[];
+        if (shape === "text") {
+          const range = document.createRange();
+          range.selectNodeContents(element);
+          rects = Array.from(range.getClientRects());
+        } else rects = [element.getBoundingClientRect()];
+        const panels = rects.flatMap((rect, index) => {
+          if (
+            rect.width <= 0 ||
+            rect.height <= 0 ||
+            rect.right <= canvasRect.left ||
+            rect.left >= canvasRect.right ||
+            rect.bottom <= canvasRect.top ||
+            rect.top >= canvasRect.bottom
+          )
+            return [];
+          const panel: CowObstacle = {
+            left: rect.left - canvasRect.left,
+            top: rect.top - canvasRect.top,
+            right: rect.right - canvasRect.left,
+            bottom: rect.bottom - canvasRect.top,
+            ...(shape === "circle" ? { shape: "circle" } : {}),
+            cornerRadius:
+              !enabled || shape === "text"
+                ? 0
+                : parseFloat(style.borderTopLeftRadius) || 0,
+          };
+          const previous = previousPanels.get(element)?.[index];
+          if (enabled && previous && elapsed > 0 && elapsed < 0.2) {
+            panel.vx = Math.max(
+              -300,
+              Math.min(
+                300,
+                (panel.left + panel.right - previous.left - previous.right) /
+                  (2 * elapsed)
+              )
+            );
+            panel.vy = Math.max(
+              -300,
+              Math.min(
+                300,
+                (panel.top + panel.bottom - previous.top - previous.bottom) /
+                  (2 * elapsed)
+              )
+            );
+          }
+          return [panel];
+        });
+        nextPanels.set(element, panels);
+        obstacles.push(...panels);
+      }
+      previousPanels = nextPanels;
+      previousPanelTime = now;
+      return obstacles;
+    };
 
     const draw = () => {
       const { width, height } = boundsRef.current;
@@ -194,9 +276,11 @@ const CowDropGame = ({
       canvas.width = Math.round(rect.width * ratio);
       canvas.height = Math.round(rect.height * ratio);
       ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
-      resizeCows(cowsRef.current, previous, next);
+      const obstacles = readObstacles();
+      const occupied = sceneCollisionRef.current ? obstacles : [];
+      resizeCows(cowsRef.current, previous, next, occupied);
       boundsRef.current = next;
-      setCowCapacity(getCowCapacity(rect.width, rect.height));
+      setCowCapacity(getCowCapacity(rect.width, rect.height, occupied));
       setCowCount(cowsRef.current.length);
       for (const cow of grayEffects.keys()) {
         if (!cowsRef.current.includes(cow)) grayEffects.delete(cow);
@@ -212,31 +296,23 @@ const CowDropGame = ({
       accumulator += lastTime ? Math.min((now - lastTime) / 1000, 1 / 20) : 0;
       lastTime = now;
       const { width, height } = boundsRef.current;
-      const canvasRect = canvas.getBoundingClientRect();
-      const obstacles = Array.from(
-        document.querySelectorAll<HTMLElement>("[data-cow-obstacle]")
-      ).flatMap((element) => {
-        const rect = element.getBoundingClientRect();
-        if (
-          rect.width <= 0 ||
-          rect.height <= 0 ||
-          rect.right <= canvasRect.left ||
-          rect.left >= canvasRect.right ||
-          rect.bottom <= canvasRect.top ||
-          rect.top >= canvasRect.bottom
+      const obstacles = readObstacles();
+      setCowCapacity(
+        getCowCapacity(
+          width,
+          height,
+          sceneCollisionRef.current ? obstacles : []
         )
-          return [];
-        return [
-          {
-            left: rect.left - canvasRect.left,
-            top: rect.top - canvasRect.top,
-            right: rect.right - canvasRect.left,
-            bottom: rect.bottom - canvasRect.top,
-          },
-        ];
-      });
+      );
       while (accumulator >= TIME_STEP) {
-        stepCowPhysics(cowsRef.current, width, height, TIME_STEP, obstacles);
+        stepCowPhysics(
+          cowsRef.current,
+          width,
+          height,
+          TIME_STEP,
+          obstacles,
+          sceneCollisionRef.current
+        );
         accumulator -= TIME_STEP;
       }
       draw();
@@ -273,6 +349,11 @@ const CowDropGame = ({
     };
     startAnimationRef.current = startAnimation;
     clearAnimationRef.current = clear;
+    readObstaclesRef.current = readObstacles;
+    refreshSceneRef.current = () => {
+      resize();
+      startAnimation();
+    };
     const observer = new ResizeObserver(resize);
     observer.observe(canvas);
     resize();
@@ -285,6 +366,8 @@ const CowDropGame = ({
       document.removeEventListener("visibilitychange", handleVisibilityChange);
       startAnimationRef.current = () => {};
       clearAnimationRef.current = () => {};
+      readObstaclesRef.current = () => [];
+      refreshSceneRef.current = () => {};
       cowsRef.current = [];
       grayEffects.clear();
       if (grayCelebrationTimerRef.current !== null)
@@ -296,13 +379,21 @@ const CowDropGame = ({
   }, [setCowCount, setCowCapacity, clearCows]);
 
   useEffect(() => {
+    refreshSceneRef.current();
+  }, [sceneCollision]);
+
+  useEffect(() => {
     const pending = dropRequest - lastRequestRef.current;
     lastRequestRef.current = dropRequest;
     const { width, height } = boundsRef.current;
+    const obstacles = sceneCollisionRef.current
+      ? readObstaclesRef.current()
+      : [];
+    setCowCapacity(getCowCapacity(width, height, obstacles));
     let grayAdded = 0;
     for (let i = 0; i < pending; i++) {
       const x = COW_RADIUS + Math.random() * (width - COW_RADIUS * 2);
-      if (!dropCow(cowsRef.current, x, width, height)) {
+      if (!dropCow(cowsRef.current, x, width, height, obstacles)) {
         break;
       }
       const cow = cowsRef.current[cowsRef.current.length - 1];
@@ -323,7 +414,7 @@ const CowDropGame = ({
     }
     setCowCount(cowsRef.current.length);
     startAnimationRef.current();
-  }, [dropRequest, setCowCount, recordGrayCows]);
+  }, [dropRequest, setCowCount, setCowCapacity, recordGrayCows]);
 
   useEffect(() => {
     clearAnimationRef.current();
@@ -334,13 +425,16 @@ const CowDropGame = ({
       <canvas
         ref={canvasRef}
         id="cow-drop-canvas"
+        data-scene-collision={sceneCollision}
+        data-cow-count={cowCount}
+        data-cow-capacity={cowCapacity}
         aria-hidden="true"
         style={{
-          position: "fixed",
-          top: topInset,
+          position: "absolute",
+          top: 0,
           left: 0,
           width: "100%",
-          height: `calc(100vh - ${topInset}px)`,
+          height: "100%",
           display: "block",
           pointerEvents: "none",
           zIndex: 20,
@@ -351,8 +445,8 @@ const CowDropGame = ({
           id="gray-cow-celebration"
           role="status"
           style={{
-            position: "fixed",
-            top: topInset + 16,
+            position: "absolute",
+            top: 16,
             left: "50%",
             transform: "translateX(-50%)",
             padding: "10px 20px",

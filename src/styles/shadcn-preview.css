@@ -1,7 +1,8 @@
 @import "tailwindcss/theme.css" layer(theme) prefix(tw);
 @import "tailwindcss/utilities.css" prefix(tw) source(none);
 @source "../components/ui";
-@source "../pages/standalone/ui-preview.tsx";
+@source "../components/launch-interface-b.tsx";
+@source "../layouts/application-frame.tsx";
 
 @custom-variant dark (&:where(.chakra-ui-dark, .chakra-ui-dark *));
 
@@ -32,6 +33,7 @@
   border-color: var(--sp-border);
 }
 
+body[data-saumcl-interface="b"],
 .saumcl-ui-preview {
   --sp-background: #f5f7fb;
   --sp-foreground: #192231;
@@ -39,9 +41,30 @@
   --sp-primary: #2463eb;
   --sp-primary-foreground: #fff;
   --sp-secondary: #f0f3f8;
-  --sp-muted: #7b8798;
+  --sp-muted: #64748b;
   --sp-accent: #edf3ff;
   --sp-border: #e4e9f0;
+}
+
+.saumcl-application-frame {
+  display: flex;
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+}
+
+.saumcl-classic-main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.saumcl-ui-preview {
   display: grid;
   grid-template-columns: 190px minmax(0, 1fr);
   height: 100%;
@@ -51,7 +74,8 @@
   font-size: 13px;
 }
 
-.chakra-ui-dark .saumcl-ui-preview {
+.chakra-ui-dark .saumcl-ui-preview,
+body.chakra-ui-dark[data-saumcl-interface="b"] {
   --sp-background: #141a24;
   --sp-foreground: #e4ebf7;
   --sp-card: #1b2330;
@@ -119,6 +143,74 @@
   min-height: 0;
 }
 
+.sp-update-dot {
+  width: 6px;
+  height: 6px;
+  margin-left: auto;
+  border-radius: 50%;
+  background: var(--sp-primary);
+}
+
+.sp-current-section {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+body[data-saumcl-interface="b"] .saumcl-ui-preview [data-b-page="true"] {
+  border: 0;
+  border-radius: 0;
+  background: var(--sp-background) !important;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+.saumcl-ui-preview [data-section-layout] {
+  grid-template-columns: clamp(160px, 18vw, 232px) minmax(0, 1fr);
+  gap: 0;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.saumcl-ui-preview [data-section-layout="single"] {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.saumcl-ui-preview [data-section-navigation] {
+  min-width: 0;
+  padding: 20px 14px;
+  border-right: 1px solid var(--sp-border);
+  background: var(--sp-card);
+}
+
+.saumcl-ui-preview [data-section-content] {
+  min-width: 0;
+  margin-left: 0;
+  padding: 22px 24px;
+}
+
+.saumcl-ui-preview [data-navigation-menu] button {
+  border-radius: 7px;
+}
+
+.saumcl-ui-preview [data-navigation-menu] button[data-selected="true"] {
+  color: var(--sp-primary) !important;
+  background: var(--sp-accent) !important;
+}
+
+.saumcl-ui-preview [data-navigation-menu] button[data-selected="false"]:hover {
+  background: var(--sp-secondary) !important;
+}
+
+body[data-saumcl-interface="b"] .secondary-text {
+  color: var(--sp-muted);
+}
+
+body[data-saumcl-interface="b"] ::-webkit-scrollbar-thumb {
+  border-radius: 8px;
+  background: var(--sp-border);
+}
+
 .sp-topbar {
   display: flex;
   align-items: center;
@@ -151,10 +243,30 @@
   gap: 10px;
 }
 
+.saumcl-ui-preview[data-cows="true"] {
+  grid-template-columns: 72px minmax(0, 1fr);
+}
+
+.saumcl-ui-preview[data-cows="true"] .sp-brand > div,
+.saumcl-ui-preview[data-cows="true"] .sp-nav-label,
+.saumcl-ui-preview[data-cows="true"] .sp-sidebar-footer p {
+  display: none;
+}
+
+.sp-topbar,
+.sp-toolbar {
+  flex-wrap: wrap;
+}
+
+.sp-toolbar {
+  padding-block: 8px;
+}
+
 .sp-workspace {
   display: flex;
   flex: 1;
   flex-direction: column;
+  height: 100%;
   gap: 18px;
   min-width: 0;
   min-height: 0;
@@ -335,6 +447,32 @@
   }
   .sp-hero h1 {
     font-size: 23px;
+  }
+}
+
+@media (max-width: 900px) {
+  .sp-topbar {
+    padding-inline: 16px;
+  }
+  .saumcl-ui-preview [data-section-layout] {
+    grid-template-columns: 154px minmax(0, 1fr);
+  }
+  .saumcl-ui-preview [data-section-layout="single"] {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .saumcl-ui-preview [data-section-navigation] {
+    padding: 16px 8px;
+  }
+  .saumcl-ui-preview [data-section-content] {
+    padding: 18px 16px;
+  }
+  .sp-launch-bar {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .sp-instance-actions {
+    justify-content: flex-end;
+    margin-left: auto;
   }
 }
 

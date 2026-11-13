@@ -3,10 +3,12 @@ import React, {
   useCallback,
   useContext,
   useEffect,
+  useRef,
   useState,
 } from "react";
 import { useLauncherConfig } from "@/contexts/config";
 import { useToast } from "@/contexts/toast";
+import { PlayerType } from "@/enums/account";
 import {
   GetStateFlag,
   useGetState,
@@ -17,6 +19,7 @@ import { InstanceSummary } from "@/models/instance/misc";
 import { GameClientResourceInfo } from "@/models/resource";
 import { AccountService } from "@/services/account";
 import { InstanceService } from "@/services/instance";
+import { MaintenanceService } from "@/services/maintenance";
 import { ResourceService } from "@/services/resource";
 
 interface GlobalDataContextType {
@@ -57,6 +60,11 @@ export const GlobalDataContextProvider: React.FC<{
 
   const [playerList, setPlayerList] = useState<Player[]>();
   const [selectedPlayer, setSelectedPlayer] = useState<Player>();
+  const activeMicrosoftUuid =
+    selectedPlayer?.playerType === PlayerType.Microsoft
+      ? selectedPlayer.uuid
+      : undefined;
+  const previousMicrosoftUuid = useRef<string>();
   const [instanceList, setInstanceList] = useState<InstanceSummary[]>();
   const [selectedInstance, setSelectedInstance] = useState<InstanceSummary>();
   const [authServerList, setAuthServerList] = useState<AuthServer[]>();
@@ -69,6 +77,12 @@ export const GlobalDataContextProvider: React.FC<{
       playerList?.find((player) => player.id === selectedPlayerId)
     );
   }, [playerList, config.states.shared.selectedPlayerId]);
+
+  useEffect(() => {
+    if (previousMicrosoftUuid.current === activeMicrosoftUuid) return;
+    previousMicrosoftUuid.current = activeMicrosoftUuid;
+    MaintenanceService.notifyAuthorizationChanged();
+  }, [activeMicrosoftUuid]);
 
   useEffect(() => {
     const selectedInstanceId = config.states.shared.selectedInstanceId;

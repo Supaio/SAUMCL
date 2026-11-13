@@ -313,6 +313,7 @@ export const HomeTile = ({
     <Card
       id={`${tileId}-card`}
       data-home-tile={tileId}
+      data-cow-scene-obstacle="rect"
       className={cardStyles["card-back"]}
       position="absolute"
       left={`${rect.x}px`}

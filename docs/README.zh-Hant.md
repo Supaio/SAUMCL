@@ -6,7 +6,7 @@
 
 ## 下載
 
-在 [Supaio/SAUMCL Releases](https://gitlab.com/Supaio/saumcl/-/releases) 下載 **Indev GL 19.3**。
+在 [GitHub Releases](https://github.com/Supaio/SAUMCL/releases/latest) 或 [GitLab Releases](https://gitlab.com/Supaio/saumcl/-/releases/permalink/latest) 下載 **Indev 19.4**。
 
 - Windows x64：`SAUMCL.exe`。
 - Linux x64：`SAUMCL`，執行前先執行 `chmod +x ./SAUMCL`。
@@ -20,7 +20,7 @@
 - 實例管理和 Modrinth 資源下載。
 - 簡體中文、繁體中文和英語。
 - SAUMCL 標識、校服背景和左側自適應導覽。
-- 從本倉庫的 Releases 檢查更新，包括更高版本的 Indev。
+- 從 GitHub 和 GitLab Releases 檢查更新，包括更高版本的 Indev。
 
 Microsoft 帳戶驗證仍沿用 SJMCL 的 OAuth 應用，登入面板與「關於」頁均已說明。智慧與擴充外掛功能暫時停用；校服停服期間尚未完成校服連線驗證。
 
@@ -37,7 +37,7 @@ pnpm tauri dev
 
 `main` 儲存目前 SAUMCL 基底，後續開發使用 `codex/gitlab-migration`。
 
-GitLab CI 负责 Windows／Linux 构建、检查与安装包上传。公开 Release 前须先审核发行说明；旧 GitHub 流程保留供参考。
+Windows／Linux 安裝檔統一建置，發行說明審核通過後同步發佈至 GitHub 和 GitLab。
 
 問題回報請提交至 [Supaio/SAUMCL/issues](https://gitlab.com/Supaio/saumcl/-/issues)。
 

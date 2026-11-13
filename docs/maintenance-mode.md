@@ -1,13 +1,13 @@
-# Indev 19.3 校服维护与客户端安装
+# 校服维护与客户端安装
 
-玩家和维护人员使用同一个 SAUMCL。入口在「设置 → 校服维护」，维护人员粘贴 Key 或导入 `.saumclkey` 文件后解锁。
+玩家和维护人员使用同一个 SAUMCL。一次 Microsoft 正版登录同时用于 SAUMCL 和 Minecraft Java 版。维护人员登录后，在「账户 → 绑定维护 Key」粘贴 Key 或导入 `.saumclkey` 文件。之后在本机选中该账号会自动恢复维护权限。
 
 ## 已确定的授权规则
 
-- 每名维护人员独立签发，默认长期有效，不设到期时间。
-- 不绑定校服版本、整合包版本、启动器版本、电脑或当前维护人员名单。
-- 校服升级、人员交接时，旧 Key 继续有效；后续构建须保留已使用的公钥及格式验证逻辑。
-- 「退出维护模式」只删除本机授权，不使原 Key 作废；重新输入即可恢复。
+- 只有项目所有者持有签发私钥。每个 Key 包含目标 Minecraft 正版账号的 UUID，其他账号导入该文件时会被拒绝。
+- 绑定账号后的 Key 长期有效，适用于校服升级、整合包更新和人员交接。换电脑时用同一账号登录，再导入原 Key。
+- Key 的签名在本机校验。每次启动后首次使用维护权限，以及 Microsoft 登录凭据更新后，需要联网确认账号，已有的 Microsoft 登录通常会自动完成验证。
+- 「解绑本机 Key」删除当前账号在这台电脑的绑定。重新导入对应 Key 即可恢复。
 - 公钥清单支持追加。增加新签名公钥时保留旧项，不覆盖或自动删除旧项。
 - Key 只开放本地维护工具；GitLab 写入与公开发布仍需仓库权限。
 
@@ -52,7 +52,7 @@
 
 Indev 19.3 在用户明确要求上传前只在本地开发与验证，不推送源码、标签、配置、构建产物或远端草稿。
 
-授权保存在应用数据目录的 `maintenance/authorization.saumclkey`，草稿在同目录的 `campus-draft.json`。授权不写入普通启动器配置，避免配置分享或便携包分发时带上授权。草稿导出不包含授权、签名私钥、GitLab 凭证。
+各账号的授权保存在应用数据目录的 `maintenance/authorizations/<UUID>.saumclkey`。维护草稿仍在原来的 `maintenance/campus-draft.json`。普通启动器配置和草稿导出仅包含各自的配置数据。
 
 ## 本机签发工具
 
@@ -74,11 +74,13 @@ node scripts/maintenance/keys.js init --dir "F:\SAUMCL-owner"
 
 ### 为维护人员签发
 
+请维护人员在「账户」页选中正确的 Microsoft 正版账号，点击「复制 UUID」并把 UUID 发给项目所有者。
+
 ```powershell
-node scripts/maintenance/keys.js issue --private-key "F:\SAUMCL-owner\maintenance-private.pem" --name "维护人员名称" --out "F:\SAUMCL-owner\maintainer.saumclkey"
+node scripts/maintenance/keys.js issue --private-key "F:\SAUMCL-owner\maintenance-private.pem" --name "维护人员名称" --uuid "<Minecraft UUID>" --out "F:\SAUMCL-owner\maintainer.saumclkey"
 ```
 
-只将对应的 `.saumclkey` 文件发给维护人员，他们可在维护页直接导入。不要分发私钥或口令。工具不会把授权内容打印到终端。
+把生成的 `.saumclkey` 文件交给该账号的维护人员。私钥和口令由项目所有者保管。旧版未写入 UUID 的 Key 需要用同一签发私钥重新签发一次。
 
 ## 验证
 
@@ -88,8 +90,6 @@ cargo test --manifest-path src-tauri/Cargo.toml --locked --test maintenance_regr
 cargo test --manifest-path src-tauri/Cargo.toml --locked --test campus_regressions
 ```
 
-测试临时在内存生成签名材料，不使用生产私钥。覆盖长期授权、错误用途、篡改签名、追加公钥兼容、重启后验证、本机退出、未授权时拒绝草稿操作、导出内容不含授权等。
-
-离线 Key 可被转发，无法即时远程撤销；开源客户端也可能被改动来绕过入口。它用于正常客户端的维护模式识别，不承担仓库发布授权。
+测试使用临时签名材料，覆盖长期授权、错误用途、篡改签名、追加公钥、不同账号导入、重启后验证、解除本机绑定和未授权时拒绝草稿操作。
 
 实现参考：[jsonwebtoken 验证配置](https://docs.rs/jsonwebtoken/10.3.0/jsonwebtoken/struct.Validation.html)、[Node.js 签名模块](https://nodejs.org/api/crypto.html)。

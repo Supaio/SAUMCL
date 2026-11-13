@@ -6,7 +6,7 @@
 
 ## Download
 
-Download **Indev GL 19.3** from [Supaio/SAUMCL Releases](https://gitlab.com/Supaio/saumcl/-/releases).
+Download **Indev 19.4** from [GitHub Releases](https://github.com/Supaio/SAUMCL/releases/latest) or [GitLab Releases](https://gitlab.com/Supaio/saumcl/-/releases/permalink/latest).
 
 - Windows x64: `SAUMCL.exe`.
 - Linux x64: `SAUMCL`; run `chmod +x ./SAUMCL` before launching.
@@ -20,7 +20,7 @@ The welcome window and About page display the community usage reminder for SAU s
 - Instance management and Modrinth resource downloads.
 - Simplified Chinese, Traditional Chinese and English.
 - SAUMCL branding, the campus background and adaptive left navigation.
-- Update notifications from this repository's Releases, including newer Indev versions.
+- Update notifications from GitHub and GitLab Releases, including newer Indev versions.
 
 Microsoft authentication still uses SJMCL's OAuth application; the login panel and About page identify this. Intelligence and extension features are paused. School-server multiplayer validation is pending while the server is offline.
 
@@ -37,7 +37,7 @@ pnpm tauri dev
 
 `main` contains the current SAUMCL baseline. GitLab migration work uses `codex/gitlab-migration`; the shadcn/ui experiment remains on its own branch.
 
-Application code is in `src/` and `src-tauri/`; frontend assets are in `public/`. Build, localization and installation helpers are in `scripts/`. GitLab CI builds and uploads the Windows/Linux packages. Publishing a Release requires explicit review of its update notes; the old GitHub workflows are retained for reference. Release notes are in `docs/releases/`.
+Application code is in `src/` and `src-tauri/`; frontend assets are in `public/`. Build, localization and installation helpers are in `scripts/`. Windows and Linux packages are built once and published on both platforms after the release notes in `docs/releases/` are approved.
 
 Report SAUMCL issues at [Supaio/SAUMCL/issues](https://gitlab.com/Supaio/saumcl/-/issues).
 

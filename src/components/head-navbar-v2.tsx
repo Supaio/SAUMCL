@@ -214,6 +214,7 @@ const HeadNavBar = () => {
     >
       <AdvancedCard
         level="back"
+        data-cow-scene-obstacle="rect"
         w="100%"
         minH={0}
         p={2}

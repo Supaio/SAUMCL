@@ -1,19 +1,26 @@
-import { Button, Flex, VStack } from "@chakra-ui/react";
-import { useRouter } from "next/router";
+import { Flex, VStack } from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
 import { HomeTileBoard } from "@/components/common/home-tile";
 import HomeWidgetContainer from "@/components/extension/home-widget-container";
 import HomeButtonGroup from "@/components/home-button-group";
 import HomeDateQuote from "@/components/home-date-quote";
 import HomeRewardsCard from "@/components/home-rewards-card";
 import HomeServersCard from "@/components/home-servers-card";
+import LaunchInterfaceB from "@/components/launch-interface-b";
 import PlaytimeCalendarCard from "@/components/playtime-calendar-card";
+import { useLauncherConfig } from "@/contexts/config";
 import { HOME_TILE_DEFINITIONS } from "@/models/home-tiles";
 
 const LaunchPage = () => {
-  const router = useRouter();
-  const { t } = useTranslation();
+  const { config } = useLauncherConfig();
+  return config.appearance.theme.launchInterface === "b" ? (
+    <LaunchInterfaceB />
+  ) : (
+    <LaunchInterfaceA />
+  );
+};
+
+const LaunchInterfaceA = () => {
   const layoutRef = useRef<HTMLDivElement>(null);
   const [maxWidgetWidth, setMaxWidgetWidth] = useState<number>(550);
 
@@ -41,13 +48,6 @@ const LaunchPage = () => {
 
   return (
     <Flex ref={layoutRef} p={7} pt={1} h="100%" gap={6} direction="column">
-      <Button
-        size="xs"
-        alignSelf="flex-start"
-        onClick={() => void router.push("/standalone/ui-preview")}
-      >
-        {t("ShadcnPreview.try")}
-      </Button>
       <VStack
         align="stretch"
         spacing={4}

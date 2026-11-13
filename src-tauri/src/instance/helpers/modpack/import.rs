@@ -7,6 +7,7 @@ use std::path::Path;
 use tauri::AppHandle;
 use zip::ZipArchive;
 
+use crate::instance::helpers::modpack::curseforge::CurseForgeManifest;
 use crate::instance::helpers::modpack::modrinth::ModrinthManifest;
 use crate::instance::helpers::modpack::multimc::MultiMcManifest;
 use crate::instance::models::misc::{InstanceError, ModLoader, ModLoaderType};
@@ -84,6 +85,9 @@ impl ModpackMetaInfo {
       }
     }
 
+    if let Some(manifest) = CurseForgeManifest::from_archive(file)? {
+      return manifest.meta_info();
+    }
     Err(InstanceError::ModpackManifestParseError.into())
   }
 }
@@ -111,7 +115,13 @@ pub fn extract_overrides(file: &File, instance_path: &Path) -> SJMCLResult<()> {
     }
     None
   };
-  let overrides_path = get_overrides_path(file).ok_or(InstanceError::ModpackManifestParseError)?;
+  let overrides_path = get_overrides_path(file).ok_or_else(|| {
+    if CurseForgeManifest::is_archive(file) {
+      InstanceError::CurseForgeFilesMissing
+    } else {
+      InstanceError::ModpackManifestParseError
+    }
+  })?;
   let overrides_path = format!("{}/", overrides_path.trim_end_matches('/'));
   let mut archive = ZipArchive::new(file)?;
   let mut paths = vec![overrides_path];

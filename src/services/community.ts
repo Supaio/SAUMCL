@@ -4,8 +4,10 @@ import { CommunityDraft, CommunityFeed } from "@/models/community";
 import { parseCommunityFeed } from "@/utils/community";
 
 // Only reviewed public content is published to this shared static file.
-const COMMUNITY_FEED_URL =
-  "https://gitlab.com/Supaio/saumcl/-/raw/main/public/community.json";
+const COMMUNITY_FEED_URLS = [
+  "https://raw.githubusercontent.com/Supaio/SAUMCL/main/public/community.json",
+  "https://gitlab.com/Supaio/saumcl/-/raw/main/public/community.json",
+];
 const CACHE_KEY = "saumcl.community.feed";
 export const COMMUNITY_CHANGED_EVENT = "saumcl-community-changed";
 
@@ -40,9 +42,9 @@ export class CommunityService {
       await invoke("retrieve_community_preview").catch(() => null)
     );
     if (preview) return { feed: preview, preview: true, stale: false };
-    if (COMMUNITY_FEED_URL) {
+    for (const endpoint of COMMUNITY_FEED_URLS) {
       try {
-        const response = await nativeFetch(COMMUNITY_FEED_URL, {
+        const response = await nativeFetch(endpoint, {
           headers: { "User-Agent": "SAUMCL", "Cache-Control": "no-cache" },
           connectTimeout: 10000,
         });
@@ -56,19 +58,20 @@ export class CommunityService {
         }
         return { feed, preview: false, stale: false };
       } catch {
-        try {
-          const feed = parseCommunityFeed(
-            JSON.parse(localStorage.getItem(CACHE_KEY) || "null")
-          );
-          if (feed) return { feed, preview: false, stale: true };
-        } catch {
-          /* Use the bundled, reviewed list. */
-        }
+        // Try the other repository before falling back to the cache.
       }
+    }
+    try {
+      const feed = parseCommunityFeed(
+        JSON.parse(localStorage.getItem(CACHE_KEY) || "null")
+      );
+      if (feed) return { feed, preview: false, stale: true };
+    } catch {
+      /* Use the bundled, reviewed list. */
     }
     const response = await fetch("/community.json", { cache: "no-store" });
     const feed = parseCommunityFeed(await response.json());
     if (!response.ok || !feed) throw new Error("INVALID_COMMUNITY_FEED");
-    return { feed, preview: false, stale: Boolean(COMMUNITY_FEED_URL) };
+    return { feed, preview: false, stale: true };
   }
 }

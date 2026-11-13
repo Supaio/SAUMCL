@@ -28,6 +28,7 @@ import {
 import { GameServerInfo } from "@/models/instance/misc";
 import { CampusDraft } from "@/models/maintenance";
 import { HomeServersService } from "@/services/home-servers";
+import { CAMPUS_PREVIEW_CHANGED_EVENT } from "@/services/maintenance";
 import {
   buildHomeServers,
   campusInstanceCandidates,
@@ -67,6 +68,7 @@ const HomeServersCard = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [failed, setFailed] = useState(false);
   const [preview, setPreview] = useState(false);
+  const [previewRevision, setPreviewRevision] = useState(0);
   const [stale, setStale] = useState(false);
   const [incomplete, setIncomplete] = useState(false);
   const [picks, setPicks] = useState<Record<string, string>>({});
@@ -162,14 +164,25 @@ const HomeServersCard = () => {
     const handleVisible = () => {
       if (document.visibilityState === "visible") void refresh();
     };
+    const handlePreviewChanged = () => {
+      active = false;
+      setProfile(null);
+      setPreview(false);
+      setPreviewRevision((revision) => revision + 1);
+    };
     document.addEventListener("visibilitychange", handleVisible);
+    window.addEventListener(CAMPUS_PREVIEW_CHANGED_EVENT, handlePreviewChanged);
     return () => {
       active = false;
       clearInterval(timer);
       document.removeEventListener("visibilitychange", handleVisible);
+      window.removeEventListener(
+        CAMPUS_PREVIEW_CHANGED_EVENT,
+        handlePreviewChanged
+      );
       if (refreshRef.current === refresh) refreshRef.current = null;
     };
-  }, [instances]);
+  }, [instances, previewRevision]);
 
   const rows = profile ? buildHomeServers(profile, groups) : [];
   const campusCandidates = profile

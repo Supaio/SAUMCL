@@ -65,6 +65,7 @@ const HomeDateQuote = () => {
     >
       <Text
         id="home-current-date"
+        data-cow-scene-obstacle="text"
         as="time"
         display="block"
         dateTime={key || undefined}
@@ -77,6 +78,7 @@ const HomeDateQuote = () => {
       </Text>
       <Text
         id="home-current-time"
+        data-cow-scene-obstacle="text"
         as="time"
         display="block"
         dateTime={key && time ? `${key}T${time}+08:00` : undefined}
@@ -91,6 +93,7 @@ const HomeDateQuote = () => {
       </Text>
       <Text
         id="home-minecraft-quote"
+        data-cow-scene-obstacle="text"
         aria-label={t("HomeDateQuote.quote")}
         fontSize="sm"
         lineHeight="tall"

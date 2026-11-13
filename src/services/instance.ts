@@ -2,6 +2,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { InstanceSubdirType } from "@/enums/instance";
 import { GameConfig, GameDirectory } from "@/models/config";
 import {
+  CurseForgeImportStatus,
   ExportModpackOptions,
   GameServerInfo,
   InstanceSummary,
@@ -26,6 +27,35 @@ import { responseHandler } from "@/utils/response";
  * Service class for managing instances and its local resources.
  */
 export class InstanceService {
+  static checkCurseForgeImport(
+    path: string,
+    sourceDirectory?: string
+  ): Promise<CurseForgeImportStatus> {
+    return invoke("check_curseforge_import", { path, sourceDirectory });
+  }
+
+  static openCurseForgeZipInPrism(path: string): Promise<void> {
+    return invoke("open_curseforge_zip_in_prism", { path });
+  }
+
+  static installCurseForgeZip(
+    path: string,
+    sourceDirectory: string | undefined,
+    directory: GameDirectory,
+    name: string,
+    description: string,
+    iconSrc: string
+  ): Promise<void> {
+    return invoke("install_curseforge_zip", {
+      path,
+      sourceDirectory,
+      directory,
+      name,
+      description,
+      iconSrc,
+    });
+  }
+
   /**
    * RETRIEVE the list of local instances.
    * @returns {Promise<InvokeResponse<InstanceSummary[]>>}

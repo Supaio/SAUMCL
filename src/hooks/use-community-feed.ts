@@ -18,13 +18,15 @@ export function useCommunityFeed() {
     let active = true;
     let pending = false;
     let lastRefresh = 0;
+    let requestVersion = 0;
     const handleRefresh = async () => {
       if (pending || document.visibilityState === "hidden") return;
+      const version = ++requestVersion;
       pending = true;
       setLoading(true);
       try {
         const result = await CommunityService.retrieveFeed();
-        if (active) {
+        if (active && version === requestVersion) {
           setFeed(result.feed);
           setPreview(result.preview);
           setStale(result.stale);
@@ -32,10 +34,12 @@ export function useCommunityFeed() {
           lastRefresh = Date.now();
         }
       } catch {
-        if (active) setFailed(true);
+        if (active && version === requestVersion) setFailed(true);
       } finally {
-        pending = false;
-        if (active) setLoading(false);
+        if (version === requestVersion) {
+          pending = false;
+          if (active) setLoading(false);
+        }
       }
     };
     refreshRef.current = handleRefresh;
@@ -48,14 +52,22 @@ export function useCommunityFeed() {
       )
         void handleRefresh();
     };
+    const handleChanged = () => {
+      requestVersion += 1;
+      pending = false;
+      lastRefresh = 0;
+      setFeed(null);
+      setPreview(false);
+      void handleRefresh();
+    };
     document.addEventListener("visibilitychange", handleVisible);
-    window.addEventListener(COMMUNITY_CHANGED_EVENT, handleRefresh);
+    window.addEventListener(COMMUNITY_CHANGED_EVENT, handleChanged);
     return () => {
       active = false;
       refreshRef.current = null;
       clearInterval(timer);
       document.removeEventListener("visibilitychange", handleVisible);
-      window.removeEventListener(COMMUNITY_CHANGED_EVENT, handleRefresh);
+      window.removeEventListener(COMMUNITY_CHANGED_EVENT, handleChanged);
     };
   }, []);
 

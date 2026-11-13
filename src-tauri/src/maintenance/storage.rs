@@ -3,6 +3,7 @@ use std::fs;
 use std::io::ErrorKind;
 use std::path::{Path, PathBuf};
 use url::Url;
+use uuid::Uuid;
 
 use crate::maintenance::auth::{
   MAX_KEY_BYTES, MaintainerIdentity, MaintenanceError, TrustedKey, verify_key,
@@ -12,6 +13,7 @@ use crate::maintenance::auth::{
 #[serde(rename_all = "camelCase")]
 pub struct MaintenanceStatus {
   pub configured: bool,
+  pub account_uuid: Option<Uuid>,
   pub identity: Option<MaintainerIdentity>,
   pub invalid_saved_key: bool,
 }
@@ -138,51 +140,85 @@ impl CampusDraft {
 
 pub struct MaintenanceStore {
   pub(super) directory: PathBuf,
+  pub(super) account_uuid: Option<Uuid>,
   trusted_keys: Vec<TrustedKey>,
 }
 
 impl MaintenanceStore {
-  pub fn new(directory: PathBuf, trusted_keys: Vec<TrustedKey>) -> Self {
+  pub fn new(
+    directory: PathBuf,
+    trusted_keys: Vec<TrustedKey>,
+    account_uuid: Option<Uuid>,
+  ) -> Self {
     Self {
       directory,
+      account_uuid,
       trusted_keys,
     }
   }
 
-  fn key_path(&self) -> PathBuf {
-    self.directory.join("authorization.saumclkey")
+  fn key_path(&self) -> Result<PathBuf, MaintenanceError> {
+    let uuid = self
+      .account_uuid
+      .ok_or(MaintenanceError::MicrosoftAccountRequired)?;
+    Ok(
+      self
+        .directory
+        .join("authorizations")
+        .join(format!("{uuid}.saumclkey")),
+    )
+  }
+
+  fn verify_for_account(&self, key: &str) -> Result<MaintainerIdentity, MaintenanceError> {
+    let identity = verify_key(key, &self.trusted_keys)?;
+    if Some(identity.account_uuid) != self.account_uuid {
+      return Err(MaintenanceError::KeyAccountMismatch);
+    }
+    Ok(identity)
   }
 
   pub fn status(&self) -> Result<MaintenanceStatus, MaintenanceError> {
-    if let Ok(metadata) = fs::metadata(self.key_path())
+    let mut status = MaintenanceStatus {
+      configured: !self.trusted_keys.is_empty(),
+      account_uuid: self.account_uuid,
+      invalid_saved_key: false,
+      identity: None,
+    };
+    let Ok(path) = self.key_path() else {
+      return Ok(status);
+    };
+    if let Ok(metadata) = fs::metadata(&path)
       && metadata.len() > MAX_KEY_BYTES as u64
     {
-      return Ok(MaintenanceStatus {
-        configured: !self.trusted_keys.is_empty(),
-        identity: None,
-        invalid_saved_key: true,
-      });
+      status.invalid_saved_key = true;
+      return Ok(status);
     }
-    let saved = match fs::read_to_string(self.key_path()) {
+    let saved = match fs::read_to_string(path) {
       Ok(key) => Some(key),
       Err(error) if error.kind() == ErrorKind::NotFound => None,
       Err(error) if error.kind() == ErrorKind::InvalidData => Some(String::new()),
       Err(_) => return Err(MaintenanceError::StorageFailed),
     };
-    let identity = saved
+    status.identity = saved
       .as_deref()
-      .and_then(|key| verify_key(key, &self.trusted_keys).ok());
-    Ok(MaintenanceStatus {
-      configured: !self.trusted_keys.is_empty(),
-      invalid_saved_key: saved.is_some() && identity.is_none(),
-      identity,
-    })
+      .and_then(|key| self.verify_for_account(key).ok());
+    status.invalid_saved_key = saved.is_some() && status.identity.is_none();
+    Ok(status)
   }
 
   pub fn activate(&self, key: &str) -> Result<MaintainerIdentity, MaintenanceError> {
-    let identity = verify_key(key, &self.trusted_keys)?;
-    fs::create_dir_all(&self.directory).map_err(|_| MaintenanceError::StorageFailed)?;
-    fs::write(self.key_path(), key.trim()).map_err(|_| MaintenanceError::StorageFailed)?;
+    let path = self.key_path()?;
+    let identity = self.verify_for_account(key)?;
+    let parent = self.directory.join("authorizations");
+    fs::create_dir_all(&parent).map_err(|_| MaintenanceError::StorageFailed)?;
+    let temporary = parent.join(format!("{}.tmp", Uuid::new_v4()));
+    if fs::write(&temporary, key.trim())
+      .and_then(|_| fs::rename(&temporary, path))
+      .is_err()
+    {
+      let _ = fs::remove_file(temporary);
+      return Err(MaintenanceError::StorageFailed);
+    }
     Ok(identity)
   }
 
@@ -199,7 +235,7 @@ impl MaintenanceStore {
   }
 
   pub fn deactivate(&self) -> Result<(), MaintenanceError> {
-    match fs::remove_file(self.key_path()) {
+    match fs::remove_file(self.key_path()?) {
       Ok(()) => Ok(()),
       Err(error) if error.kind() == ErrorKind::NotFound => Ok(()),
       Err(_) => Err(MaintenanceError::StorageFailed),
@@ -279,14 +315,14 @@ mod tests {
   use std::fs;
 
   use crate::maintenance::auth::MaintenanceError;
-  use crate::maintenance::auth::tests::{trusted_keys, valid_key};
+  use crate::maintenance::auth::tests::{account_uuid, trusted_keys, valid_key};
   use crate::maintenance::storage::{CampusDraft, MaintenanceStore};
 
   #[test]
   fn authorization_survives_restart_and_draft_changes_but_local_exit_locks_again() {
     let directory =
       std::env::temp_dir().join(format!("saumcl-maintenance-{}", uuid::Uuid::new_v4()));
-    let store = MaintenanceStore::new(directory.clone(), trusted_keys());
+    let store = MaintenanceStore::new(directory.clone(), trusted_keys(), Some(account_uuid()));
     assert!(matches!(
       store.load_draft(),
       Err(MaintenanceError::Unauthorized)
@@ -299,7 +335,7 @@ mod tests {
     assert!(!directory.exists());
     let key = valid_key();
     store.activate(&key).unwrap();
-    let restarted = MaintenanceStore::new(directory.clone(), trusted_keys());
+    let restarted = MaintenanceStore::new(directory.clone(), trusted_keys(), Some(account_uuid()));
     assert!(restarted.status().unwrap().identity.is_some());
     let mut draft = restarted.load_draft().unwrap();
     draft.minecraft_version = "1.7.10".to_string();
@@ -312,7 +348,7 @@ mod tests {
       "next-pack"
     );
     assert!(matches!(
-      restarted.export_draft(&draft, &directory.join("authorization.saumclkey")),
+      restarted.export_draft(&draft, &restarted.key_path().unwrap()),
       Err(MaintenanceError::InvalidDraft)
     ));
     let export = directory.join("export.json");
@@ -337,24 +373,62 @@ mod tests {
   }
 
   #[test]
+  fn switching_accounts_hides_maintenance_and_forwarded_keys_cannot_unlock_it() {
+    let directory =
+      std::env::temp_dir().join(format!("saumcl-maintenance-{}", uuid::Uuid::new_v4()));
+    let maintainer = MaintenanceStore::new(directory.clone(), trusted_keys(), Some(account_uuid()));
+    let player = MaintenanceStore::new(
+      directory.clone(),
+      trusted_keys(),
+      Some(uuid::Uuid::new_v4()),
+    );
+    let signed_out = MaintenanceStore::new(directory.clone(), trusted_keys(), None);
+    let key = valid_key();
+    assert!(matches!(
+      signed_out.activate(&key),
+      Err(MaintenanceError::MicrosoftAccountRequired)
+    ));
+    assert!(matches!(
+      player.activate(&key),
+      Err(MaintenanceError::KeyAccountMismatch)
+    ));
+    assert!(!directory.exists());
+    maintainer.activate(&key).unwrap();
+    maintainer.apply_preview(&CampusDraft::default()).unwrap();
+    fs::copy(maintainer.key_path().unwrap(), player.key_path().unwrap()).unwrap();
+    assert!(player.status().unwrap().invalid_saved_key);
+    assert!(player.load_preview().unwrap().is_none());
+    assert!(signed_out.load_preview().unwrap().is_none());
+    assert!(matches!(
+      player.load_draft(),
+      Err(MaintenanceError::Unauthorized)
+    ));
+    player.deactivate().unwrap();
+    assert!(maintainer.status().unwrap().identity.is_some());
+    assert!(maintainer.load_preview().unwrap().is_some());
+    fs::remove_dir_all(&directory).unwrap();
+  }
+
+  #[test]
   fn tampering_with_saved_grant_locks_all_maintenance_operations() {
     let directory =
       std::env::temp_dir().join(format!("saumcl-maintenance-{}", uuid::Uuid::new_v4()));
-    let store = MaintenanceStore::new(directory.clone(), trusted_keys());
+    let store = MaintenanceStore::new(directory.clone(), trusted_keys(), Some(account_uuid()));
     store.activate(&valid_key()).unwrap();
-    fs::write(directory.join("authorization.saumclkey"), "invalid").unwrap();
+    let path = store.key_path().unwrap();
+    fs::write(&path, "invalid").unwrap();
     assert!(store.status().unwrap().invalid_saved_key);
     assert!(matches!(
       store.load_draft(),
       Err(MaintenanceError::Unauthorized)
     ));
     fs::write(
-      directory.join("authorization.saumclkey"),
+      &path,
       vec![b'x'; crate::maintenance::auth::MAX_KEY_BYTES + 1],
     )
     .unwrap();
     assert!(store.status().unwrap().invalid_saved_key);
-    fs::write(directory.join("authorization.saumclkey"), [0xff]).unwrap();
+    fs::write(&path, [0xff]).unwrap();
     assert!(store.status().unwrap().invalid_saved_key);
     fs::remove_dir_all(&directory).unwrap();
   }

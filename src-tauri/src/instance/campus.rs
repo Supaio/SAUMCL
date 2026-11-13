@@ -323,6 +323,7 @@ async fn install_client(
     Some(profile.modpack_version.clone()),
     Some(game_config),
     true,
+    None,
   )
   .await
   .map_err(|_| "INSTALL_FAILED")?;
@@ -518,20 +519,35 @@ pub fn cancel_campus_install(app: AppHandle, request_id: String) {
 pub async fn retrieve_shared_campus_config(app: AppHandle) -> Result<CampusDraft, String> {
   // Use the same User-Agent and download proxy as pack / Java downloads.
   let client = app.state::<reqwest::Client>().inner().clone();
-  let response = client
-    .get("https://gitlab.com/Supaio/saumcl/-/raw/main/public/campus-server.json")
-    .header("Cache-Control", "no-cache")
-    .send()
-    .await
-    .map_err(|_| "CONFIG_FETCH_FAILED")?;
-  if !response.status().is_success() {
-    return Err("CONFIG_FETCH_FAILED".into());
+  for endpoint in [
+    "https://raw.githubusercontent.com/Supaio/SAUMCL/main/public/campus-server.json",
+    "https://gitlab.com/Supaio/saumcl/-/raw/main/public/campus-server.json",
+  ] {
+    let result = async {
+      let response = client
+        .get(endpoint)
+        .header("User-Agent", "SAUMCL")
+        .header("Cache-Control", "no-cache")
+        .timeout(Duration::from_secs(10))
+        .send()
+        .await
+        .map_err(|_| "CONFIG_FETCH_FAILED")?;
+      if !response.status().is_success() {
+        return Err("CONFIG_FETCH_FAILED");
+      }
+      let bytes = response.bytes().await.map_err(|_| "CONFIG_FETCH_FAILED")?;
+      if bytes.len() > 64 * 1024 {
+        return Err("INVALID_CAMPUS_CONFIG");
+      }
+      let profile: CampusDraft =
+        serde_json::from_slice(&bytes).map_err(|_| "INVALID_CAMPUS_CONFIG")?;
+      profile.validate().map_err(|_| "INVALID_CAMPUS_CONFIG")?;
+      Ok(profile)
+    }
+    .await;
+    if let Ok(profile) = result {
+      return Ok(profile);
+    }
   }
-  let bytes = response.bytes().await.map_err(|_| "CONFIG_FETCH_FAILED")?;
-  if bytes.len() > 64 * 1024 {
-    return Err("INVALID_CAMPUS_CONFIG".into());
-  }
-  let profile: CampusDraft = serde_json::from_slice(&bytes).map_err(|_| "INVALID_CAMPUS_CONFIG")?;
-  profile.validate().map_err(|_| "INVALID_CAMPUS_CONFIG")?;
-  Ok(profile)
+  Err("CONFIG_FETCH_FAILED".into())
 }

@@ -99,6 +99,8 @@ export interface LauncherConfig {
       colorMode: "light" | "dark" | "system";
       useLiquidGlassDesign: boolean;
       headNavStyle: "standard" | "simplified" | "adaptive";
+      launchInterface: "a" | "b";
+      cowSceneCollision: boolean;
       showHomeGlobe: boolean;
     };
     font: {
@@ -291,6 +293,8 @@ export const defaultConfig: LauncherConfig = {
       colorMode: "light",
       useLiquidGlassDesign: false,
       headNavStyle: "adaptive",
+      launchInterface: "a",
+      cowSceneCollision: false,
       showHomeGlobe: false,
     },
     font: {

@@ -23,10 +23,19 @@ function keyId(publicKey) {
     .digest("hex");
 }
 
-function createGrant(privateKey, name) {
+function createGrant(privateKey, name, accountUuid) {
   const trimmed = name.trim();
   if (!trimmed || [...trimmed].length > 80) {
     throw new Error("维护人员名称须为 1–80 个字符。");
+  }
+  const uuid = accountUuid.trim();
+  if (
+    !/^(?:[0-9a-f]{32}|[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12})$/i.test(
+      uuid
+    ) ||
+    /^0{32}$/.test(uuid.replaceAll("-", ""))
+  ) {
+    throw new Error("请提供维护人员 Microsoft 正版角色的 Minecraft UUID。");
   }
   if (
     privateKey.asymmetricKeyType !== "rsa" ||
@@ -37,12 +46,13 @@ function createGrant(privateKey, name) {
   const publicKey = createPublicKey(privateKey);
   const header = { alg: "RS256", typ: "JWT", kid: keyId(publicKey) };
   const claims = {
-    schema: 1,
+    schema: 2,
     iss: "saumcl-maintainer",
     aud: "saumcl-maintenance",
     sub: randomUUID(),
     name: trimmed,
     role: "maintainer",
+    accountUuid: uuid.replaceAll("-", "").toLowerCase(),
   };
   const encode = (value) =>
     Buffer.from(JSON.stringify(value)).toString("base64url");
@@ -123,7 +133,9 @@ function readPassphrase(prompt) {
 async function main() {
   const [command, ...args] = process.argv.slice(2);
   const allowed =
-    command === "init" ? ["--dir"] : ["--private-key", "--name", "--out"];
+    command === "init"
+      ? ["--dir"]
+      : ["--private-key", "--name", "--uuid", "--out"];
   const options = {};
   for (let index = 0; index < args.length; index += 2) {
     const option = args[index];
@@ -175,6 +187,7 @@ async function main() {
     command === "issue" &&
     options["--private-key"] &&
     options["--name"] &&
+    options["--uuid"] &&
     options["--out"]
   ) {
     const privatePath = assertOutsideRepository(options["--private-key"]);
@@ -191,7 +204,7 @@ async function main() {
     } catch {
       throw new Error("无法打开私钥，请检查路径与保护口令。");
     }
-    const grant = createGrant(privateKey, options["--name"]);
+    const grant = createGrant(privateKey, options["--name"], options["--uuid"]);
     fs.writeFileSync(outputPath, grant, { flag: "wx", mode: 0o600 });
     console.log(
       "长期维护授权文件已生成，请只把该 .saumclkey 文件发给对应维护人员。"
@@ -202,7 +215,7 @@ async function main() {
     "初始化：node scripts/maintenance/keys.js init --dir <专案外的私钥目录>"
   );
   console.log(
-    "签发：node scripts/maintenance/keys.js issue --private-key <私钥文件> --name <维护人员名称> --out <授权文件.saumclkey>"
+    "签发：node scripts/maintenance/keys.js issue --private-key <私钥文件> --name <维护人员名称> --uuid <Minecraft UUID> --out <授权文件.saumclkey>"
   );
 }
 

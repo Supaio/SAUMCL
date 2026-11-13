@@ -3,6 +3,7 @@ use rsa::RsaPublicKey;
 use rsa::pkcs8::DecodePublicKey;
 use rsa::traits::PublicKeyParts;
 use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 
 const KEY_PREFIX: &str = "SAUMCL-MAINT-1.";
 pub const MAX_KEY_BYTES: usize = 8192;
@@ -19,6 +20,7 @@ pub struct TrustedKey {
 pub struct MaintainerIdentity {
   pub id: String,
   pub name: String,
+  pub account_uuid: Uuid,
 }
 
 #[derive(Deserialize)]
@@ -30,6 +32,8 @@ struct GrantClaims {
   sub: String,
   name: String,
   role: String,
+  #[serde(rename = "accountUuid")]
+  account_uuid: Option<Uuid>,
 }
 
 #[derive(Debug, PartialEq, Serialize)]
@@ -37,6 +41,10 @@ struct GrantClaims {
 pub enum MaintenanceError {
   NotConfigured,
   InvalidKey,
+  AccountBindingRequired,
+  KeyAccountMismatch,
+  MicrosoftAccountRequired,
+  MicrosoftVerificationFailed,
   Unauthorized,
   InvalidDraft,
   StorageFailed,
@@ -81,8 +89,7 @@ pub fn verify_key(
   let claims = decode::<GrantClaims>(token, &public_key, &validation)
     .map_err(|_| MaintenanceError::InvalidKey)?
     .claims;
-  if claims.schema != 1
-    || claims.iss != "saumcl-maintainer"
+  if claims.iss != "saumcl-maintainer"
     || claims.aud != "saumcl-maintenance"
     || claims.role != "maintainer"
     || claims.sub.trim().is_empty()
@@ -92,9 +99,15 @@ pub fn verify_key(
   {
     return Err(MaintenanceError::InvalidKey);
   }
+  let account_uuid = match (claims.schema, claims.account_uuid) {
+    (1, None) => return Err(MaintenanceError::AccountBindingRequired),
+    (2, Some(uuid)) if !uuid.is_nil() => uuid,
+    _ => return Err(MaintenanceError::InvalidKey),
+  };
   Ok(MaintainerIdentity {
     id: claims.sub,
     name: claims.name,
+    account_uuid,
   })
 }
 
@@ -110,6 +123,7 @@ pub(crate) mod tests {
   use serde_json::{Value, json};
   use sha2::Sha256;
   use std::sync::LazyLock;
+  use uuid::Uuid;
 
   use crate::maintenance::auth::{MaintenanceError, TrustedKey, verify_key};
 
@@ -130,14 +144,19 @@ pub(crate) mod tests {
     }]
   }
 
+  pub(crate) fn account_uuid() -> Uuid {
+    Uuid::from_u128(1)
+  }
+
   fn claims() -> Value {
     json!({
-      "schema": 1,
+      "schema": 2,
       "iss": "saumcl-maintainer",
       "aud": "saumcl-maintenance",
       "sub": "test-maintainer",
       "name": "测试维护人员",
-      "role": "maintainer"
+      "role": "maintainer",
+      "accountUuid": account_uuid().simple().to_string()
     })
   }
 
@@ -158,6 +177,18 @@ pub(crate) mod tests {
   fn permanent_grant_needs_no_expiration_or_game_launcher_version() {
     let grant = verify_key(&valid_key(), &trusted_keys()).unwrap();
     assert_eq!(grant.name, "测试维护人员");
+    assert_eq!(grant.account_uuid, account_uuid());
+  }
+
+  #[test]
+  fn legacy_grant_requires_owner_to_reissue_it_for_an_account() {
+    let mut claims = claims();
+    claims["schema"] = json!(1);
+    claims.as_object_mut().unwrap().remove("accountUuid");
+    assert!(matches!(
+      verify_key(&sign(&claims), &trusted_keys()),
+      Err(MaintenanceError::AccountBindingRequired)
+    ));
   }
 
   #[test]
@@ -195,7 +226,9 @@ pub(crate) mod tests {
       ("role", json!("player")),
       ("exp", json!(1)),
       ("name", json!("")),
-      ("schema", json!(2)),
+      ("schema", json!(3)),
+      ("accountUuid", json!(null)),
+      ("accountUuid", json!(Uuid::nil())),
     ] {
       let mut claims = claims();
       claims[field] = value;

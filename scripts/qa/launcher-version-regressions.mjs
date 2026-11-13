@@ -14,6 +14,7 @@ test("GitLab versions display the exact requested Indev GL order", () => {
 test("existing Indev version labels stay compatible", () => {
   assert.equal(indevLauncherVersionLabel("19.0.1-indev"), "Indev 19.0.1");
   assert.equal(indevLauncherVersionLabel("19.3.0-indev"), "Indev 19.3");
+  assert.equal(indevLauncherVersionLabel("19.4.0-indev"), "Indev 19.4");
 });
 
 test("release and unrelated development labels are not rebranded", () => {

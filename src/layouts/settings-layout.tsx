@@ -65,8 +65,13 @@ const SettingsLayout: React.FC<SettingsLayoutProps> = ({ children }) => {
     settingsPaths.find((path) => router.pathname.startsWith(path)) || "";
 
   return (
-    <Grid templateColumns="1fr 3fr" gap={4} h="100%">
-      <GridItem className="content-full-y">
+    <Grid
+      templateColumns="1fr 3fr"
+      gap={4}
+      h="100%"
+      data-section-layout="settings"
+    >
+      <GridItem className="content-full-y" data-section-navigation>
         <VStack align="stretch" spacing={4}>
           {settingsDomainList.map((group, index) => (
             <NavMenu
@@ -96,7 +101,11 @@ const SettingsLayout: React.FC<SettingsLayoutProps> = ({ children }) => {
           ))}
         </VStack>
       </GridItem>
-      <GridItem className="content-full-y" key={router.asPath}>
+      <GridItem
+        className="content-full-y"
+        key={router.asPath}
+        data-section-content
+      >
         <VStack align="stretch" spacing={4}>
           {children}
         </VStack>

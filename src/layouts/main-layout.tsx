@@ -25,10 +25,10 @@ import {
   LuScrollText,
 } from "react-icons/lu";
 import { BeatLoader } from "react-spinners";
+import AnnouncementBanner from "@/components/announcement-banner";
 import AdvancedCard from "@/components/common/advanced-card";
 import CowDropGame from "@/components/cow-drop-game";
 import DevToolbar from "@/components/dev/dev-toolbar";
-import HeadNavBar from "@/components/head-navbar-v2";
 import LanguageMenu from "@/components/language-menu";
 import StarUsModal from "@/components/modals/star-us-modal";
 import WelcomeAndTermsModal from "@/components/modals/welcome-and-terms-modal";
@@ -42,6 +42,7 @@ import { useLauncherConfig } from "@/contexts/config";
 import { useCowDrop } from "@/contexts/cow-drop";
 import { useExtensionHost } from "@/contexts/extension/host";
 import { useSharedModals } from "@/contexts/shared-modal";
+import ApplicationFrame from "@/layouts/application-frame";
 import { isDev } from "@/utils/env";
 import { isPausedFeatureRoute, launcherFeatures } from "@/utils/features";
 
@@ -381,19 +382,44 @@ const MainLayout = ({ children }: MainLayoutProps) => {
         hasCows={cowCount > 0}
         grayCowCount={grayCowCount}
       />
+      <AnnouncementBanner />
       <Box position="relative" display="flex" flex="1" flexDir="row" minH={0}>
         <FileDnDProvider>
           <MainLayoutFileDnD />
-          <HeadNavBar />
-          <Flex direction="column" flex="1" minW={0} minH={0} overflow="hidden">
-            {router.pathname === "/launch" ? (
-              <>{children}</>
-            ) : (
-              <AdvancedCard level="back" flex="1" overflow="auto" m={4}>
-                {children}
-              </AdvancedCard>
-            )}
-          </Flex>
+          <ApplicationFrame>
+            <Flex
+              direction="column"
+              flex="1"
+              minW={0}
+              minH={0}
+              overflow="hidden"
+            >
+              {router.pathname === "/launch" ? (
+                <>{children}</>
+              ) : (
+                <AdvancedCard
+                  level="back"
+                  flex="1"
+                  overflow={
+                    config.appearance.theme.launchInterface === "b" &&
+                    /^\/(settings|instances|discover|accounts)(\/|$)/.test(
+                      router.pathname
+                    )
+                      ? "hidden"
+                      : "auto"
+                  }
+                  m={config.appearance.theme.launchInterface === "b" ? 0 : 4}
+                  data-b-page={
+                    config.appearance.theme.launchInterface === "b"
+                      ? "true"
+                      : undefined
+                  }
+                >
+                  {children}
+                </AdvancedCard>
+              )}
+            </Flex>
+          </ApplicationFrame>
 
           <WelcomeAndTermsModal
             isOpen={isWelcomeAndTermsModalOpen}
@@ -406,10 +432,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
 
           {isDev && <DevToolbar />}
         </FileDnDProvider>
-        <CowDropGame
-          dropRequest={cowDropRequest}
-          topInset={config.basicInfo.osType === "windows" ? 32 : 28}
-        />
+        <CowDropGame dropRequest={cowDropRequest} />
       </Box>
     </Flex>
   );

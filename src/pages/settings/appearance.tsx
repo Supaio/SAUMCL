@@ -29,6 +29,7 @@ import {
   OptionItemGroupProps,
 } from "@/components/common/option-item";
 import SegmentedControl from "@/components/common/segmented";
+import LaunchInterfaceSwitch from "@/components/launch-interface-switch";
 import { useLauncherConfig } from "@/contexts/config";
 import { useToast } from "@/contexts/toast";
 import { ConfigService } from "@/services/config";
@@ -458,6 +459,35 @@ const AppearanceSettingsPage = () => {
         {
           title: t("AppearanceSettingsPage.theme.settings.headNavStyle.title"),
           children: <HeadNavStyleMenu />,
+        },
+        {
+          title: t("LaunchInterface.title"),
+          children: <LaunchInterfaceSwitch />,
+        },
+        {
+          title: t(
+            "AppearanceSettingsPage.theme.settings.cowSceneCollision.title"
+          ),
+          description: t(
+            "AppearanceSettingsPage.theme.settings.cowSceneCollision.description"
+          ),
+          children: (
+            <Switch
+              id="cow-scene-collision-switch"
+              aria-label={t(
+                "AppearanceSettingsPage.theme.settings.cowSceneCollision.title"
+              )}
+              colorScheme={primaryColor}
+              isChecked={appearanceConfigs.theme.cowSceneCollision}
+              isDisabled={appearanceConfigs.theme.launchInterface === "b"}
+              onChange={(event) =>
+                update(
+                  "appearance.theme.cowSceneCollision",
+                  event.target.checked
+                )
+              }
+            />
+          ),
         },
         {
           title: t("AppearanceSettingsPage.theme.settings.showHomeGlobe.title"),

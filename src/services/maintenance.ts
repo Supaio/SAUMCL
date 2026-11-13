@@ -5,6 +5,9 @@ import {
   MaintainerIdentity,
   MaintenanceStatus,
 } from "@/models/maintenance";
+import { COMMUNITY_CHANGED_EVENT } from "@/services/community";
+
+export const CAMPUS_PREVIEW_CHANGED_EVENT = "saumcl-campus-preview-changed";
 
 // Handle errors in the page without logging authorization input or file contents.
 export class MaintenanceService {
@@ -18,16 +21,32 @@ export class MaintenanceService {
     return invoke("retrieve_maintenance_status");
   }
 
-  static activateKey(key: string): Promise<MaintainerIdentity> {
-    return invoke("activate_maintenance_key", { key });
+  static async activateKey(key: string): Promise<MaintainerIdentity> {
+    const identity = await invoke<MaintainerIdentity>(
+      "activate_maintenance_key",
+      { key }
+    );
+    this.notifyAuthorizationChanged();
+    return identity;
   }
 
-  static importKey(path: string): Promise<MaintainerIdentity> {
-    return invoke("import_maintenance_key", { path });
+  static async importKey(path: string): Promise<MaintainerIdentity> {
+    const identity = await invoke<MaintainerIdentity>(
+      "import_maintenance_key",
+      { path }
+    );
+    this.notifyAuthorizationChanged();
+    return identity;
   }
 
-  static deactivate(): Promise<void> {
-    return invoke("deactivate_maintenance_mode");
+  static async deactivate(): Promise<void> {
+    await invoke("deactivate_maintenance_mode");
+    this.notifyAuthorizationChanged();
+  }
+
+  static notifyAuthorizationChanged(): void {
+    window.dispatchEvent(new Event(CAMPUS_PREVIEW_CHANGED_EVENT));
+    window.dispatchEvent(new Event(COMMUNITY_CHANGED_EVENT));
   }
 
   static retrieveDraft(): Promise<CampusDraft> {
@@ -42,8 +61,9 @@ export class MaintenanceService {
     return invoke("export_campus_draft", { draft, path });
   }
 
-  static applyPreview(draft: CampusDraft): Promise<void> {
-    return invoke("apply_campus_preview", { draft });
+  static async applyPreview(draft: CampusDraft): Promise<void> {
+    await invoke("apply_campus_preview", { draft });
+    window.dispatchEvent(new Event(CAMPUS_PREVIEW_CHANGED_EVENT));
   }
 
   static retrievePreview(): Promise<CampusDraft | null> {

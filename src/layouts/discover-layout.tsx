@@ -133,8 +133,13 @@ const DiscoverLayout: React.FC<{ children: React.ReactNode }> = ({
   const isAtHomePage = router.pathname === "/discover/home";
 
   return (
-    <Grid templateColumns="1fr 3fr" gap={4} h="100%">
-      <GridItem className="content-full-y">
+    <Grid
+      templateColumns="1fr 3fr"
+      gap={4}
+      h="100%"
+      data-section-layout="discover"
+    >
+      <GridItem className="content-full-y" data-section-navigation>
         <VStack align="stretch" spacing={4}>
           {discoverDomainList.map((group, index) => {
             const menuItems = createMenuItems(group);
@@ -161,6 +166,7 @@ const DiscoverLayout: React.FC<{ children: React.ReactNode }> = ({
       </GridItem>
       <GridItem
         className="content-full-y"
+        data-section-content
         key={router.asPath}
         ml={isAtHomePage ? -4 : 0}
       >

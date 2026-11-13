@@ -396,7 +396,7 @@ impl MaintenanceStore {
 mod tests {
   use crate::maintenance::auth::{
     MaintenanceError,
-    tests::{trusted_keys, valid_key},
+    tests::{account_uuid, trusted_keys, valid_key},
   };
   use crate::maintenance::community::{CommunityFeed, CommunityLink, reward_candidate};
   use crate::maintenance::storage::MaintenanceStore;
@@ -405,7 +405,11 @@ mod tests {
   #[test]
   fn inbox_requires_key_and_only_approved_content_is_exported() {
     let directory = std::env::temp_dir().join(format!("saumcl-community-{}", uuid::Uuid::new_v4()));
-    let store = MaintenanceStore::new(directory.join("private"), trusted_keys());
+    let store = MaintenanceStore::new(
+      directory.join("private"),
+      trusted_keys(),
+      Some(account_uuid()),
+    );
     assert!(matches!(
       store.load_community(),
       Err(MaintenanceError::Unauthorized)
@@ -493,7 +497,7 @@ mod tests {
         .is_ok()
     );
     let directory = std::env::temp_dir().join(format!("saumcl-review-{}", uuid::Uuid::new_v4()));
-    let store = MaintenanceStore::new(directory.clone(), trusted_keys());
+    let store = MaintenanceStore::new(directory.clone(), trusted_keys(), Some(account_uuid()));
     store.activate(&valid_key()).unwrap();
     let mut draft = store
       .merge_reward_candidates(vec![(

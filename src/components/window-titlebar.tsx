@@ -230,7 +230,11 @@ const WindowTitlebar = ({
     <Flex
       h={`${titlebarHeight}px`}
       minH={`${titlebarHeight}px`}
-      bg={titlebarBg}
+      bg={
+        config.appearance.theme.launchInterface === "b"
+          ? "chakra-body-bg"
+          : titlebarBg
+      }
       backdropFilter="blur(3px) saturate(140%)"
       borderBottom="1px solid"
       borderColor={titlebarBorderColor}

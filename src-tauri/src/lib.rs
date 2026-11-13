@@ -182,6 +182,9 @@ pub async fn run() {
         instance::commands::remove_mod_loader,
         instance::commands::remove_optifine,
         instance::commands::retrieve_modpack_meta_info,
+        instance::commands::check_curseforge_import,
+        instance::commands::open_curseforge_zip_in_prism,
+        instance::commands::install_curseforge_zip,
         instance::commands::add_custom_instance_icon,
         instance::commands::retrieve_exportable_file_list,
         instance::commands::export_modpack,
@@ -253,6 +256,7 @@ pub async fn run() {
 
         let account_info = AccountInfo::load().unwrap_or_default();
         app.manage(Mutex::new(account_info.clone()));
+        app.manage(maintenance::commands::VerifiedMaintenanceAccounts::default());
 
         // Migrate account info to new format
         // TODO: will be removed after the new migration utils crate implemented
@@ -281,6 +285,7 @@ pub async fn run() {
         let launching_queue = Vec::<LaunchingState>::new();
         app.manage(Mutex::new(launching_queue));
         app.manage(instance::campus::CampusInstallState::default());
+        app.manage(instance::helpers::modpack::curseforge::CurseForgeImportState::default());
 
         app.manage(PlaytimeState::new(
           APP_DATA_DIR.get().unwrap().join("playtime.json"),

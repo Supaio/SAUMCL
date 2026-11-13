@@ -1,17 +1,20 @@
 const fs = require("node:fs");
 const path = require("node:path");
 const crypto = require("node:crypto");
+const { pipeline } = require("node:stream/promises");
 
 const PROJECT_ID = "88266251";
 const PROJECT_URL = "https://gitlab.com/Supaio/saumcl";
 const API = `https://gitlab.com/api/v4/projects/${PROJECT_ID}`;
 const PACKAGE_BASE = `${API}/packages/generic/saumcl`;
 const ROOT = path.resolve(__dirname, "../..");
+const PLATFORM_FILES = ["SAUMCL.exe", "SAUMCL"];
+const GITHUB_PROJECT = "Supaio/SAUMCL";
 
 function versionLabel(version) {
-  const match = version.match(/^(\d+\.\d+\.\d+)-indev\.gl$/);
-  if (!match) throw new Error("A GitLab Indev version is required");
-  return `Indev GL ${match[1].replace(/\.0$/, "")}`;
+  const match = version.match(/^(\d+\.\d+\.\d+)-indev(\.gl)?$/);
+  if (!match) throw new Error("An Indev version is required");
+  return `Indev ${match[2] ? "GL " : ""}${match[1].replace(/\.0$/, "")}`;
 }
 
 const textHash = (text) =>
@@ -61,6 +64,44 @@ function buildGitlabFeed(version, notes, manifests, commit, publishedAt) {
   ];
 }
 
+function githubMirrorAssets(release, version, notes, commit) {
+  const tag = `v${version}`;
+  if (
+    release.tag_name !== tag ||
+    release.target_commitish !== commit ||
+    release.draft !== false ||
+    release.prerelease !== false ||
+    !release.published_at ||
+    typeof release.body !== "string" ||
+    normalizeNotes(release.body) !== notes
+  ) {
+    throw new Error(
+      "The GitHub release does not match the approved source and notes"
+    );
+  }
+
+  return PLATFORM_FILES.map((name) => {
+    const url = `https://github.com/${GITHUB_PROJECT}/releases/download/${tag}/${name}`;
+    const asset = release.assets?.find((value) => value.name === name);
+    if (
+      asset?.state !== "uploaded" ||
+      asset.browser_download_url !== url ||
+      !Number.isSafeInteger(asset.size) ||
+      asset.size <= 0 ||
+      !/^sha256:[a-f0-9]{64}$/.test(asset.digest || "")
+    ) {
+      throw new Error(`Verified GitHub asset is missing: ${name}`);
+    }
+    return { name, url, size: asset.size, sha256: asset.digest.slice(7) };
+  });
+}
+
+async function fileHash(filePath) {
+  const hash = crypto.createHash("sha256");
+  for await (const chunk of fs.createReadStream(filePath)) hash.update(chunk);
+  return hash.digest("hex");
+}
+
 async function main() {
   const version = JSON.parse(
     fs.readFileSync(path.join(ROOT, "package.json"), "utf8")
@@ -79,7 +120,9 @@ async function main() {
   }
   const artifacts = path.join(ROOT, "artifacts");
   fs.mkdirSync(artifacts, { recursive: true });
-  const notesPath = path.join(ROOT, "docs/releases/indev-gl-19.3.0.md");
+  const number = version.split("-")[0];
+  const notesName = `${version.endsWith(".gl") ? "indev-gl" : "indev"}-${number}.md`;
+  const notesPath = path.join(ROOT, "docs/releases", notesName);
   const notes = normalizeNotes(
     process.env.SAUMCL_RELEASE_NOTES || fs.readFileSync(notesPath, "utf8")
   );
@@ -136,6 +179,55 @@ async function main() {
     return response.json();
   }
 
+  async function mirrorGithubBuild() {
+    const response = await fetch(
+      `https://api.github.com/repos/${GITHUB_PROJECT}/releases/tags/v${version}`,
+      {
+        signal: AbortSignal.timeout(60000),
+        redirect: "error",
+        headers: { "User-Agent": "SAUMCL-Release" },
+      }
+    );
+    if (!response.ok)
+      throw new Error(`GitHub release unavailable: HTTP ${response.status}`);
+    const assets = githubMirrorAssets(
+      await response.json(),
+      version,
+      notes,
+      commit
+    );
+    const manifests = [];
+    for (const asset of assets) {
+      const download = await fetch(asset.url, {
+        signal: AbortSignal.timeout(300000),
+      });
+      if (!download.ok || !download.body) {
+        throw new Error(
+          `GitHub asset download failed: ${asset.name}, HTTP ${download.status}`
+        );
+      }
+      const filePath = path.join(artifacts, asset.name);
+      await pipeline(download.body, fs.createWriteStream(filePath));
+      if (
+        fs.statSync(filePath).size !== asset.size ||
+        (await fileHash(filePath)) !== asset.sha256
+      ) {
+        throw new Error(`GitHub asset checksum mismatch: ${asset.name}`);
+      }
+      manifests.push({
+        name: asset.name,
+        version,
+        source_commit: commit,
+        size: asset.size,
+        sha256: asset.sha256,
+        url: `${PACKAGE_BASE}/${version}/${asset.name}`,
+      });
+    }
+    for (const { name } of manifests)
+      await upload(name, path.join(artifacts, name));
+    return manifests;
+  }
+
   function writeMetadata(manifests, sourceCommit) {
     const feed = buildGitlabFeed(
       version,
@@ -177,14 +269,12 @@ async function main() {
     ) {
       throw new Error("Unexpected platform package filename");
     }
-    const hash = crypto.createHash("sha256");
-    for await (const chunk of fs.createReadStream(filePath)) hash.update(chunk);
     const manifest = {
       name,
       version,
       source_commit: commit,
       size: fs.statSync(filePath).size,
-      sha256: hash.digest("hex"),
+      sha256: await fileHash(filePath),
       url: `${PACKAGE_BASE}/${version}/${name}`,
     };
     validateManifest(manifest, version, commit);
@@ -220,13 +310,15 @@ async function main() {
         "Explicit approval of the exact release notes is required"
       );
     }
-    const build = await publicJson("release-build.json");
-    if (build.version !== version || build.source_commit !== commit)
+    const mirrorGithub = process.env.MIRROR_GITHUB_RELEASE === "true";
+    const build = mirrorGithub ? null : await publicJson("release-build.json");
+    if (build && (build.version !== version || build.source_commit !== commit))
       throw new Error("Published packages were built from different source");
-    writeMetadata(build.files, commit);
-    for (const name of ["updates.json", "release-build.json"])
-      await upload(name, path.join(artifacts, name));
-    const names = ["SAUMCL.exe", "SAUMCL", "SHA256SUMS.txt", "updates.json"];
+    writeMetadata(build ? build.files : await mirrorGithubBuild(), commit);
+    const metadata = ["updates.json", "release-build.json"];
+    if (mirrorGithub) metadata.push("SHA256SUMS.txt");
+    for (const name of metadata) await upload(name, path.join(artifacts, name));
+    const names = [...PLATFORM_FILES, "SHA256SUMS.txt", "updates.json"];
     const body = {
       name: title,
       tag_name: `v${version}`,
@@ -274,6 +366,7 @@ if (require.main === module)
 
 module.exports = {
   buildGitlabFeed,
+  githubMirrorAssets,
   normalizeNotes,
   textHash,
   validateManifest,

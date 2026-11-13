@@ -1,6 +1,8 @@
 import {
+  Badge,
   Box,
   Button,
+  Card,
   Grid,
   GridItem,
   HStack,
@@ -33,6 +35,7 @@ import { Section } from "@/components/common/section";
 import SegmentedControl from "@/components/common/segmented";
 import AddPlayerModal from "@/components/modals/add-player-modal";
 import ImportAccountInfoModal from "@/components/modals/import-account-info-modal";
+import PlayerAvatar from "@/components/player-avatar";
 import PlayersView from "@/components/players-view";
 import { useLauncherConfig } from "@/contexts/config";
 import { useGlobalData } from "@/contexts/global-data";
@@ -40,7 +43,10 @@ import { useSharedModals } from "@/contexts/shared-modal";
 import { useToast } from "@/contexts/toast";
 import { PlayerType } from "@/enums/account";
 import { AuthServer, Player } from "@/models/account";
+import { MaintainerIdentity } from "@/models/maintenance";
 import { AccountService } from "@/services/account";
+import { MaintenanceService } from "@/services/maintenance";
+import { copyText } from "@/utils/copy";
 
 const AccountsPage = () => {
   const { t } = useTranslation();
@@ -56,6 +62,13 @@ const AccountsPage = () => {
   const [selectedPlayerType, setSelectedPlayerType] = useState<string>("all");
   const [playerList, setPlayerList] = useState<Player[]>([]);
   const [authServerList, setAuthServerList] = useState<AuthServer[]>([]);
+  const [maintainer, setMaintainer] = useState<MaintainerIdentity | null>(null);
+  const microsoftPlayer =
+    selectedPlayer?.playerType === PlayerType.Microsoft
+      ? selectedPlayer
+      : undefined;
+  const isMaintainer =
+    !!microsoftPlayer && maintainer?.accountUuid === microsoftPlayer.uuid;
 
   const {
     isOpen: isAddPlayerModalOpen,
@@ -76,6 +89,26 @@ const AccountsPage = () => {
   useEffect(() => {
     setAuthServerList(getAuthServerList() || []);
   }, [getAuthServerList]);
+
+  useEffect(() => {
+    let active = true;
+    setMaintainer(null);
+    if (microsoftPlayer) {
+      void MaintenanceService.retrieveStatus().then(
+        ({ identity }) => {
+          if (active) setMaintainer(identity);
+        },
+        () => undefined
+      );
+    }
+    return () => {
+      active = false;
+    };
+  }, [microsoftPlayer]);
+
+  const hasMicrosoftPlayer = playerList.some(
+    ({ playerType }) => playerType === PlayerType.Microsoft
+  );
 
   useEffect(() => {
     const { add } = router.query;
@@ -180,8 +213,13 @@ const AccountsPage = () => {
 
   return (
     <>
-      <Grid templateColumns="1fr 3fr" gap={4} h="100%">
-        <GridItem className="content-full-y">
+      <Grid
+        templateColumns="1fr 3fr"
+        gap={4}
+        h="100%"
+        data-section-layout="accounts"
+      >
+        <GridItem className="content-full-y" data-section-navigation>
           <VStack align="stretch" h="100%">
             <Box flex="1" overflowY="auto">
               <NavMenu
@@ -224,7 +262,7 @@ const AccountsPage = () => {
             />
           </VStack>
         </GridItem>
-        <GridItem className="content-full-y">
+        <GridItem className="content-full-y" data-section-content>
           <Section
             display="flex"
             flexDirection="column"
@@ -319,6 +357,72 @@ const AccountsPage = () => {
               </HStack>
             }
           >
+            <Card p={3} mb={3} flexShrink={0}>
+              <HStack justify="space-between" flexWrap="wrap" gap={2}>
+                <HStack minW={0}>
+                  {microsoftPlayer && (
+                    <PlayerAvatar
+                      avatar={microsoftPlayer.avatar}
+                      boxSize="36px"
+                    />
+                  )}
+                  <Box minW={0}>
+                    <Text fontSize="sm" fontWeight="semibold">
+                      {t("AccountsPage.launcherAccount.title")}
+                    </Text>
+                    <Text
+                      fontSize="sm"
+                      className="secondary-text"
+                      overflowWrap="anywhere"
+                    >
+                      {microsoftPlayer?.name ??
+                        t("AccountsPage.launcherAccount.signedOut")}
+                    </Text>
+                  </Box>
+                  {microsoftPlayer && (
+                    <Badge colorScheme={isMaintainer ? "green" : primaryColor}>
+                      {t(
+                        `AccountsPage.launcherAccount.${isMaintainer ? "maintainer" : "player"}`
+                      )}
+                    </Badge>
+                  )}
+                </HStack>
+                {microsoftPlayer ? (
+                  <HStack flexWrap="wrap">
+                    <Button
+                      size="xs"
+                      variant="ghost"
+                      onClick={() => copyText(microsoftPlayer.uuid, { toast })}
+                    >
+                      {t("PlayerMenu.label.copyUUID")}
+                    </Button>
+                    <Button
+                      size="xs"
+                      onClick={() => router.push("/settings/maintenance")}
+                    >
+                      {t(
+                        isMaintainer
+                          ? "MaintenanceSettingsPage.title"
+                          : "AccountsPage.launcherAccount.bindKey"
+                      )}
+                    </Button>
+                  </HStack>
+                ) : (
+                  <Button
+                    size="xs"
+                    colorScheme={primaryColor}
+                    onClick={() => {
+                      setSelectedPlayerType("microsoft");
+                      if (!hasMicrosoftPlayer) onAddPlayerModalOpen();
+                    }}
+                  >
+                    {t(
+                      `AccountsPage.launcherAccount.${hasMicrosoftPlayer ? "select" : "signIn"}`
+                    )}
+                  </Button>
+                )}
+              </HStack>
+            </Card>
             <Box overflow="auto" flexGrow={1} rounded="md">
               <PlayersView
                 selectedPlayer={selectedPlayer}

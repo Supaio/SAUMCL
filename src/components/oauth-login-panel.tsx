@@ -57,9 +57,14 @@ const OAuthLoginPanel: React.FC<OAuthLoginPanelProps> = ({
         </VStack>
       </Card>
       {authType === PlayerType.Microsoft && (
-        <Text fontSize="xs" className="secondary-text">
-          {t("AddPlayerModal.oauthCommon.microsoftApplicationNotice")}
-        </Text>
+        <VStack align="stretch" spacing={1}>
+          <Text fontSize="sm">
+            {t("AddPlayerModal.oauthCommon.launcherAccountNotice")}
+          </Text>
+          <Text fontSize="xs" className="secondary-text">
+            {t("AddPlayerModal.oauthCommon.microsoftApplicationNotice")}
+          </Text>
+        </VStack>
       )}
     </VStack>
   );

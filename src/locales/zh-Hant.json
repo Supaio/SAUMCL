@@ -87,6 +87,15 @@
     }
   },
   "AccountsPage": {
+    "launcherAccount": {
+      "title": "SAUMCL 帳號",
+      "signedOut": "請登入或選擇 Microsoft 正版帳號",
+      "signIn": "使用 Microsoft 登入",
+      "select": "選擇 Microsoft 帳號",
+      "player": "玩家",
+      "maintainer": "維護人員",
+      "bindKey": "綁定維護 Key"
+    },
     "button": {
       "addPlayer": "新增角色",
       "add3rdPartyServer": "新增認證伺服器",
@@ -110,7 +119,7 @@
       },
       "modpack": {
         "title": "匯入模組包",
-        "description": "從本機檔案或網際網路匯入模組包（Modrinth 或 MultiMC 格式）"
+        "description": "匯入 Modrinth、MultiMC 或本機 CurseForge ZIP 模組包"
       },
       "manageDirs": {
         "title": "管理遊戲目錄",
@@ -202,6 +211,7 @@
       }
     },
     "oauthCommon": {
+      "launcherAccountNotice": "一次 Microsoft 登入即可使用 SAUMCL 和 Minecraft Java 版。維護人員可在登入後綁定個人 Key。",
       "microsoftApplicationNotice": "Microsoft 帳號驗證沿用 SJMCL 的 OAuth 應用，微軟授權頁面會顯示原專案的應用名稱。",
       "description": {
         "start": {
@@ -265,6 +275,10 @@
     "sortBy": "排序方式",
     "title": "全部實例"
   },
+  "AnnouncementBanner": {
+    "title": "社群公告",
+    "details": "檢視公告"
+  },
   "AppearanceSettingsPage": {
     "theme": {
       "title": "主題",
@@ -295,6 +309,10 @@
         "showHomeGlobe": {
           "title": "顯示地球儀",
           "description": "在首頁日期與名言下方顯示可旋轉的地球儀"
+        },
+        "cowSceneCollision": {
+          "title": "更真實的物理放牛",
+          "description": "開啟後，主頁各元素將參與牛的物理碰撞，並根據可用空間調整可放置牛的數量上限。"
         }
       }
     },
@@ -743,6 +761,11 @@
       "campus-loader": "校服模組載入器 {{param}}"
     }
   },
+  "Editable": {
+    "edit": "編輯",
+    "save": "儲存",
+    "cancel": "取消"
+  },
   "EditGameDirectoryModal": {
     "header": {
       "title": {
@@ -786,11 +809,6 @@
         "invalid": "目錄路徑不合法"
       }
     }
-  },
-  "Editable": {
-    "edit": "編輯",
-    "save": "儲存",
-    "cancel": "取消"
   },
   "Empty": {
     "noData": "無資料"
@@ -966,7 +984,13 @@
     "sections": {
       "sau": "SAUMCL 與川農社群",
       "universities": "各大學"
-    }
+    },
+    "repositories": {
+      "project": "SAUMCL 專案 GitHub、GitLab",
+      "author": "Supaio 的 GitHub、GitLab"
+    },
+    "visitRepository": "造訪 {{platform}}",
+    "maintainerDescription": "SAUMCL 維護者的個人主頁。"
   },
   "GameAdvancedSettingsPage": {
     "title": "高階遊戲設定",
@@ -1639,6 +1663,28 @@
     }
   },
   "ImportModpackModal": {
+    "curseforge": {
+      "scanning": "正在尋找本機的模組包檔案…",
+      "progress": "已找到 {{found}} / {{total}} 個必要檔案",
+      "checkFailed": "無法檢查模組包檔案",
+      "downloadHelp": "可以讓 CurseForge 或 Prism 下載缺少的檔案。SAUMCL 會自動匯入找到的對應版本。",
+      "waiting": "請在下載工具中確認安裝。必要檔案齊全後，SAUMCL 會繼續安裝。",
+      "openCurseForge": "用 CurseForge 下載",
+      "openPrism": "用 Prism 下載",
+      "chooseSource": "選擇已安裝的目錄",
+      "install": "安裝",
+      "errorTitle": "無法安裝 CurseForge 模組包",
+      "errors": {
+        "CURSE_FORGE_FILES_MISSING": "還有必要檔案缺失。請確認模組包在下載工具中已完成安裝。",
+        "CURSE_FORGE_FILE_MISMATCH": "有檔案未通過驗證。請在下載工具中修復對應實例，再重試。",
+        "CURSE_FORGE_PRISM_UNAVAILABLE": "無法開啟 Prism Launcher。請檢查 Prism 是否已安裝。",
+        "CONFLICT_NAME_ERROR": "已有同名實例。請修改新實例的名稱。",
+        "INVALID_NAME_ERROR": "實例名稱無效。請修改名稱後重試。",
+        "MOD_LOADER_VERSION_PARSE_ERROR": "無法取得清單指定的載入器版本，請檢查下載來源。",
+        "INSTALLATION_DUPLICATED": "另一個 CurseForge 模組包正在準備安裝。",
+        "other": "請確認 ZIP、來源目錄和遊戲目錄可用後重試。"
+      }
+    },
     "header": {
       "title": "匯入模組包"
     },
@@ -1884,6 +1930,11 @@
       "viewLog": "檢視日誌"
     }
   },
+  "LaunchInterface": {
+    "title": "介面風格",
+    "a": "A · 經典介面",
+    "b": "B · 全新介面"
+  },
   "LaunchPage": {
     "button": {
       "joinCampusServer": "一鍵進入校服",
@@ -1927,11 +1978,6 @@
     "releaseDate": "釋出於 {{date}}",
     "notCompatibleWith": "與 {{item}} 不相容",
     "noVersionSelected": "未選擇版本"
-  },
-  "MCVersionNumberHelper": {
-    "content": "自 2026 年起，Minecraft 版本號採取新的命名規則，以年份作為版本號首位（如 26.1）以取代原有的 1.x 版本號規則。",
-    "linkText": "閱讀官方文件",
-    "url": "https://www.minecraft.net/zh-hans/article/minecraft-new-version-numbering-system"
   },
   "MainLayout": {
     "fileDnD": {
@@ -1990,12 +2036,13 @@
     "title": "校服維護",
     "locked": "遊玩人員模式",
     "unlocked": "維護模式已開啟",
-    "introduction": "輸入專案擁有者簽發的 Key，即可開啟校服維護工具。驗證過程無需連網。",
+    "introduction": "用 Microsoft 正版帳號登入後，綁定專案擁有者為該帳號簽發的 Key。此後在本機切回該帳號，維護權限會自動恢復。",
+    "openAccounts": "前往帳戶",
     "keyLabel": "維護 Key",
     "keyPlaceholder": "貼上你的維護 Key",
-    "activate": "驗證並開啟",
+    "activate": "綁定 Key",
     "import": "匯入 Key 檔案",
-    "exit": "退出維護模式",
+    "exit": "解除本機 Key 綁定",
     "identity": "維護人員：{{name}}",
     "permanent": "長期有效",
     "permanentDescription": "校服換版、整合包更新或維護人員交接，原 Key 繼續有效。",
@@ -2039,7 +2086,11 @@
     "errors": {
       "NOT_CONFIGURED": "此建置尚未設定有效的維護驗證公鑰。",
       "INVALID_KEY": "維護 Key 無效、不完整，或並非為本啟動器簽發。",
-      "UNAUTHORIZED": "維護授權不可用，請重新輸入 Key。",
+      "ACCOUNT_BINDING_REQUIRED": "這個舊版 Key 尚未綁定帳號，請將 Minecraft UUID 提供給專案擁有者重新簽發。",
+      "KEY_ACCOUNT_MISMATCH": "這個 Key 簽發給了另一個 Minecraft 正版帳號，請切換至對應的 Microsoft 帳號。",
+      "MICROSOFT_ACCOUNT_REQUIRED": "請先登入並選取 Microsoft 正版帳號。",
+      "MICROSOFT_VERIFICATION_FAILED": "暫時無法驗證目前的 Microsoft 帳號，請檢查網路或在帳戶頁重新登入。",
+      "UNAUTHORIZED": "目前帳號的維護授權無法使用，請確認帳號後重試。",
       "INVALID_DRAFT": "請檢查文字長度和下載位址。伺服器位址不能含空格；下載位址須使用 HTTP(S)，且不能包含登入憑證。",
       "STORAGE_FAILED": "無法讀取或寫入檔案，請檢查所選路徑和存取權限。",
       "unknown": "操作暫時無法完成，請重試。",
@@ -2068,7 +2119,7 @@
     "copyConfigUrl": "複製設定位址",
     "configUrlCopied": "設定位址已複製",
     "openConfigPage": "開啟 GitLab 設定編輯頁",
-    "publishInstructions": "先儲存並匯出 campus-server.json，再由有儲存庫權限的維護人員更新 Supaio/SAUMCL 的 main 分支 public/campus-server.json。玩家每分鐘及手動重新整理時讀取；網路異常時回退至快取。本機預覽與匯出不會自動發佈。"
+    "publishInstructions": "先儲存並匯出 campus-server.json，再由有儲存庫權限的維護人員同步更新 GitHub Supaio/SAUMCL 與 GitLab Supaio/saumcl 的 main 分支 public/campus-server.json。玩家每分鐘及手動重新整理時讀取；主要來源無法使用時嘗試備用來源，再回退至快取。本機預覽與匯出不會自動發佈。"
   },
   "ManageSkinModal": {
     "skinManage": "管理外觀",
@@ -2094,6 +2145,11 @@
     "placeholder": {
       "javaPath": "請輸入或選擇 Java 可執行檔案路徑"
     }
+  },
+  "MCVersionNumberHelper": {
+    "content": "自 2026 年起，Minecraft 版本號採取新的命名規則，以年份作為版本號首位（如 26.1）以取代原有的 1.x 版本號規則。",
+    "linkText": "閱讀官方文件",
+    "url": "https://www.minecraft.net/zh-hans/article/minecraft-new-version-numbering-system"
   },
   "MemoryStatusProgress": {
     "title": "記憶體狀態",
@@ -3278,13 +3334,13 @@
   },
   "ShadcnPreview": {
     "addInstance": "新增實例",
-    "back": "返回原介面",
+    "back": "切換到介面 A",
     "brand": "四川农业大学",
     "community": "四川农业大学玩家社群",
     "greeting": "在川农，開啟你的方塊世界。",
-    "localPreview": "本機介面試用",
+    "localPreview": "Indev 19.4",
     "navigation": "主導覽",
-    "preview": "介面預覽",
+    "preview": "B · 全新介面",
     "subtitle": "從這裡出發，繼續你的下一段冒險。",
     "switchAccount": "切換帳戶",
     "tileHint": "拖動標題移動 · 拖動邊緣調整大小",

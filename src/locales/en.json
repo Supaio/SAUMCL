@@ -87,6 +87,15 @@
     }
   },
   "AccountsPage": {
+    "launcherAccount": {
+      "title": "SAUMCL account",
+      "signedOut": "Sign in or select a Microsoft account with Minecraft Java Edition",
+      "signIn": "Sign in with Microsoft",
+      "select": "Choose a Microsoft account",
+      "player": "Player",
+      "maintainer": "Maintainer",
+      "bindKey": "Bind maintenance Key"
+    },
     "button": {
       "addPlayer": "Add Player",
       "add3rdPartyServer": "Add auth server",
@@ -110,7 +119,7 @@
       },
       "modpack": {
         "title": "Import Modpack",
-        "description": "Import a modpack (Modrinth or MultiMC formats) from local files or the internet"
+        "description": "Import Modrinth, MultiMC, or local CurseForge ZIP modpacks"
       },
       "manageDirs": {
         "title": "Manage Game Directories",
@@ -202,6 +211,7 @@
       }
     },
     "oauthCommon": {
+      "launcherAccountNotice": "Sign in with Microsoft once to use both SAUMCL and Minecraft Java Edition. Maintainers can bind their personal Key after sign-in.",
       "microsoftApplicationNotice": "Microsoft account sign-in uses the SJMCL OAuth application. The Microsoft authorization page will display the original project's application name.",
       "description": {
         "start": {
@@ -265,6 +275,10 @@
     "sortBy": "Sort by",
     "title": "All Instances"
   },
+  "AnnouncementBanner": {
+    "title": "Community notice",
+    "details": "View notice"
+  },
   "AppearanceSettingsPage": {
     "theme": {
       "title": "Theme",
@@ -295,6 +309,10 @@
         "showHomeGlobe": {
           "title": "Show Globe",
           "description": "Show a rotating globe below the date and quote on the home page"
+        },
+        "cowSceneCollision": {
+          "title": "More realistic cow physics",
+          "description": "When enabled, home page elements interact with cows through physical collisions, and the maximum number of cows adjusts to the available space."
         }
       }
     },
@@ -743,6 +761,11 @@
       "campus-loader": "Campus mod loader {{param}}"
     }
   },
+  "Editable": {
+    "edit": "Edit",
+    "save": "Save",
+    "cancel": "Cancel"
+  },
   "EditGameDirectoryModal": {
     "header": {
       "title": {
@@ -786,11 +809,6 @@
         "invalid": "Directory path is invalid"
       }
     }
-  },
-  "Editable": {
-    "edit": "Edit",
-    "save": "Save",
-    "cancel": "Cancel"
   },
   "Empty": {
     "noData": "No Data"
@@ -966,7 +984,13 @@
     "sections": {
       "sau": "SAUMCL and the SAU community",
       "universities": "Universities"
-    }
+    },
+    "repositories": {
+      "project": "SAUMCL on GitHub & GitLab",
+      "author": "Supaio on GitHub & GitLab"
+    },
+    "visitRepository": "Visit {{platform}}",
+    "maintainerDescription": "Personal profiles of the SAUMCL maintainer."
   },
   "GameAdvancedSettingsPage": {
     "title": "Advanced Settings",
@@ -1639,6 +1663,28 @@
     }
   },
   "ImportModpackModal": {
+    "curseforge": {
+      "scanning": "Looking for installed modpack files…",
+      "progress": "Found {{found}} of {{total}} required files",
+      "checkFailed": "Could not check the modpack files",
+      "downloadHelp": "Download missing files with CurseForge or Prism. SAUMCL will import the matching versions it finds.",
+      "waiting": "Confirm the installation in the download app. SAUMCL will continue when the required files are ready.",
+      "openCurseForge": "Download with CurseForge",
+      "openPrism": "Download with Prism",
+      "chooseSource": "Choose installed folder",
+      "install": "Install",
+      "errorTitle": "Could not install the CurseForge modpack",
+      "errors": {
+        "CURSE_FORGE_FILES_MISSING": "Some required files are missing. Finish installing this modpack in the download app.",
+        "CURSE_FORGE_FILE_MISMATCH": "A file failed verification. Repair the matching instance in the download app and try again.",
+        "CURSE_FORGE_PRISM_UNAVAILABLE": "Could not open Prism Launcher. Check that Prism is installed.",
+        "CONFLICT_NAME_ERROR": "An instance already uses this name. Choose a different name.",
+        "INVALID_NAME_ERROR": "Choose a valid instance name and try again.",
+        "MOD_LOADER_VERSION_PARSE_ERROR": "Could not find the loader version in the manifest. Check your download source.",
+        "INSTALLATION_DUPLICATED": "Another CurseForge modpack is being prepared for installation.",
+        "other": "Check the ZIP, source folder, and game directory, then try again."
+      }
+    },
     "header": {
       "title": "Import Modpack"
     },
@@ -1884,6 +1930,11 @@
       "viewLog": "View Logs"
     }
   },
+  "LaunchInterface": {
+    "title": "Interface style",
+    "a": "A · Classic",
+    "b": "B · New interface"
+  },
   "LaunchPage": {
     "button": {
       "joinCampusServer": "Join Campus Server",
@@ -1927,11 +1978,6 @@
     "releaseDate": "Released at {{date}}",
     "notCompatibleWith": "Not compatible with {{item}}",
     "noVersionSelected": "No version selected"
-  },
-  "MCVersionNumberHelper": {
-    "content": "Starting in 2026, Minecraft adopts a new version numbering system. The version numbers will begin with the release year (e.g., 26.1), replacing the previous 1.x versioning scheme.",
-    "linkText": "Read the official article",
-    "url": "https://www.minecraft.net/en-us/article/minecraft-new-version-numbering-system"
   },
   "MainLayout": {
     "fileDnD": {
@@ -1990,12 +2036,13 @@
     "title": "Campus Maintenance",
     "locked": "Player mode",
     "unlocked": "Maintenance mode enabled",
-    "introduction": "Enter a Key issued by the project owner to open the campus maintenance tools. Verification works offline.",
+    "introduction": "Sign in with the Microsoft account that owns Minecraft and bind the Key the project owner issued for that account. On this device, selecting the same account restores access automatically.",
+    "openAccounts": "Go to Accounts",
     "keyLabel": "Maintenance Key",
     "keyPlaceholder": "Paste your maintenance Key",
-    "activate": "Verify and enable",
+    "activate": "Bind Key",
     "import": "Import Key file",
-    "exit": "Exit maintenance mode",
+    "exit": "Unbind Key on this device",
     "identity": "Maintainer: {{name}}",
     "permanent": "Permanent authorization",
     "permanentDescription": "Remains valid across pack updates and maintainer handovers.",
@@ -2039,7 +2086,11 @@
     "errors": {
       "NOT_CONFIGURED": "The build has no valid maintenance verification public key configured.",
       "INVALID_KEY": "This maintenance Key is invalid, incomplete, or was not issued for this launcher.",
-      "UNAUTHORIZED": "Maintenance authorization is unavailable. Enter your Key again.",
+      "ACCOUNT_BINDING_REQUIRED": "This older Key has no linked account. Send your Minecraft UUID to the project owner for a new Key.",
+      "KEY_ACCOUNT_MISMATCH": "This Key was issued for a different Minecraft account. Switch to the corresponding Microsoft account.",
+      "MICROSOFT_ACCOUNT_REQUIRED": "Sign in and select a Microsoft account with Minecraft Java Edition first.",
+      "MICROSOFT_VERIFICATION_FAILED": "Could not verify the current Microsoft account. Check your connection or sign in again from Accounts.",
+      "UNAUTHORIZED": "Maintenance access is unavailable for the current account. Check the selected account and try again.",
       "INVALID_DRAFT": "Check the field lengths and download URL. Addresses cannot contain spaces; download URLs must use HTTP(S) and contain no login credentials.",
       "STORAGE_FAILED": "Could not read or write the file. Check the selected path and permissions.",
       "unknown": "The operation could not be completed. Please retry.",
@@ -2068,7 +2119,7 @@
     "copyConfigUrl": "Copy configuration URL",
     "configUrlCopied": "Configuration URL copied",
     "openConfigPage": "Open GitLab configuration editor",
-    "publishInstructions": "Save and export campus-server.json, then have a maintainer with repository access update public/campus-server.json on Supaio/SAUMCL main. Players check every minute and on refresh, falling back to cached data on network errors. Local preview and export do not publish anything."
+    "publishInstructions": "Save and export campus-server.json, then have a maintainer update public/campus-server.json on main in both GitHub Supaio/SAUMCL and GitLab Supaio/saumcl. Players check every minute and on refresh, trying the backup source before cached data. Local preview and export do not publish anything."
   },
   "ManageSkinModal": {
     "skinManage": "Manage Skin",
@@ -2094,6 +2145,11 @@
     "placeholder": {
       "javaPath": "Please enter or select the Java executable file path"
     }
+  },
+  "MCVersionNumberHelper": {
+    "content": "Starting in 2026, Minecraft adopts a new version numbering system. The version numbers will begin with the release year (e.g., 26.1), replacing the previous 1.x versioning scheme.",
+    "linkText": "Read the official article",
+    "url": "https://www.minecraft.net/en-us/article/minecraft-new-version-numbering-system"
   },
   "MemoryStatusProgress": {
     "title": "Memory Status",
@@ -3278,13 +3334,13 @@
   },
   "ShadcnPreview": {
     "addInstance": "Add instance",
-    "back": "Original interface",
+    "back": "Switch to interface A",
     "brand": "Sichuan Agricultural University",
     "community": "SAU Minecraft community",
     "greeting": "Your next adventure starts at SAU.",
-    "localPreview": "Local interface preview",
+    "localPreview": "Indev 19.4",
     "navigation": "Main navigation",
-    "preview": "UI preview",
+    "preview": "B · New interface",
     "subtitle": "A familiar world. A new adventure.",
     "switchAccount": "Switch account",
     "tileHint": "Drag titles to move · Drag edges to resize",

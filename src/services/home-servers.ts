@@ -7,16 +7,44 @@ import { MaintenanceService } from "@/services/maintenance";
 import { parseCampusProfile } from "@/utils/home-servers";
 
 // Maintainers publish the shared school-server profile in this repository.
-export const CAMPUS_CONFIG_URL =
-  "https://gitlab.com/Supaio/saumcl/-/raw/main/public/campus-server.json";
+export const CAMPUS_CONFIG_URLS = [
+  "https://raw.githubusercontent.com/Supaio/SAUMCL/main/public/campus-server.json",
+  "https://gitlab.com/Supaio/saumcl/-/raw/main/public/campus-server.json",
+];
+export const CAMPUS_CONFIG_URL = CAMPUS_CONFIG_URLS[0];
 const CONFIG_CACHE_KEY = "saumcl.campus.profile";
+export const CAMPUS_PROFILE_UPDATED_EVENT = "saumcl-campus-profile-updated";
+
+interface CampusConfigResult {
+  profile: CampusDraft;
+  preview: boolean;
+  stale: boolean;
+}
 
 export class HomeServersService {
-  static async retrieveCampus(): Promise<{
-    profile: CampusDraft;
-    preview: boolean;
-    stale: boolean;
-  }> {
+  private static campusRequest: Promise<CampusConfigResult> | null = null;
+
+  static retrieveCampus(force = false): Promise<CampusConfigResult> {
+    if (!force && this.campusRequest) return this.campusRequest;
+    const request = this.retrieveCampusFromSources()
+      .then((result) => {
+        if (this.campusRequest === request) {
+          window.dispatchEvent(
+            new CustomEvent(CAMPUS_PROFILE_UPDATED_EVENT, {
+              detail: result.profile,
+            })
+          );
+        }
+        return result;
+      })
+      .finally(() => {
+        if (this.campusRequest === request) this.campusRequest = null;
+      });
+    this.campusRequest = request;
+    return request;
+  }
+
+  private static async retrieveCampusFromSources(): Promise<CampusConfigResult> {
     const preview = await MaintenanceService.retrievePreview().catch(
       () => null
     );

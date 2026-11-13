@@ -23,7 +23,7 @@ const NavMenu: React.FC<NavMenuProps> = ({
   ...props
 }) => {
   return (
-    <Stack align="stretch" spacing={0.5} {...props}>
+    <Stack align="stretch" spacing={0.5} data-navigation-menu {...props}>
       {items.map((item) => (
         <Tooltip label={item.tooltip} placement="right" key={item.value}>
           <Stack align="stretch" direction="column">

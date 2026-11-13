@@ -1,10 +1,12 @@
 export interface MaintainerIdentity {
   id: string;
   name: string;
+  accountUuid: string;
 }
 
 export interface MaintenanceStatus {
   configured: boolean;
+  accountUuid: string | null;
   identity: MaintainerIdentity | null;
   invalidSavedKey: boolean;
 }

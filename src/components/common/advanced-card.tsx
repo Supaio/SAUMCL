@@ -15,15 +15,18 @@ const AdvancedCard = forwardRef<HTMLDivElement, AdvancedCardProps>(
     const { config } = useLauncherConfig();
     const _variant =
       variant ||
-      (config.appearance.theme.useLiquidGlassDesign
-        ? "liquid-glass"
-        : "elevated");
+      (config.appearance.theme.launchInterface === "b"
+        ? "outline"
+        : config.appearance.theme.useLiquidGlassDesign
+          ? "liquid-glass"
+          : "elevated");
 
     if (["elevated", "outline", "filled", "unstyled"].includes(_variant)) {
       return (
         <Card
           ref={ref}
           variant={_variant}
+          data-interface-surface={level}
           {...props}
           className={`${cardStyles[`card-${level}`]} ${props.className || ""}`}
         >
@@ -53,6 +56,7 @@ const AdvancedCard = forwardRef<HTMLDivElement, AdvancedCardProps>(
         ref={ref}
         {...props}
         className={`${cardStyles[`card-${level}`]} ${props.className || ""}`}
+        data-interface-surface={level}
       >
         {children}
       </Card>

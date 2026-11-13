@@ -12,6 +12,7 @@ on:
       - scripts/qa/**
       - scripts/maintenance/**
       - scripts/release/update-feed.js
+      - scripts/release/gitlab-release.js
       - package.json
       - pnpm-lock.yaml
       - pnpm-workspace.yaml
@@ -29,6 +30,7 @@ on:
       - scripts/qa/**
       - scripts/maintenance/**
       - scripts/release/update-feed.js
+      - scripts/release/gitlab-release.js
       - package.json
       - pnpm-lock.yaml
       - pnpm-workspace.yaml
@@ -77,6 +79,7 @@ jobs:
               - 'scripts/qa/**'
               - 'scripts/maintenance/**'
               - 'scripts/release/update-feed.js'
+              - 'scripts/release/gitlab-release.js'
 
       - id: compute
         shell: bash
@@ -113,7 +116,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
 
       - name: Lint JavaScript/TypeScript Frontend
-        run: pnpm eslint 'src/**/*.{js,jsx,ts,tsx}' 'scripts/qa/*.mjs' 'scripts/maintenance/*.js' scripts/release/update-feed.js --no-fix --max-warnings=0
+        run: pnpm eslint 'src/**/*.{js,jsx,ts,tsx}' 'scripts/qa/*.mjs' 'scripts/maintenance/*.js' 'scripts/release/*.js' --no-fix --max-warnings=0
 
       - name: Test local instance and mod search
         run: node --experimental-strip-types scripts/qa/search-regressions.mjs
@@ -122,7 +125,7 @@ jobs:
         run: node --experimental-strip-types scripts/qa/cow-drop-regressions.mjs
 
       - name: Test release update feed
-        run: node scripts/qa/update-feed-regressions.mjs
+        run: node --test scripts/qa/update-feed-regressions.mjs scripts/qa/gitlab-release-regressions.mjs
 
       - name: Test offline maintenance key generator
         run: node scripts/qa/maintenance-key-regressions.mjs
@@ -201,7 +204,7 @@ jobs:
         run: |
           cargo test --manifest-path src-tauri/Cargo.toml --locked --lib launcher_config::
           cargo test --manifest-path src-tauri/Cargo.toml --locked --lib launch::helpers::
-          cargo test --manifest-path src-tauri/Cargo.toml --locked --lib instance::helpers::modpack::import::tests
+          cargo test --manifest-path src-tauri/Cargo.toml --locked --lib instance::helpers::modpack::
           cargo test --manifest-path src-tauri/Cargo.toml --locked --test zip_regressions
           cargo test --manifest-path src-tauri/Cargo.toml --locked --test maintenance_regressions
           cargo test --manifest-path src-tauri/Cargo.toml --locked --test campus_regressions

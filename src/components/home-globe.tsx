@@ -302,6 +302,7 @@ const HomeGlobe = () => {
           as="canvas"
           ref={canvasRef}
           id="home-globe-canvas"
+          data-cow-scene-obstacle="circle"
           width={SIZE}
           height={SIZE}
           role="img"

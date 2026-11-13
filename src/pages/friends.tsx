@@ -30,11 +30,41 @@ const COMMUNITY_LOGOS: Record<string, string> = {
   "sau-website": "/images/community/chrome-logo.svg",
 };
 
+const REPOSITORY_CARDS = [
+  {
+    key: "project",
+    ids: ["saumcl-github", "saumcl-gitlab"],
+    urls: {
+      GitHub: "https://github.com/Supaio/SAUMCL",
+      GitLab: "https://gitlab.com/Supaio/saumcl",
+    },
+  },
+  {
+    key: "author",
+    ids: ["supaio-github", "supaio-gitlab"],
+    urls: {
+      GitHub: "https://github.com/Supaio",
+      GitLab: "https://gitlab.com/Supaio",
+    },
+  },
+];
+
 const FriendsPage = () => {
   const { t } = useTranslation();
   const toast = useToast();
   const { feed, loading, failed, preview, stale, refresh } = useCommunityFeed();
-  const links = feed?.links.filter((link) => link.enabled) ?? [];
+  const links = (feed?.links.filter((link) => link.enabled) ?? []).filter(
+    (link, index, enabledLinks) => {
+      const repository = REPOSITORY_CARDS.find((item) =>
+        item.ids.includes(link.id)
+      );
+      return (
+        !repository ||
+        enabledLinks.findIndex((item) => repository.ids.includes(item.id)) ===
+          index
+      );
+    }
+  );
   const sections = [
     {
       id: "sau",
@@ -111,99 +141,140 @@ const FriendsPage = () => {
                 {t(`FriendsPage.sections.${section.id}`)}
               </Heading>
               <SimpleGrid columns={{ base: 1, lg: 2, "2xl": 3 }} spacing={4}>
-                {section.links.map((link) => (
-                  <Card key={link.id} p={4} data-community-link={link.id}>
-                    <VStack align="stretch" spacing={3}>
-                      <HStack>
-                        {COMMUNITY_LOGOS[link.id] ? (
-                          <Box
-                            boxSize={10}
-                            flexShrink={0}
-                            overflow="hidden"
-                            borderRadius={
-                              link.id === "university-sau" ||
-                              link.id === "supaio-gitlab" ||
-                              link.id === "supaio-github"
-                                ? "full"
-                                : "md"
-                            }
-                          >
-                            <Image
-                              src={COMMUNITY_LOGOS[link.id]}
-                              alt={link.name}
-                              // Frame the supplied community image around its outer circle.
-                              w={
-                                link.id === "university-sau" ? "178.7%" : "100%"
+                {section.links.map((link) => {
+                  const repository = REPOSITORY_CARDS.find((item) =>
+                    item.ids.includes(link.id)
+                  );
+                  const name = repository
+                    ? t(`FriendsPage.repositories.${repository.key}`)
+                    : link.name;
+                  const description =
+                    repository?.key === "author"
+                      ? t("FriendsPage.maintainerDescription")
+                      : link.description;
+                  return (
+                    <Card
+                      key={link.id}
+                      p={4}
+                      data-community-link={link.id}
+                      data-community-repository={repository?.key}
+                    >
+                      <VStack align="stretch" spacing={3}>
+                        <HStack>
+                          {COMMUNITY_LOGOS[link.id] ? (
+                            <Box
+                              boxSize={10}
+                              flexShrink={0}
+                              overflow="hidden"
+                              borderRadius={
+                                link.id === "university-sau" ||
+                                link.id === "supaio-gitlab" ||
+                                link.id === "supaio-github"
+                                  ? "full"
+                                  : "md"
                               }
-                              h={link.id === "university-sau" ? "auto" : "100%"}
-                              maxW="none"
-                              objectFit="contain"
-                              transform={
-                                link.id === "university-sau"
-                                  ? "translate(-19.5%, -4.6%)"
-                                  : undefined
-                              }
+                            >
+                              <Image
+                                src={COMMUNITY_LOGOS[link.id]}
+                                alt={name}
+                                // Frame the supplied community image around its outer circle.
+                                w={
+                                  link.id === "university-sau"
+                                    ? "178.7%"
+                                    : "100%"
+                                }
+                                h={
+                                  link.id === "university-sau" ? "auto" : "100%"
+                                }
+                                maxW="none"
+                                objectFit="contain"
+                                transform={
+                                  link.id === "university-sau"
+                                    ? "translate(-19.5%, -4.6%)"
+                                    : undefined
+                                }
+                              />
+                            </Box>
+                          ) : (
+                            <Icon
+                              as={link.kind === "qq" ? LuUsersRound : LuLink}
+                              color="blue.400"
                             />
-                          </Box>
-                        ) : (
-                          <Icon
-                            as={link.kind === "qq" ? LuUsersRound : LuLink}
-                            color="blue.400"
-                          />
+                          )}
+                          <Text fontWeight="bold" overflowWrap="anywhere">
+                            {name}
+                          </Text>
+                          <Badge ml="auto">
+                            {t(`FriendsPage.kind.${link.kind}`)}
+                          </Badge>
+                        </HStack>
+                        {description && (
+                          <Text
+                            fontSize="sm"
+                            whiteSpace="pre-wrap"
+                            overflowWrap="anywhere"
+                          >
+                            {description}
+                          </Text>
                         )}
-                        <Text fontWeight="bold" overflowWrap="anywhere">
-                          {link.name}
-                        </Text>
-                        <Badge ml="auto">
-                          {t(`FriendsPage.kind.${link.kind}`)}
-                        </Badge>
-                      </HStack>
-                      {link.description && (
-                        <Text
-                          fontSize="sm"
-                          whiteSpace="pre-wrap"
-                          overflowWrap="anywhere"
-                        >
-                          {link.description}
-                        </Text>
-                      )}
-                      {link.kind === "qq" && (
-                        <Text fontSize="sm" className="secondary-text">
-                          {t("FriendsPage.groupNumber", {
-                            number: link.groupNumber,
-                          })}
-                        </Text>
-                      )}
-                      <HStack mt="auto" flexWrap="wrap">
                         {link.kind === "qq" && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            leftIcon={<LuCopy />}
-                            onClick={() => void handleCopy(link.groupNumber)}
-                          >
-                            {t("FriendsPage.copyGroup")}
-                          </Button>
+                          <Text fontSize="sm" className="secondary-text">
+                            {t("FriendsPage.groupNumber", {
+                              number: link.groupNumber,
+                            })}
+                          </Text>
                         )}
-                        {link.url && (
-                          <Button
-                            size="sm"
-                            colorScheme="blue"
-                            variant="ghost"
-                            rightIcon={<LuExternalLink />}
-                            onClick={() => void handleOpen(link.url)}
-                          >
-                            {t(
-                              link.kind === "qq"
-                                ? "FriendsPage.join"
-                                : "FriendsPage.visit"
+                        <HStack
+                          mt="auto"
+                          flexWrap={repository ? "nowrap" : "wrap"}
+                        >
+                          {repository &&
+                            Object.entries(repository.urls).map(
+                              ([platform, url]) => (
+                                <Button
+                                  key={platform}
+                                  size="sm"
+                                  colorScheme="blue"
+                                  variant="ghost"
+                                  rightIcon={<LuExternalLink />}
+                                  onClick={() => void handleOpen(url)}
+                                >
+                                  {t("FriendsPage.visitRepository", {
+                                    platform,
+                                  })}
+                                </Button>
+                              )
                             )}
-                          </Button>
-                        )}
-                      </HStack>
-                    </VStack>
-                  </Card>
-                ))}
+                          {link.kind === "qq" && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              leftIcon={<LuCopy />}
+                              onClick={() => void handleCopy(link.groupNumber)}
+                            >
+                              {t("FriendsPage.copyGroup")}
+                            </Button>
+                          )}
+                          {!repository && link.url && (
+                            <Button
+                              size="sm"
+                              colorScheme="blue"
+                              variant="ghost"
+                              rightIcon={<LuExternalLink />}
+                              onClick={() => void handleOpen(link.url)}
+                            >
+                              {t(
+                                link.kind === "qq"
+                                  ? "FriendsPage.join"
+                                  : "FriendsPage.visit"
+                              )}
+                            </Button>
+                          )}
+                        </HStack>
+                      </VStack>
+                    </Card>
+                  );
+                })}
               </SimpleGrid>
             </VStack>
           )

@@ -1,5 +1,4 @@
 import { ExportModpackFormat, ModLoaderType } from "@/enums/instance";
-import { OtherResourceSource } from "@/enums/resource";
 
 export enum ModLoaderStatus {
   NotDownloaded = "NotDownloaded",
@@ -46,9 +45,15 @@ export interface ModpackMetaInfo {
   version?: string;
   author?: string;
   description?: string;
-  modpackType: OtherResourceSource;
+  modpackSource: "Modrinth" | "MultiMc" | "CurseForge";
   clientVersion: string;
   modLoader?: ModLoader;
+}
+
+export interface CurseForgeImportStatus {
+  availableFiles: number;
+  requiredFiles: number;
+  prismAvailable: boolean;
 }
 
 export interface ModpackFileList {

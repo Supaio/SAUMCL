@@ -30,6 +30,7 @@ const SelectableButton: React.FC<SelectableButtonProps> = ({
   return (
     <Button
       variant="ghost"
+      data-selected={isSelected ? "true" : "false"}
       bg={isSelected ? selectedBg : "transparent"}
       color={isSelected ? selectedColor : defaultColor}
       textAlign="left"

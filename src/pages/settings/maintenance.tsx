@@ -27,6 +27,7 @@ import {
 import { writeText } from "@tauri-apps/plugin-clipboard-manager";
 import { open, save } from "@tauri-apps/plugin-dialog";
 import { openUrl } from "@tauri-apps/plugin-opener";
+import router from "next/router";
 import { FormEvent, useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LuKeyRound, LuShieldCheck } from "react-icons/lu";
@@ -34,10 +35,10 @@ import MaintenanceCommunityPanel from "@/components/maintenance-community-panel"
 import { useLauncherConfig } from "@/contexts/config";
 import { useToast } from "@/contexts/toast";
 import { CampusDraft, MaintenanceStatus } from "@/models/maintenance";
-import { CAMPUS_CONFIG_URL } from "@/services/home-servers";
+import { CAMPUS_CONFIG_URLS } from "@/services/home-servers";
 import { MaintenanceService } from "@/services/maintenance";
 
-const MaintenanceSettingsPage = () => {
+const MaintenanceWorkspace = () => {
   const { t } = useTranslation();
   const toast = useToast();
   const { config } = useLauncherConfig();
@@ -48,6 +49,7 @@ const MaintenanceSettingsPage = () => {
   const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(true);
   const [dirty, setDirty] = useState(false);
+  const [verificationFailed, setVerificationFailed] = useState(false);
 
   const handleError = useCallback(
     (error: unknown) => {
@@ -70,6 +72,7 @@ const MaintenanceSettingsPage = () => {
 
   const handleLoad = useCallback(async () => {
     setLoading(true);
+    setVerificationFailed(false);
     try {
       const nextStatus = await MaintenanceService.retrieveStatus();
       setStatus(nextStatus);
@@ -80,6 +83,9 @@ const MaintenanceSettingsPage = () => {
         setDraft(null);
       }
     } catch (error) {
+      setStatus(null);
+      setDraft(null);
+      setVerificationFailed(error === "MICROSOFT_VERIFICATION_FAILED");
       handleError(error);
     } finally {
       setLoading(false);
@@ -237,7 +243,7 @@ const MaintenanceSettingsPage = () => {
 
   const handleCopyConfigUrl = async () => {
     try {
-      await writeText(CAMPUS_CONFIG_URL);
+      await writeText(CAMPUS_CONFIG_URLS.join("\n"));
       toast({
         title: t("MaintenanceSettingsPage.configUrlCopied"),
         status: "success",
@@ -343,53 +349,65 @@ const MaintenanceSettingsPage = () => {
                   )}
                 </Alert>
               )}
-              <Box
-                as="form"
-                onSubmit={(event: FormEvent<HTMLFormElement>) => {
-                  event.preventDefault();
-                  if (!busy && status.configured && key.trim()) {
-                    void handleActivate();
-                  }
-                }}
-              >
-                <FormControl>
-                  <FormLabel fontSize="sm" htmlFor="maintenance-key">
-                    {t("MaintenanceSettingsPage.keyLabel")}
-                  </FormLabel>
-                  <Input
-                    id="maintenance-key"
-                    type="password"
-                    autoComplete="off"
-                    spellCheck={false}
-                    maxLength={8192}
-                    value={key}
-                    isDisabled={busy || !status.configured}
-                    placeholder={t("MaintenanceSettingsPage.keyPlaceholder")}
-                    onChange={(event) => setKey(event.target.value)}
-                  />
-                </FormControl>
-                <HStack mt={3} justify="flex-end">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    isDisabled={busy || !status.configured}
-                    onClick={() => handleActivate(true)}
-                  >
-                    {t("MaintenanceSettingsPage.import")}
-                  </Button>
-                  <Button
-                    type="submit"
-                    size="sm"
-                    colorScheme={primaryColor}
-                    isLoading={busy}
-                    isDisabled={!status.configured || !key.trim()}
-                  >
-                    {t("MaintenanceSettingsPage.activate")}
-                  </Button>
-                </HStack>
-              </Box>
             </>
           )}
+          {!loading && status?.accountUuid && !status.identity && (
+            <Box
+              as="form"
+              onSubmit={(event: FormEvent<HTMLFormElement>) => {
+                event.preventDefault();
+                if (!busy && status.configured && key.trim()) {
+                  void handleActivate();
+                }
+              }}
+            >
+              <FormControl>
+                <FormLabel fontSize="sm" htmlFor="maintenance-key">
+                  {t("MaintenanceSettingsPage.keyLabel")}
+                </FormLabel>
+                <Input
+                  id="maintenance-key"
+                  type="password"
+                  autoComplete="off"
+                  spellCheck={false}
+                  maxLength={8192}
+                  value={key}
+                  isDisabled={busy || !status.configured}
+                  placeholder={t("MaintenanceSettingsPage.keyPlaceholder")}
+                  onChange={(event) => setKey(event.target.value)}
+                />
+              </FormControl>
+              <HStack mt={3} justify="flex-end">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  isDisabled={busy || !status.configured}
+                  onClick={() => handleActivate(true)}
+                >
+                  {t("MaintenanceSettingsPage.import")}
+                </Button>
+                <Button
+                  type="submit"
+                  size="sm"
+                  colorScheme={primaryColor}
+                  isLoading={busy}
+                  isDisabled={!status.configured || !key.trim()}
+                >
+                  {t("MaintenanceSettingsPage.activate")}
+                </Button>
+              </HStack>
+            </Box>
+          )}
+          {!loading &&
+            ((status && !status.accountUuid) || verificationFailed) && (
+              <Button
+                size="sm"
+                alignSelf="flex-start"
+                onClick={() => router.push("/accounts")}
+              >
+                {t("MaintenanceSettingsPage.openAccounts")}
+              </Button>
+            )}
           {!loading && (!status || (status.identity && !draft)) && (
             <Button size="sm" alignSelf="flex-start" onClick={handleLoad}>
               {t("MaintenanceSettingsPage.retry")}
@@ -599,12 +617,15 @@ const MaintenanceSettingsPage = () => {
                     <Text fontSize="sm" fontWeight="semibold">
                       {t("MaintenanceSettingsPage.playerConfigUrl")}
                     </Text>
-                    <Input
-                      size="sm"
-                      value={CAMPUS_CONFIG_URL}
-                      isReadOnly
-                      aria-label={t("MaintenanceSettingsPage.playerConfigUrl")}
-                    />
+                    {CAMPUS_CONFIG_URLS.map((url) => (
+                      <Input
+                        key={url}
+                        size="sm"
+                        value={url}
+                        isReadOnly
+                        aria-label={`${t("MaintenanceSettingsPage.playerConfigUrl")} ${url.includes("raw.githubusercontent.com") ? "GitHub" : "GitLab"}`}
+                      />
+                    ))}
                     <HStack flexWrap="wrap">
                       <Button
                         size="sm"
@@ -687,6 +708,11 @@ const MaintenanceSettingsPage = () => {
       )}
     </>
   );
+};
+
+const MaintenanceSettingsPage = () => {
+  const { config } = useLauncherConfig();
+  return <MaintenanceWorkspace key={config.states.shared.selectedPlayerId} />;
 };
 
 export default MaintenanceSettingsPage;

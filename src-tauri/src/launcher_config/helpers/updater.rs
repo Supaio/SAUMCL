@@ -14,10 +14,16 @@ use crate::tasks::PTaskParam;
 use crate::tasks::commands::schedule_progressive_task_group;
 use crate::tasks::download::DownloadParam;
 
-const UPDATE_FEED_ENDPOINT: &str =
-  "https://gitlab.com/Supaio/saumcl/-/releases/permalink/latest/downloads/updates.json";
-const UPDATE_FEED_API_ENDPOINT: &str =
-  "https://gitlab.com/api/v4/projects/88266251/releases/permalink/latest/downloads/updates.json";
+const UPDATE_FEED_SOURCES: &[&[&str]] = &[
+  &[
+    "https://github.com/Supaio/SAUMCL/releases/latest/download/updates.json",
+    "https://api.github.com/repos/Supaio/SAUMCL/releases?per_page=10",
+  ],
+  &[
+    "https://gitlab.com/Supaio/saumcl/-/releases/permalink/latest/downloads/updates.json",
+    "https://gitlab.com/api/v4/projects/88266251/releases/permalink/latest/downloads/updates.json",
+  ],
+];
 
 pub fn is_indev_version(version: &str) -> bool {
   version.ends_with("-indev") || version.ends_with("-indev.gl")
@@ -80,11 +86,18 @@ fn release_asset<'a>(
       && asset.get("size").and_then(Value::as_u64).unwrap_or(0) > 0
       && url.is_some_and(|url| {
         url.scheme() == "https"
-          && url.host_str() == Some("gitlab.com")
-          && (url
-            .path()
-            .starts_with("/api/v4/projects/88266251/packages/generic/saumcl/")
-            || url.path().starts_with("/Supaio/saumcl/-/releases/"))
+          && url.username().is_empty()
+          && url.password().is_none()
+          && match url.host_str() {
+            Some("github.com") => url.path().starts_with("/Supaio/SAUMCL/releases/download/"),
+            Some("gitlab.com") => {
+              url
+                .path()
+                .starts_with("/api/v4/projects/88266251/packages/generic/saumcl/")
+                || url.path().starts_with("/Supaio/saumcl/-/releases/")
+            }
+            _ => false,
+          }
       })
   })
 }
@@ -115,7 +128,26 @@ fn select_release<'a>(
 }
 
 async fn fetch_releases(client: &reqwest::Client) -> SJMCLResult<Value> {
-  fetch_releases_from(client, &[UPDATE_FEED_ENDPOINT, UPDATE_FEED_API_ENDPOINT]).await
+  fetch_releases_from_sources(client, UPDATE_FEED_SOURCES).await
+}
+
+async fn fetch_releases_from_sources(
+  client: &reqwest::Client,
+  sources: &[&[&str]],
+) -> SJMCLResult<Value> {
+  let mut combined = Vec::new();
+  // Compare both repositories so a reachable, older mirror cannot hide a newer release.
+  // Each source tries its public feed first; API calls are only a fallback.
+  for endpoints in sources {
+    if let Ok(Value::Array(releases)) = fetch_releases_from(client, endpoints).await {
+      combined.extend(releases);
+    }
+  }
+  if combined.is_empty() {
+    Err(LauncherConfigError::FetchError.into())
+  } else {
+    Ok(Value::Array(combined))
+  }
 }
 
 async fn fetch_releases_from(client: &reqwest::Client, endpoints: &[&str]) -> SJMCLResult<Value> {
@@ -124,14 +156,37 @@ async fn fetch_releases_from(client: &reqwest::Client, endpoints: &[&str]) -> SJ
       .get(*endpoint)
       .header("Accept", "application/json")
       .header("User-Agent", "SAUMCL")
-      .timeout(Duration::from_secs(15))
+      .timeout(Duration::from_secs(10))
       .send()
       .await;
     if let Ok(response) = response.and_then(reqwest::Response::error_for_status) {
       if let Ok(releases) = response.json::<Value>().await {
-        if releases.is_array() {
+        if releases
+          .as_array()
+          .is_some_and(|entries| entries.iter().any(|entry| release_version(entry).is_some()))
+        {
           return Ok(releases);
         }
+      }
+    }
+  }
+  Err(LauncherConfigError::FetchError.into())
+}
+
+async fn available_download_url(
+  client: &reqwest::Client,
+  candidates: &[url::Url],
+) -> SJMCLResult<url::Url> {
+  for url in candidates {
+    if let Ok(response) = client
+      .head(url.clone())
+      .header("User-Agent", "SAUMCL")
+      .timeout(Duration::from_secs(10))
+      .send()
+      .await
+    {
+      if response.status().is_success() {
+        return Ok(url.clone());
       }
     }
   }
@@ -207,21 +262,22 @@ pub async fn download_target_version(
 
   let wanted = semver::Version::parse(&version).map_err(|_| LauncherConfigError::FetchError)?;
   let releases = fetch_releases(&client).await?;
-  let asset = releases
+  let candidates: Vec<url::Url> = releases
     .as_array()
     .unwrap()
     .iter()
     .filter(|release| release.get("draft").and_then(Value::as_bool) != Some(true))
     .filter(|release| release_version(release).as_ref() == Some(&wanted))
     .filter_map(|release| release_asset(release, &wanted, &os, &arch, is_portable))
-    .find(|asset| asset["name"].as_str() == Some(fname.as_str()))
-    .ok_or(LauncherConfigError::FetchError)?;
-  let url = asset["browser_download_url"].as_str().unwrap();
+    .filter(|asset| asset["name"].as_str() == Some(fname.as_str()))
+    .filter_map(|asset| url::Url::parse(asset["browser_download_url"].as_str()?).ok())
+    .collect();
+  let url = available_download_url(&client, &candidates).await?;
   schedule_progressive_task_group(
     app.clone(),
     format!("launcher-update?{}", fname),
     vec![PTaskParam::Download(DownloadParam {
-      src: url::Url::parse(url).map_err(|_| LauncherConfigError::FetchError)?,
+      src: url,
       dest: download_cache_dir.join(&fname),
       filename: Some(fname),
       sha1: None,
@@ -450,8 +506,9 @@ mod tests {
   use tauri_plugin_http::reqwest;
 
   use crate::launcher_config::helpers::updater::{
-    build_local_new_filename, build_resource_filename, fetch_releases_from, release_asset,
-    release_version, select_release, supports_launcher_updates,
+    available_download_url, build_local_new_filename, build_resource_filename, fetch_releases_from,
+    fetch_releases_from_sources, release_asset, release_version, select_release,
+    supports_launcher_updates,
   };
   use crate::launcher_config::models::BuildType;
 
@@ -534,7 +591,7 @@ mod tests {
 
   #[tokio::test]
   async fn invalid_feed_falls_back_instead_of_hiding_updates() {
-    for invalid in ["not JSON", "{}"] {
+    for invalid in ["not JSON", "{}", "[]", "[{\"tag_name\":\"not-a-version\"}]"] {
       let feed = json!([release("v19.2.0-indev", false, "SAUMCL.exe")]);
       let (address, server) =
         update_server(vec![(200, invalid.to_string()), (200, feed.to_string())]);
@@ -652,6 +709,86 @@ mod tests {
       "https://gitlab.com/api/v4/projects/88266251/packages/generic/saumcl/19.3.0-indev.gl/SAUMCL.exe"
     );
     assert!(release_asset(&value, &version, "windows", "x86_64", true).is_some());
+  }
+
+  #[test]
+  fn own_github_downloads_and_new_indev_versions_are_accepted() {
+    let version = semver::Version::parse("19.4.0-indev").unwrap();
+    let mut value = release("v19.4.0-indev", false, "SAUMCL.exe");
+    value["assets"][0]["browser_download_url"] =
+      json!("https://github.com/Supaio/SAUMCL/releases/download/v19.4.0-indev/SAUMCL.exe");
+    assert!(release_asset(&value, &version, "windows", "x86_64", true).is_some());
+    assert!(version > semver::Version::parse("19.3.0-indev.gl").unwrap());
+  }
+
+  #[tokio::test]
+  async fn older_reachable_mirror_does_not_hide_the_newer_release() {
+    let old = json!([release("v19.3.0-indev.gl", false, "SAUMCL.exe")]);
+    let new = json!([release("v19.4.0-indev", false, "SAUMCL.exe")]);
+    let (first, first_server) = update_server(vec![(200, old.to_string())]);
+    let (second, second_server) = update_server(vec![(200, new.to_string())]);
+    let client = reqwest::Client::builder().no_proxy().build().unwrap();
+    let releases = fetch_releases_from_sources(&client, &[&[&first], &[&second]])
+      .await
+      .unwrap();
+    let current = semver::Version::parse("19.3.0-indev.gl").unwrap();
+    let (_, version, _) = select_release(&releases, &current, "windows", "x86_64", true).unwrap();
+    assert_eq!(version.to_string(), "19.4.0-indev");
+    first_server.join().unwrap();
+    second_server.join().unwrap();
+  }
+
+  #[tokio::test]
+  async fn one_failed_repository_still_uses_the_other_repository() {
+    let feed = json!([release("v19.4.0-indev", false, "SAUMCL.exe")]);
+    let (first, first_server) = update_server(vec![(403, "{}".into())]);
+    let (second, second_server) = update_server(vec![(200, feed.to_string())]);
+    let client = reqwest::Client::builder().no_proxy().build().unwrap();
+    assert_eq!(
+      fetch_releases_from_sources(&client, &[&[&first], &[&second]])
+        .await
+        .unwrap(),
+      feed
+    );
+    first_server.join().unwrap();
+    second_server.join().unwrap();
+  }
+
+  #[tokio::test]
+  async fn download_probe_uses_the_available_mirror() {
+    let (first, first_server) = head_server(404);
+    let (second, second_server) = head_server(200);
+    let client = reqwest::Client::builder().no_proxy().build().unwrap();
+    let candidates = [
+      url::Url::parse(&first).unwrap(),
+      url::Url::parse(&second).unwrap(),
+    ];
+    assert_eq!(
+      available_download_url(&client, &candidates).await.unwrap(),
+      candidates[1]
+    );
+    first_server.join().unwrap();
+    second_server.join().unwrap();
+  }
+
+  fn head_server(status: u16) -> (String, thread::JoinHandle<()>) {
+    let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+    let address = format!("http://{}", listener.local_addr().unwrap());
+    let server = thread::spawn(move || {
+      let (mut stream, _) = listener.accept().unwrap();
+      stream
+        .set_read_timeout(Some(Duration::from_secs(5)))
+        .unwrap();
+      let mut request = [0; 4096];
+      let length = stream.read(&mut request).unwrap();
+      assert!(String::from_utf8_lossy(&request[..length]).starts_with("HEAD / HTTP/"));
+      write!(
+        stream,
+        "HTTP/1.1 {status} Test\r\nContent-Length: 0\r\nConnection: close\r\n\r\n"
+      )
+      .unwrap();
+    });
+    (address, server)
   }
 
   #[test]
