@@ -95,7 +95,7 @@ const downloadSourceLists: Record<string, OtherResourceSource[]> = {
   mod: [OtherResourceSource.Modrinth],
   resourcepack: [OtherResourceSource.Modrinth],
   shader: [OtherResourceSource.Modrinth],
-  modpack: [OtherResourceSource.Modrinth],
+  modpack: [OtherResourceSource.Modrinth, OtherResourceSource.CurseForge],
   datapack: [OtherResourceSource.Modrinth],
 };
 
@@ -308,7 +308,7 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
   const [isLoadingResourceList, setIsLoadingResourceList] =
     useState<boolean>(false);
   const [hasMore, setHasMore] = useState<boolean>(true);
-  const [pageSize, setPageSize] = useState<number>(20);
+  const pageSize = 20;
 
   const [searchQuery, setSearchQuery] = useState<string>(initialSearchQuery);
   const [gameVersion, setGameVersion] = useState<string>("");
@@ -320,6 +320,7 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
 
   const searchQueryRef = useRef(searchQuery);
   const pageRef = useRef(0);
+  const requestGeneration = useRef(0);
 
   const tagList = (tagLists[resourceType] || modpackTagList)[downloadSource];
   const sortByList = sortByLists[downloadSource];
@@ -356,6 +357,9 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
       pageSize: number,
       isLoadMore: boolean = false
     ) => {
+      const generation = isLoadMore
+        ? requestGeneration.current
+        : ++requestGeneration.current;
       if (page === 0) setIsLoadingResourceList(true);
 
       ResourceService.fetchResourceListByName(
@@ -369,6 +373,7 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
         pageSize
       )
         .then((response) => {
+          if (generation !== requestGeneration.current) return;
           if (response.status === "success") {
             const resourceData = response.data.list;
             if (!isLoadMore) {
@@ -376,7 +381,9 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
             } else {
               setResourceList((prevList) => [...prevList, ...resourceData]);
             }
-            setHasMore(response.data.total > (page + 1) * pageSize);
+            setHasMore(
+              response.data.total > (page + 1) * response.data.pageSize
+            );
           } else {
             setResourceList([]);
             toast({
@@ -387,7 +394,9 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
           }
         })
         .finally(() => {
-          setIsLoadingResourceList(false);
+          if (generation === requestGeneration.current) {
+            setIsLoadingResourceList(false);
+          }
         });
     },
     [toast]
@@ -527,17 +536,19 @@ const ResourceDownloader: React.FC<ResourceDownloaderProps> = ({
   return (
     <VStack fontSize="xs" h="100%">
       <HStack gap={3}>
-        <ResourceDownloaderMenu
-          label={t("ResourceDownloader.label.tag")}
-          displayText={t(
-            `ResourceDownloader.${resourceType}TagList.${downloadSource}.${selectedTag}`
-          )}
-          onChange={setSelectedTag}
-          value={selectedTag}
-          defaultValue={"All"}
-          options={renderTagMenuOptions()}
-          width={menuWidths.tag}
-        />
+        {downloadSource !== OtherResourceSource.CurseForge && (
+          <ResourceDownloaderMenu
+            label={t("ResourceDownloader.label.tag")}
+            displayText={t(
+              `ResourceDownloader.${resourceType}TagList.${downloadSource}.${selectedTag}`
+            )}
+            onChange={setSelectedTag}
+            value={selectedTag}
+            defaultValue={"All"}
+            options={renderTagMenuOptions()}
+            width={menuWidths.tag}
+          />
+        )}
 
         <ResourceDownloaderMenu
           label={t("ResourceDownloader.label.gameVer")}

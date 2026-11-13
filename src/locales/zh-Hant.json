@@ -758,7 +758,8 @@
       "extension-update": "更新擴充套件 {{param1}} {{param2}}",
       "mojang-java": "Java {{param}} 執行時",
       "campus-client": "校服用戶端 {{param}}",
-      "campus-loader": "校服模組載入器 {{param}}"
+      "campus-loader": "校服模組載入器 {{param}}",
+      "curseforge-files": "CurseForge 模組包檔案 · {{param1}}"
     }
   },
   "Editable": {
@@ -1667,16 +1668,20 @@
       "scanning": "正在尋找本機的模組包檔案…",
       "progress": "已找到 {{found}} / {{total}} 個必要檔案",
       "checkFailed": "無法檢查模組包檔案",
-      "downloadHelp": "可以讓 CurseForge 或 Prism 下載缺少的檔案。SAUMCL 會自動匯入找到的對應版本。",
+      "downloadHelp": "SAUMCL 會從 CurseForge 下載清單指定的缺少檔案。",
+      "downloadIncomplete": "仍有檔案缺少。可重試下載，或從已安裝的目錄匯入。",
+      "downloadAndInstall": "下載並安裝",
+      "otherOptions": "其他匯入方式",
       "waiting": "請在下載工具中確認安裝。必要檔案齊全後，SAUMCL 會繼續安裝。",
-      "openCurseForge": "用 CurseForge 下載",
+      "openCurseForge": "開啟 CurseForge 網頁",
       "openPrism": "用 Prism 下載",
       "chooseSource": "選擇已安裝的目錄",
       "install": "安裝",
       "errorTitle": "無法安裝 CurseForge 模組包",
       "errors": {
-        "CURSE_FORGE_FILES_MISSING": "還有必要檔案缺失。請確認模組包在下載工具中已完成安裝。",
-        "CURSE_FORGE_FILE_MISMATCH": "有檔案未通過驗證。請在下載工具中修復對應實例，再重試。",
+        "CURSE_FORGE_FILES_MISSING": "還有必要檔案缺少，請下載後重試。",
+        "CURSE_FORGE_FILE_MISMATCH": "有檔案未通過驗證，請重新下載對應檔案。",
+        "CURSE_FORGE_DOWNLOAD_UNAVAILABLE": "未能取得這個模組包版本的下載清單。可重試，或選擇已安裝的目錄。",
         "CURSE_FORGE_PRISM_UNAVAILABLE": "無法開啟 Prism Launcher。請檢查 Prism 是否已安裝。",
         "CONFLICT_NAME_ERROR": "已有同名實例。請修改新實例的名稱。",
         "INVALID_NAME_ERROR": "實例名稱無效。請修改名稱後重試。",
@@ -2443,6 +2448,10 @@
       }
     },
     "sortByList": {
+      "CurseForge": {
+        "relevance": "熱門",
+        "updated": "更新日期"
+      },
       "Modrinth": {
         "relevance": "相關度",
         "downloads": "下載量",

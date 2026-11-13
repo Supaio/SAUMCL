@@ -7,7 +7,8 @@ SAUMCL Indev 19.4，面向四川农业大学玩家社群的预发行版本。
 - 外观设置新增 A/B 界面切换，A 界面支持更真实的放牛碰撞。
 - 有公告时显示顶部横幅。更新检查、校服配置和社群清单支持 GitHub／GitLab 双源。
 - Microsoft 登录同时用于 SAUMCL，维护 Key 可绑定到账号。
-- 支持导入 CurseForge ZIP，可复用 CurseForge 或 Prism 下载的文件。
+- 「下载整合包」新增 CurseForge 来源。可在 SAUMCL 内搜索、选择版本、下载和安装。
+- 导入 CurseForge ZIP 时可直接下载缺失文件。「下载并安装」会跳转到下载任务页，文件校验通过后自动创建实例。
 - 修复 Rust 依赖审计问题。
 
 下载与运行：

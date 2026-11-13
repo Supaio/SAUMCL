@@ -42,7 +42,7 @@ export const DownloadTasksPage = () => {
 
   const {
     tasks,
-    handleScheduleProgressiveTaskGroup,
+    handleRetryProgressiveTaskGroup,
     handleCancelProgressiveTaskGroup,
     handleStopProgressiveTaskGroup,
     handleResumeProgressiveTaskGroup,
@@ -222,21 +222,7 @@ export const DownloadTasksPage = () => {
                           h={21}
                           ml={1}
                           variant="ghost"
-                          onClick={() =>
-                            handleScheduleProgressiveTaskGroup(
-                              "retry-" +
-                                parseTaskGroup(group.taskGroup).rawName.replace(
-                                  /^retry-/,
-                                  ""
-                                ),
-                              group.taskDescs
-                                .filter(
-                                  (t) =>
-                                    t.status !== TaskDescStatusEnums.Completed
-                                )
-                                .map((t) => t.payload)
-                            )
-                          }
+                          onClick={() => handleRetryProgressiveTaskGroup(group)}
                         />
                       </Tooltip>
                     )}

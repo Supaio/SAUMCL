@@ -15,13 +15,16 @@ import ReLoginPlayerModal from "@/components/modals/relogin-player-modal";
 import SpotlightSearchModal from "@/components/modals/spotlight-search-modal";
 import { SharedModalContextProvider } from "@/contexts/shared-modal";
 import { useSharedModals } from "@/contexts/shared-modal";
+import { TaskContextProvider } from "@/contexts/task";
 
 const SharedModalsProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   return (
     <SharedModalContextProvider>
-      <SharedModals>{children}</SharedModals>
+      <TaskContextProvider>
+        <SharedModals>{children}</SharedModals>
+      </TaskContextProvider>
     </SharedModalContextProvider>
   );
 };

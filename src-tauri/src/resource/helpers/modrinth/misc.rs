@@ -261,6 +261,7 @@ impl From<(&ModrinthVersionPack, &ModrinthFileInfo, Option<String>)> for OtherRe
   ) -> Self {
     Self {
       resource_id: version.project_id.clone(),
+      file_id: None,
       name: version.name.clone(),
       release_type: version.version_type.clone(),
       downloads: version.downloads,

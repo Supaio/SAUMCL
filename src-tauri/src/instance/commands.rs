@@ -32,8 +32,8 @@ use crate::instance::helpers::misc::{
   refresh_and_update_instances, unify_instance_name,
 };
 use crate::instance::helpers::modpack::curseforge::{
-  CurseForgeImport, CurseForgeImportState, CurseForgeImportStatus, CurseForgeManifest,
-  prism_executable, validate_instance_name,
+  CurseForgeDownloadResult, CurseForgeImport, CurseForgeImportState, CurseForgeImportStatus,
+  CurseForgeManifest, download_files, prism_executable, validate_instance_name,
 };
 use crate::instance::helpers::modpack::export::{
   ExportModpackOptions, build_export_bundle, create_modpack_zip, list_files,
@@ -1781,7 +1781,8 @@ pub async fn check_curseforge_import(
   source_directory: Option<PathBuf>,
 ) -> SJMCLResult<CurseForgeImportStatus> {
   tauri::async_runtime::spawn_blocking(move || {
-    let pack = CurseForgeImport::resolve(&app, path, source_directory.as_deref())?;
+    let mut pack = CurseForgeImport::resolve(&app, path, source_directory.as_deref())?;
+    pack.read_downloads(&app, false);
     let (available_files, required_files) = pack.progress();
     Ok(CurseForgeImportStatus {
       available_files,
@@ -1791,6 +1792,16 @@ pub async fn check_curseforge_import(
   })
   .await
   .map_err(|_| InstanceError::FileOperationError)?
+}
+
+#[tauri::command]
+pub async fn download_curseforge_files(
+  app: AppHandle,
+  path: PathBuf,
+  source_directory: Option<PathBuf>,
+  published_release: Option<(u64, u64)>,
+) -> SJMCLResult<CurseForgeDownloadResult> {
+  download_files(app, path, source_directory, published_release).await
 }
 
 #[tauri::command]
@@ -1829,7 +1840,8 @@ pub async fn install_curseforge_zip(
     .map_err(|_| InstanceError::InstallationDuplicated)?;
   let prepare_app = app.clone();
   let pack = tauri::async_runtime::spawn_blocking(move || {
-    let pack = CurseForgeImport::resolve(&prepare_app, path, source_directory.as_deref())?;
+    let mut pack = CurseForgeImport::resolve(&prepare_app, path, source_directory.as_deref())?;
+    pack.read_downloads(&prepare_app, true);
     let (found, required) = pack.progress();
     if found != required {
       return Err(InstanceError::CurseForgeFilesMissing.into());

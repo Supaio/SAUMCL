@@ -758,7 +758,8 @@
       "extension-update": "Update Extension {{param1}} {{param2}}",
       "mojang-java": "Java {{param}} Runtime",
       "campus-client": "Campus client {{param}}",
-      "campus-loader": "Campus mod loader {{param}}"
+      "campus-loader": "Campus mod loader {{param}}",
+      "curseforge-files": "CurseForge modpack files · {{param1}}"
     }
   },
   "Editable": {
@@ -1667,16 +1668,20 @@
       "scanning": "Looking for installed modpack files…",
       "progress": "Found {{found}} of {{total}} required files",
       "checkFailed": "Could not check the modpack files",
-      "downloadHelp": "Download missing files with CurseForge or Prism. SAUMCL will import the matching versions it finds.",
+      "downloadHelp": "SAUMCL will download the missing files listed in the manifest from CurseForge.",
+      "downloadIncomplete": "Some required files are still missing. Retry the download or import from an installed folder.",
+      "downloadAndInstall": "Download and install",
+      "otherOptions": "Other import options",
       "waiting": "Confirm the installation in the download app. SAUMCL will continue when the required files are ready.",
-      "openCurseForge": "Download with CurseForge",
+      "openCurseForge": "Open CurseForge website",
       "openPrism": "Download with Prism",
       "chooseSource": "Choose installed folder",
       "install": "Install",
       "errorTitle": "Could not install the CurseForge modpack",
       "errors": {
-        "CURSE_FORGE_FILES_MISSING": "Some required files are missing. Finish installing this modpack in the download app.",
-        "CURSE_FORGE_FILE_MISMATCH": "A file failed verification. Repair the matching instance in the download app and try again.",
+        "CURSE_FORGE_FILES_MISSING": "Some required files are missing. Download them and try again.",
+        "CURSE_FORGE_FILE_MISMATCH": "A file failed verification. Download it again and retry.",
+        "CURSE_FORGE_DOWNLOAD_UNAVAILABLE": "The download list for this modpack version is unavailable. Retry or choose an installed folder.",
         "CURSE_FORGE_PRISM_UNAVAILABLE": "Could not open Prism Launcher. Check that Prism is installed.",
         "CONFLICT_NAME_ERROR": "An instance already uses this name. Choose a different name.",
         "INVALID_NAME_ERROR": "Choose a valid instance name and try again.",
@@ -2443,6 +2448,10 @@
       }
     },
     "sortByList": {
+      "CurseForge": {
+        "relevance": "Popular",
+        "updated": "Date updated"
+      },
       "Modrinth": {
         "relevance": "Relevance",
         "downloads": "Downloads",

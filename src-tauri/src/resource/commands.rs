@@ -7,6 +7,9 @@ use crate::instance::helpers::client_json::McClientInfo;
 use crate::instance::helpers::misc::get_instance_subdir_path_by_id;
 use crate::instance::models::misc::{InstanceSubdirType, ModLoaderType};
 use crate::launcher_config::models::LauncherConfig;
+use crate::resource::helpers::curseforge::{
+  PackArchive, fetch_modpack_versions, fetch_modpacks, get_pack_archive,
+};
 use crate::resource::helpers::loader_meta::cleanroom::get_cleanroom_meta_by_game_version;
 use crate::resource::helpers::loader_meta::fabric::get_fabric_meta_by_game_version;
 use crate::resource::helpers::loader_meta::forge::get_forge_meta_by_game_version;
@@ -101,6 +104,9 @@ pub async fn fetch_resource_list_by_name(
   query: OtherResourceSearchQuery,
 ) -> SJMCLResult<OtherResourceSearchRes> {
   match download_source {
+    OtherResourceSource::CurseForge if query.resource_type == "modpack" => {
+      fetch_modpacks(&app, &query).await
+    }
     OtherResourceSource::Modrinth => Ok(fetch_resource_list_by_name_modrinth(&app, &query).await?),
     _ => Err(ResourceError::NoDownloadApi.into()),
   }
@@ -113,9 +119,22 @@ pub async fn fetch_resource_version_packs(
   query: OtherResourceVersionPackQuery,
 ) -> SJMCLResult<Vec<OtherResourceVersionPack>> {
   match download_source {
+    OtherResourceSource::CurseForge if query.resource_type == "modpack" => {
+      fetch_modpack_versions(&app, &query).await
+    }
     OtherResourceSource::Modrinth => Ok(fetch_resource_version_packs_modrinth(&app, &query).await?),
     _ => Err(ResourceError::NoDownloadApi.into()),
   }
+}
+
+#[tauri::command]
+pub async fn fetch_curseforge_pack_archive(
+  client: State<'_, reqwest::Client>,
+  project_id: String,
+  file_id: u64,
+) -> SJMCLResult<PackArchive> {
+  let project_id = project_id.parse().map_err(|_| ResourceError::ParseError)?;
+  get_pack_archive(&client, project_id, file_id).await
 }
 
 #[tauri::command]

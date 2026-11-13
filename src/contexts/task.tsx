@@ -13,6 +13,7 @@ import { useGlobalData } from "@/contexts/global-data";
 import { useSharedModals } from "@/contexts/shared-modal";
 import { useToast } from "@/contexts/toast";
 import { OtherResourceType } from "@/enums/resource";
+import { CurseForgeImportSettings } from "@/models/instance/misc";
 import {
   CreatedPTaskEventStatus,
   FailedPTaskEventStatus,
@@ -40,14 +41,15 @@ import { launcherFeatures } from "@/utils/features";
 interface TaskContextType {
   tasks: TaskGroupDesc[];
   generalPercent: number | undefined; // General progress percentage for all tasks
-  handleScheduleProgressiveTaskGroup: (
-    taskGroup: string,
-    params: TaskParam[]
-  ) => void;
   handleCancelProgressiveTaskGroup: (taskGroup: string) => void;
   handleStopProgressiveTaskGroup: (taskGroup: string) => void;
   handleResumeProgressiveTaskGroup: (taskGroup: string) => void;
   handleClearHistoryTaskGroups: () => void;
+  handleRetryProgressiveTaskGroup: (group: TaskGroupDesc) => void;
+  installCurseForgeWhenDownloaded: (
+    taskGroup: string,
+    settings: CurseForgeImportSettings
+  ) => void;
 }
 
 export const TaskContext = createContext<TaskContextType | undefined>(
@@ -67,6 +69,82 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
   const { t } = useTranslation();
   const modLoaderLoadingToastRef = React.useRef<ToastId | null>(null);
   const optifineLoadingToastRef = React.useRef<ToastId | null>(null);
+  const curseForgeInstalls = React.useRef(
+    new Map<string, CurseForgeImportSettings>()
+  );
+  const retryingGroups = React.useRef(new Set<string>());
+
+  const finishCurseForgeInstall = useCallback(
+    async (settings: CurseForgeImportSettings) => {
+      const {
+        path,
+        publishedRelease,
+        name,
+        description,
+        iconSrc,
+        gameDirectory,
+        sourceDirectory,
+      } = settings;
+      try {
+        await InstanceService.installCurseForgeZip(
+          path,
+          sourceDirectory,
+          gameDirectory,
+          name,
+          description,
+          iconSrc
+        );
+      } catch (error) {
+        toast({
+          status: "error",
+          title: t("ImportModpackModal.curseforge.errorTitle"),
+          description: t(
+            `ImportModpackModal.curseforge.errors.${String(error)}`,
+            {
+              defaultValue: t("ImportModpackModal.curseforge.errors.other"),
+            }
+          ),
+        });
+        openSharedModal("import-modpack", {
+          path,
+          publishedRelease,
+          previousSettings: settings,
+        });
+      }
+    },
+    [openSharedModal, t, toast]
+  );
+
+  const installCurseForgeWhenDownloaded = useCallback(
+    (taskGroup: string, settings: CurseForgeImportSettings) => {
+      if (curseForgeInstalls.current.has(taskGroup)) return;
+      if (
+        tasks.some(
+          (task) =>
+            task.taskGroup === taskGroup &&
+            task.status === GTaskEventStatusEnums.Completed
+        )
+      ) {
+        void finishCurseForgeInstall(settings);
+      } else {
+        curseForgeInstalls.current.set(taskGroup, settings);
+      }
+    },
+    [finishCurseForgeInstall, tasks]
+  );
+
+  useEffect(() => {
+    if (curseForgeInstalls.current.size === 0) return;
+    for (const task of tasks) {
+      if (task.status === GTaskEventStatusEnums.Completed) {
+        const settings = curseForgeInstalls.current.get(task.taskGroup);
+        if (settings) {
+          curseForgeInstalls.current.delete(task.taskGroup);
+          void finishCurseForgeInstall(settings);
+        }
+      }
+    }
+  }, [finishCurseForgeInstall, tasks]);
 
   const updateGroupInfo = useCallback((group: TaskGroupDesc) => {
     if (group.status === GTaskEventStatusEnums.Completed) {
@@ -170,7 +248,7 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const handleScheduleProgressiveTaskGroup = useCallback(
     (taskGroup: string, params: TaskParam[]) => {
-      TaskService.scheduleProgressiveTaskGroup(taskGroup, params).then(
+      return TaskService.scheduleProgressiveTaskGroup(taskGroup, params).then(
         (response) => {
           // success toast will now be called by task context group listener
           if (response.status !== "success") {
@@ -180,10 +258,42 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
               status: "error",
             });
           }
+          return response;
         }
       );
     },
     [toast]
+  );
+
+  const handleRetryProgressiveTaskGroup = useCallback(
+    async (group: TaskGroupDesc) => {
+      if (retryingGroups.current.has(group.taskGroup)) return;
+      const retryGroup =
+        "retry-" +
+        parseTaskGroup(group.taskGroup).rawName.replace(/^retry-/, "");
+      const pendingInstall = curseForgeInstalls.current.get(group.taskGroup);
+      const params = group.taskDescs
+        .filter((task) => task.status !== TaskDescStatusEnums.Completed)
+        .map((task) => task.payload);
+      if (params.length === 0) return;
+      retryingGroups.current.add(group.taskGroup);
+      try {
+        const response = await handleScheduleProgressiveTaskGroup(
+          retryGroup,
+          params
+        );
+        if (response.status === "success" && pendingInstall) {
+          curseForgeInstalls.current.delete(group.taskGroup);
+          installCurseForgeWhenDownloaded(
+            response.data.taskGroup,
+            pendingInstall
+          );
+        }
+      } finally {
+        retryingGroups.current.delete(group.taskGroup);
+      }
+    },
+    [handleScheduleProgressiveTaskGroup, installCurseForgeWhenDownloaded]
   );
 
   const handleCancelProgressiveTaskGroup = useCallback(
@@ -240,6 +350,7 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
       prev
         .filter((t) => !isActiveGroup(t))
         .forEach((group) => {
+          curseForgeInstalls.current.delete(group.taskGroup);
           TaskService.deleteProgressiveTaskGroup(group.taskGroup);
         });
       return prev.filter(isActiveGroup);
@@ -413,6 +524,7 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
     const unlisten = TaskService.onTaskGroupUpdate(
       (payload: GTaskEventPayload) => {
         logger.info(`Received task group update: ${payload.event}`);
+        const { name, params } = parseTaskGroup(payload.taskGroup);
         setTasks((prevTasks) => {
           let newTasks = prevTasks.map((task) => {
             if (task.taskGroup === payload.taskGroup) {
@@ -425,7 +537,11 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
                   ) {
                     t.status = TaskDescStatusEnums.Completed;
                     t.current = t.total;
-                  } else if (t.status === TaskDescStatusEnums.Failed) {
+                  } else if (
+                    t.status === TaskDescStatusEnums.Failed ||
+                    (t.status === TaskDescStatusEnums.Cancelled &&
+                      name === "curseforge-files")
+                  ) {
                     task.status = GTaskEventStatusEnums.Failed;
                     payload.event = GTaskEventStatusEnums.Failed;
                   }
@@ -434,8 +550,6 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
             }
             return task;
           });
-
-          const { name, params } = parseTaskGroup(payload.taskGroup);
 
           toast({
             status:
@@ -558,8 +672,17 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
                   (t) => t.taskGroup === payload.taskGroup
                 );
                 if (group && group.taskDescs.length > 0) {
+                  const projectId = Number(params.param1);
+                  const fileId = Number(params.param2);
                   openSharedModal("import-modpack", {
                     path: group.taskDescs[0].payload.dest,
+                    publishedRelease:
+                      Number.isSafeInteger(projectId) &&
+                      projectId > 0 &&
+                      Number.isSafeInteger(fileId) &&
+                      fileId > 0
+                        ? [projectId, fileId]
+                        : undefined,
                   });
                 }
                 break;
@@ -706,11 +829,12 @@ export const TaskContextProvider: React.FC<{ children: React.ReactNode }> = ({
       value={{
         tasks,
         generalPercent,
-        handleScheduleProgressiveTaskGroup,
         handleCancelProgressiveTaskGroup,
         handleStopProgressiveTaskGroup,
         handleResumeProgressiveTaskGroup,
         handleClearHistoryTaskGroups,
+        handleRetryProgressiveTaskGroup,
+        installCurseForgeWhenDownloaded,
       }}
     >
       {children}

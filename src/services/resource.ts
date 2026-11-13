@@ -3,6 +3,7 @@ import { getCurrentWebview } from "@tauri-apps/api/webview";
 import { ModLoaderType } from "@/enums/instance";
 import { OtherResourceSource, OtherResourceType } from "@/enums/resource";
 import {
+  CurseForgePackArchive,
   GameClientResourceInfo,
   ModLoaderResourceInfo,
   ModUpdateQuery,
@@ -124,6 +125,14 @@ export class ResourceService {
         resourceType,
       },
     });
+  }
+
+  @responseHandler("resource")
+  static async fetchCurseForgePackArchive(
+    projectId: string,
+    fileId: number
+  ): Promise<InvokeResponse<CurseForgePackArchive>> {
+    return await invoke("fetch_curseforge_pack_archive", { projectId, fileId });
   }
 
   /**

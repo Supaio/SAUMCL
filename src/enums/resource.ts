@@ -8,6 +8,7 @@ export enum OtherResourceType {
 }
 
 export enum OtherResourceSource {
+  CurseForge = "CurseForge",
   Modrinth = "Modrinth",
 }
 
@@ -120,6 +121,7 @@ export const datapackTagList = {
 };
 
 export const modpackTagList = {
+  CurseForge: { All: ["All"] },
   Modrinth: {
     All: ["All"],
     styles: [
@@ -138,5 +140,6 @@ export const modpackTagList = {
 };
 
 export const sortByLists = {
+  CurseForge: ["relevance", "updated"],
   Modrinth: ["relevance", "downloads", "follows", "updated", "newest"],
 };

@@ -38,6 +38,7 @@ export interface OtherResourceSearchRes {
 
 export interface OtherResourceFileInfo {
   resourceId: string;
+  fileId?: number;
   name: string;
   releaseType: string;
   downloads: number;
@@ -47,6 +48,12 @@ export interface OtherResourceFileInfo {
   fileName: string;
   dependencies: OtherResourceDependency[];
   loader?: string; // "forge", "fabric", "iris", "optifine", etc.
+}
+
+export interface CurseForgePackArchive {
+  url: string;
+  fileName: string;
+  sha1: string | null;
 }
 
 export interface OtherResourceDependency {

@@ -121,6 +121,7 @@ const DownloadSpecificResourceModal: React.FC<
   );
   const [selectedItem, setSelectedItem] =
     useState<OtherResourceFileInfo | null>(null);
+  const [resolvingArchive, setResolvingArchive] = useState(false);
 
   const { getGameVersionList, isGameVersionListLoading, getInstanceList } =
     useGlobalData();
@@ -137,6 +138,7 @@ const DownloadSpecificResourceModal: React.FC<
   }, [router.query.id]);
 
   const isModpack = resource.type === OtherResourceType.ModPack;
+  const isCurseForge = resource.source === OtherResourceSource.CurseForge;
 
   const resourceTypeToDirType = useMemo<Record<string, InstanceSubdirType>>(
     () => ({
@@ -230,6 +232,41 @@ const DownloadSpecificResourceModal: React.FC<
     [addPrefix, resource.translatedName]
   );
 
+  const resolveDownloadFile = useCallback(
+    async (item: OtherResourceFileInfo) => {
+      if (!isCurseForge) {
+        return {
+          url: item.downloadUrl,
+          fileName: getSelectedFileName(item),
+          sha1: item.sha1,
+        };
+      }
+      if (item.fileId === undefined) return;
+      setResolvingArchive(true);
+      try {
+        const response = await ResourceService.fetchCurseForgePackArchive(
+          item.resourceId,
+          item.fileId
+        );
+        if (response.status === "success") {
+          return {
+            url: response.data.url,
+            fileName: sanitizeFileName(response.data.fileName),
+            sha1: response.data.sha1 ?? undefined,
+          };
+        }
+        toast({
+          title: response.message,
+          description: response.details,
+          status: "error",
+        });
+      } finally {
+        setResolvingArchive(false);
+      }
+    },
+    [getSelectedFileName, isCurseForge, toast]
+  );
+
   // resource dependencies alert
   const withDependencyCheck = useCallback(
     (action: () => void) => {
@@ -280,17 +317,20 @@ const DownloadSpecificResourceModal: React.FC<
   const handleDownload = useCallback(() => {
     if (!selectedItem) return;
     withDependencyCheck(async () => {
+      const file = await resolveDownloadFile(selectedItem);
+      if (!file) return;
       const dir = await getDefaultDownloadPath();
-      const fileName = getSelectedFileName(selectedItem);
-      const savepath = await save({ defaultPath: await join(dir, fileName) });
+      const savepath = await save({
+        defaultPath: await join(dir, file.fileName),
+      });
       if (!savepath) return;
       // use "modpack-wo-install" group to prevent auto-triggering install
       const taskGroup = isModpack ? "modpack-wo-install" : resource.type;
       handleScheduleProgressiveTaskGroup(taskGroup, [
         {
-          src: selectedItem.downloadUrl,
+          src: file.url,
           dest: savepath,
-          sha1: selectedItem.sha1,
+          sha1: file.sha1,
           taskType: TaskTypeEnums.Download,
         },
       ]);
@@ -302,7 +342,7 @@ const DownloadSpecificResourceModal: React.FC<
     selectedItem,
     withDependencyCheck,
     getDefaultDownloadPath,
-    getSelectedFileName,
+    resolveDownloadFile,
     isModpack,
     resource.type,
     handleScheduleProgressiveTaskGroup,
@@ -360,13 +400,21 @@ const DownloadSpecificResourceModal: React.FC<
     if (!selectedItem) return;
     const cacheDir = config.download.cache.directory.trim();
     if (!cacheDir) return;
-    const fileName = sanitizeFileName(selectedItem.fileName);
+    const file = await resolveDownloadFile(selectedItem);
+    if (!file) return;
+    const fileName = isCurseForge
+      ? `curseforge-pack-${selectedItem.resourceId}-${selectedItem.fileId}.zip`
+      : sanitizeFileName(selectedItem.fileName);
     const destPath = await join(cacheDir, fileName);
-    handleScheduleProgressiveTaskGroup("modpack", [
+    const taskGroup = isCurseForge
+      ? `modpack?${selectedItem.resourceId}&${selectedItem.fileId}`
+      : "modpack";
+    handleScheduleProgressiveTaskGroup(taskGroup, [
       {
-        src: selectedItem.downloadUrl,
+        src: file.url,
         dest: destPath,
-        sha1: selectedItem.sha1,
+        filename: isCurseForge ? file.fileName : undefined,
+        sha1: file.sha1,
         taskType: TaskTypeEnums.Download,
       },
     ]);
@@ -376,6 +424,8 @@ const DownloadSpecificResourceModal: React.FC<
   }, [
     selectedItem,
     config.download.cache.directory,
+    isCurseForge,
+    resolveDownloadFile,
     handleScheduleProgressiveTaskGroup,
     closeSharedModal,
     router,
@@ -841,7 +891,7 @@ const DownloadSpecificResourceModal: React.FC<
           </Button>
           <Button
             variant="ghost"
-            isDisabled={!selectedItem}
+            isDisabled={!selectedItem || resolvingArchive}
             onClick={handleDownload}
           >
             {t("DownloadSpecificResourceModal.button.download")}
@@ -885,6 +935,7 @@ const DownloadSpecificResourceModal: React.FC<
             <Button
               colorScheme={primaryColor}
               isDisabled={!selectedItem}
+              isLoading={resolvingArchive}
               onClick={handleInstallModpack}
             >
               {t("DownloadSpecificResourceModal.button.install")}

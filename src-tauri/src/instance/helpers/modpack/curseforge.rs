@@ -1,3 +1,5 @@
+mod downloads;
+
 use serde::{Deserialize, Serialize};
 use sjmcl_types::error::SJMCLResult;
 use std::collections::{HashMap, HashSet};
@@ -12,6 +14,10 @@ use crate::instance::helpers::modpack::import::ModpackMetaInfo;
 use crate::instance::models::misc::{InstanceError, ModLoader, ModLoaderType};
 use crate::resource::models::OtherResourceSource;
 use crate::utils::fs::validate_sha1;
+
+pub use crate::instance::helpers::modpack::curseforge::downloads::{
+  CurseForgeDownloadResult, download_files,
+};
 
 const MANIFEST_LIMIT: u64 = 4 * 1024 * 1024;
 const PROFILE_LIMIT: u64 = 32 * 1024 * 1024;

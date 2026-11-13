@@ -2,6 +2,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { InstanceSubdirType } from "@/enums/instance";
 import { GameConfig, GameDirectory } from "@/models/config";
 import {
+  CurseForgeDownloadResult,
   CurseForgeImportStatus,
   ExportModpackOptions,
   GameServerInfo,
@@ -36,6 +37,18 @@ export class InstanceService {
 
   static openCurseForgeZipInPrism(path: string): Promise<void> {
     return invoke("open_curseforge_zip_in_prism", { path });
+  }
+
+  static downloadCurseForgeFiles(
+    path: string,
+    sourceDirectory?: string,
+    publishedRelease?: [number, number]
+  ): Promise<CurseForgeDownloadResult> {
+    return invoke("download_curseforge_files", {
+      path,
+      sourceDirectory,
+      publishedRelease,
+    });
   }
 
   static installCurseForgeZip(

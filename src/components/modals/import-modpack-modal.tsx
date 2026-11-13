@@ -31,8 +31,10 @@ import {
   loaderTypesToIcon,
 } from "@/components/modals/create-instance-modal";
 import { useLauncherConfig } from "@/contexts/config";
+import { useTaskContext } from "@/contexts/task";
 import { useToast } from "@/contexts/toast";
 import {
+  CurseForgeImportSettings,
   CurseForgeImportStatus,
   ModpackMetaInfo,
 } from "@/models/instance/misc";
@@ -46,15 +48,20 @@ import { isDirNameInvalid, sanitizeFileName } from "@/utils/string";
 
 interface ImportModpackModalProps extends Omit<ModalProps, "children"> {
   path: string;
+  publishedRelease?: [number, number];
+  previousSettings?: CurseForgeImportSettings;
 }
 
 const ImportModpackModal: React.FC<ImportModpackModalProps> = ({
   path,
+  publishedRelease,
+  previousSettings,
   ...modalProps
 }) => {
   const { config } = useLauncherConfig();
   const router = useRouter();
   const toast = useToast();
+  const { installCurseForgeWhenDownloaded } = useTaskContext();
   const primaryColor = config.appearance.theme.primaryColor;
   const { onClose } = modalProps;
 
@@ -63,7 +70,7 @@ const ImportModpackModal: React.FC<ImportModpackModalProps> = ({
   const [description, setDescription] = useState("");
   const [iconSrc, setIconSrc] = useState("");
   const [gameDirectory, setGameDirectory] = useState(
-    config.localGameDirectories[0]
+    previousSettings?.gameDirectory ?? config.localGameDirectories[0]
   );
   const [isPageLoading, setIsPageLoading] = useState(true);
   const [isBtnLoading, setIsBtnLoading] = useState(false);
@@ -72,6 +79,9 @@ const ImportModpackModal: React.FC<ImportModpackModalProps> = ({
   const [waitingForFiles, setWaitingForFiles] = useState(false);
   const [checkFailed, setCheckFailed] = useState(false);
   const [checkRevision, setCheckRevision] = useState(0);
+  const [preparingDownload, setPreparingDownload] = useState(false);
+  const [directDownloadFailed, setDirectDownloadFailed] = useState(false);
+  const [showImportOptions, setShowImportOptions] = useState(false);
   const installing = useRef(false);
   const isCurseForge = modpack?.modpackSource === "CurseForge";
   const filesReady =
@@ -133,6 +143,42 @@ const ImportModpackModal: React.FC<ImportModpackModalProps> = ({
     waitingForFiles,
     checkRevision,
   ]);
+
+  const handleDownloadInLauncher = async () => {
+    if (preparingDownload || !gameDirectory || !canInstall) return;
+    setPreparingDownload(true);
+    setDirectDownloadFailed(false);
+    setWaitingForFiles(false);
+    try {
+      const result = await InstanceService.downloadCurseForgeFiles(
+        path,
+        sourceDirectory,
+        publishedRelease
+      );
+      if (result.taskGroup) {
+        installCurseForgeWhenDownloaded(result.taskGroup, {
+          path,
+          publishedRelease,
+          name,
+          description,
+          iconSrc,
+          gameDirectory,
+          sourceDirectory,
+        });
+        onClose();
+        if (router.pathname !== "/downloads") void router.push("/downloads");
+      } else {
+        setDirectDownloadFailed(result.remaining > 0);
+        setWaitingForFiles(result.remaining === 0);
+        setCheckRevision((revision) => revision + 1);
+      }
+    } catch (error) {
+      setDirectDownloadFailed(true);
+      showCurseForgeError(error);
+    } finally {
+      setPreparingDownload(false);
+    }
+  };
 
   const downloadCurseForgeFiles = async (usePrism: boolean) => {
     try {
@@ -331,27 +377,33 @@ const ImportModpackModal: React.FC<ImportModpackModalProps> = ({
     setIsPageLoading(true);
     setModpack(undefined);
     setFileStatus(undefined);
-    setSourceDirectory(undefined);
+    setSourceDirectory(previousSettings?.sourceDirectory);
     setWaitingForFiles(false);
     setCheckFailed(false);
+    setDirectDownloadFailed(false);
+    setShowImportOptions(false);
     InstanceService.retrieveModpackMetaInfo(path)
       .then((response) => {
         if (!current) return;
         if (response.status === "success") {
           setModpack(response.data);
           setName(
-            sanitizeFileName(
-              response.data.modpackSource === "CurseForge" &&
-                response.data.version
-                ? `${response.data.name} ${response.data.version}`
-                : response.data.name
-            )
+            previousSettings?.name ??
+              sanitizeFileName(
+                response.data.modpackSource === "CurseForge" &&
+                  response.data.version
+                  ? `${response.data.name} ${response.data.version}`
+                  : response.data.name
+              )
           );
-          setDescription(response.data.description || "");
+          setDescription(
+            previousSettings?.description ?? response.data.description ?? ""
+          );
           setIconSrc(
-            response.data.modLoader
-              ? loaderTypesToIcon[response.data.modLoader.loaderType]
-              : gameTypesToIcon["release"]
+            previousSettings?.iconSrc ??
+              (response.data.modLoader
+                ? loaderTypesToIcon[response.data.modLoader.loaderType]
+                : gameTypesToIcon["release"])
           );
         } else {
           toast({
@@ -371,7 +423,7 @@ const ImportModpackModal: React.FC<ImportModpackModalProps> = ({
     return () => {
       current = false;
     };
-  }, [path, toast, onClose]);
+  }, [path, previousSettings, toast, onClose]);
 
   return (
     <Modal
@@ -380,13 +432,13 @@ const ImportModpackModal: React.FC<ImportModpackModalProps> = ({
       autoFocus={false}
       returnFocusOnClose={false}
       {...modalProps}
-      closeOnEsc={!isBtnLoading}
-      closeOnOverlayClick={!isBtnLoading}
+      closeOnEsc={!isBtnLoading && !preparingDownload}
+      closeOnOverlayClick={!isBtnLoading && !preparingDownload}
     >
       <ModalOverlay />
       <ModalContent h="100%">
         <ModalHeader>{t("ImportModpackModal.header.title")}</ModalHeader>
-        <ModalCloseButton isDisabled={isBtnLoading} />
+        <ModalCloseButton isDisabled={isBtnLoading || preparingDownload} />
         <ModalBody h="100%">
           {isPageLoading ? (
             <Center h="100%">
@@ -398,7 +450,11 @@ const ImportModpackModal: React.FC<ImportModpackModalProps> = ({
                 <VStack align="stretch" w="100%" spacing={2}>
                   <Alert
                     status={
-                      filesReady ? "success" : checkFailed ? "warning" : "info"
+                      filesReady
+                        ? "success"
+                        : checkFailed || directDownloadFailed
+                          ? "warning"
+                          : "info"
                     }
                     borderRadius="md"
                   >
@@ -419,15 +475,29 @@ const ImportModpackModal: React.FC<ImportModpackModalProps> = ({
                       {!filesReady && (
                         <Text fontSize="sm">
                           {t(
-                            waitingForFiles
-                              ? "ImportModpackModal.curseforge.waiting"
-                              : "ImportModpackModal.curseforge.downloadHelp"
+                            directDownloadFailed
+                              ? "ImportModpackModal.curseforge.downloadIncomplete"
+                              : waitingForFiles
+                                ? "ImportModpackModal.curseforge.waiting"
+                                : "ImportModpackModal.curseforge.downloadHelp"
                           )}
                         </Text>
                       )}
                     </VStack>
                   </Alert>
-                  {!filesReady && (
+                  {!filesReady && !preparingDownload && (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      alignSelf="start"
+                      onClick={() =>
+                        setShowImportOptions((visible) => !visible)
+                      }
+                    >
+                      {t("ImportModpackModal.curseforge.otherOptions")}
+                    </Button>
+                  )}
+                  {!filesReady && showImportOptions && !preparingDownload && (
                     <HStack flexWrap="wrap" spacing={2}>
                       {fileStatus?.prismAvailable && (
                         <Button
@@ -504,13 +574,21 @@ const ImportModpackModal: React.FC<ImportModpackModalProps> = ({
         <ModalFooter>
           <Button
             colorScheme={primaryColor}
-            onClick={() => handleImportModpack()}
-            isLoading={isBtnLoading || isPageLoading}
-            isDisabled={isCurseForge && (!filesReady || !canInstall)}
+            onClick={() =>
+              isCurseForge && !filesReady
+                ? handleDownloadInLauncher()
+                : handleImportModpack()
+            }
+            isLoading={isBtnLoading || isPageLoading || preparingDownload}
+            isDisabled={
+              isCurseForge && (!canInstall || (!fileStatus && !checkFailed))
+            }
           >
             {t(
               isCurseForge
-                ? "ImportModpackModal.curseforge.install"
+                ? filesReady
+                  ? "ImportModpackModal.curseforge.install"
+                  : "ImportModpackModal.curseforge.downloadAndInstall"
                 : "General.import"
             )}
           </Button>

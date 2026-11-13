@@ -1,4 +1,5 @@
 import { ExportModpackFormat, ModLoaderType } from "@/enums/instance";
+import { GameDirectory } from "@/models/config";
 
 export enum ModLoaderStatus {
   NotDownloaded = "NotDownloaded",
@@ -54,6 +55,21 @@ export interface CurseForgeImportStatus {
   availableFiles: number;
   requiredFiles: number;
   prismAvailable: boolean;
+}
+
+export interface CurseForgeImportSettings {
+  path: string;
+  publishedRelease?: [number, number];
+  name: string;
+  description: string;
+  iconSrc: string;
+  gameDirectory: GameDirectory;
+  sourceDirectory?: string;
+}
+
+export interface CurseForgeDownloadResult {
+  taskGroup: string | null;
+  remaining: number;
 }
 
 export interface ModpackFileList {

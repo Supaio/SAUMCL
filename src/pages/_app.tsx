@@ -14,7 +14,6 @@ import { ExtensionHostContextProvider } from "@/contexts/extension/host";
 import { GlobalDataContextProvider } from "@/contexts/global-data";
 import InterfaceThemeProvider from "@/contexts/interface-theme";
 import { RoutingHistoryContextProvider } from "@/contexts/routing-history";
-import { TaskContextProvider } from "@/contexts/task";
 import { ToastContextProvider } from "@/contexts/toast";
 import DiscoverLayout from "@/layouts/discover-layout";
 import InstanceDetailsLayout from "@/layouts/instance-details-layout";
@@ -130,22 +129,17 @@ export default function App({ Component, pageProps }: AppProps) {
                 <GuidedTourProvider>
                   <CowDropProvider>
                     <SharedModalsProvider>
-                      <TaskContextProvider>
-                        <ExtensionHostContextProvider>
-                          <GlobalEventHandler>
-                            <MainLayout>
-                              <Fade
-                                key={router.pathname.split("/")[1] || ""}
-                                in
-                              >
-                                <SpecLayout>
-                                  <Component {...pageProps} />
-                                </SpecLayout>
-                              </Fade>
-                            </MainLayout>
-                          </GlobalEventHandler>
-                        </ExtensionHostContextProvider>
-                      </TaskContextProvider>
+                      <ExtensionHostContextProvider>
+                        <GlobalEventHandler>
+                          <MainLayout>
+                            <Fade key={router.pathname.split("/")[1] || ""} in>
+                              <SpecLayout>
+                                <Component {...pageProps} />
+                              </SpecLayout>
+                            </Fade>
+                          </MainLayout>
+                        </GlobalEventHandler>
+                      </ExtensionHostContextProvider>
                     </SharedModalsProvider>
                   </CowDropProvider>
                 </GuidedTourProvider>

@@ -16,6 +16,7 @@ use tokio_util::bytes;
 use tokio_util::compat::FuturesAsyncReadCompatExt;
 
 use crate::launcher_config::commands::retrieve_launcher_config;
+use crate::resource::helpers::curseforge::is_forge_cdn;
 use crate::tasks::streams::ProgressStream;
 use crate::tasks::streams::desc::{PDesc, PStatus};
 use crate::tasks::streams::reporter::Reporter;
@@ -126,14 +127,19 @@ impl DownloadTask {
     param: &DownloadParam,
   ) -> SJMCLResult<reqwest::Response> {
     let state = app_handle.state::<reqwest::Client>();
-    let client = with_retry(state.inner().clone());
-    let request = if current == 0 {
-      client.get(param.src.clone())
+    let forge_download = is_forge_cdn(&param.src);
+    let client = if forge_download {
+      state.inner().clone().into()
     } else {
-      client
-        .get(param.src.clone())
-        .header(RANGE, format!("bytes={current}-"))
+      with_retry(state.inner().clone())
     };
+    let mut request = client.get(param.src.clone());
+    if forge_download {
+      request = request.timeout(Duration::from_secs(30 * 60));
+    }
+    if current != 0 {
+      request = request.header(RANGE, format!("bytes={current}-"));
+    }
 
     let response = request
       .send()
@@ -161,9 +167,11 @@ impl DownloadTask {
     } else {
       -1
     };
+    let forge_download = is_forge_cdn(&param.src);
     Ok((
-      resp.bytes_stream().map(|res| match res {
+      resp.bytes_stream().map(move |res| match res {
         Ok(bytes) => Ok(bytes),
+        Err(error) if forge_download => Err(std::io::Error::other(error)),
         Err(_) => Ok(bytes::Bytes::new()),
       }),
       total_progress,

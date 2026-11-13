@@ -37,10 +37,15 @@ export const InstanceBasicSettings: React.FC<InstanceBasicSettingsProps> = ({
   const { config } = useLauncherConfig();
 
   useEffect(() => {
-    if (config.localGameDirectories.length > 0) {
+    if (
+      config.localGameDirectories.length > 0 &&
+      !config.localGameDirectories.some(
+        (directory) => directory.dir === gameDirectory?.dir
+      )
+    ) {
       setGameDirectory(config.localGameDirectories[0]);
     }
-  }, [config, setGameDirectory]);
+  }, [config.localGameDirectories, gameDirectory?.dir, setGameDirectory]);
 
   const instanceSpecSettingsGroups: OptionItemGroupProps[] = [
     {

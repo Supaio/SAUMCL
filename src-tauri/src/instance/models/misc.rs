@@ -282,6 +282,7 @@ pub enum InstanceError {
   CurseForgeFilesMissing,
   CurseForgeFileMismatch,
   CurseForgePrismUnavailable,
+  CurseForgeDownloadUnavailable,
   NetworkError,
   UnsupportedModLoader,
   NotSupportChangeModLoader,
